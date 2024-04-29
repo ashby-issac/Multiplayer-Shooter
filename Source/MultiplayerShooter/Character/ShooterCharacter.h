@@ -30,8 +30,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent* SpringArmComponent;
-
-public:	
 	
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess="true"))
+	class UWidgetComponent* OverheadWidget;
 };

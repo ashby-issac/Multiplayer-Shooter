@@ -112,16 +112,17 @@ void UMenuUserWidget::OnCreateSessionComplete(bool bWasSuccessful)
 	{
 		if (auto World = GetWorld())
 		{
-			World->ServerTravel(PathToLobby);
-		}
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Green,
-				FString::Printf(TEXT("Successfully Created Session"))
-			);
+			bool isTravel = World->ServerTravel(PathToLobby);
+			FString TravelString = isTravel ? FString::Printf(TEXT("Travel")) : FString::Printf(TEXT("Non-Travel"));
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					-1,
+					15.f,
+					FColor::Green,
+					FString::Printf(TEXT("Successfully Created Session: %s"), *TravelString)
+				);
+			}
 		}
 	}
 	else

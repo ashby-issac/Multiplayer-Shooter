@@ -159,6 +159,12 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionCompleteDelegate(FName Sessio
 
 	SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
 	MPCreateSessionCompleteDelegate.Broadcast(bWasSuccessful);
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		15.f,
+		FColor::Red,
+		FString::Printf(TEXT("Broadcasting"))
+	);
 }
 
 void UMultiplayerSessionsSubsystem::OnFindSessionsCompleteDelegate(bool bWasSuccessful)

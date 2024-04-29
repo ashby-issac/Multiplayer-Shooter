@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/WidgetComponent.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -24,6 +25,9 @@ AShooterCharacter::AShooterCharacter()
 	// if set to true the controller's rotation gets overridden
 	// and character won't be oriented.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(RootComponent);
 }
 
 void AShooterCharacter::BeginPlay()
