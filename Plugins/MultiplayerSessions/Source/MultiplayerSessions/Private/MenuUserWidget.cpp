@@ -101,6 +101,12 @@ bool UMenuUserWidget::Initialize()
 
 void UMenuUserWidget::OnLevelRemovedFromWorld(ULevel* Level, UWorld* World)
 {
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		15.f,
+		FColor::Blue,
+		FString::Printf(TEXT("OnlevelRemoved"))
+	);
 	MenuTearDown();
 
 	Super::OnLevelRemovedFromWorld(Level, World);
@@ -113,14 +119,14 @@ void UMenuUserWidget::OnCreateSessionComplete(bool bWasSuccessful)
 		if (auto World = GetWorld())
 		{
 			bool isTravel = World->ServerTravel(PathToLobby);
-			FString TravelString = isTravel ? FString::Printf(TEXT("Travel")) : FString::Printf(TEXT("Non-Travel"));
+			bool isSeamless = World->IsInSeamlessTravel();
 			if (GEngine)
 			{
 				GEngine->AddOnScreenDebugMessage(
 					-1,
 					15.f,
 					FColor::Green,
-					FString::Printf(TEXT("Successfully Created Session: %s"), *TravelString)
+					FString::Printf(TEXT("Successfully Created Session: %s"), *PathToLobby)
 				);
 			}
 		}

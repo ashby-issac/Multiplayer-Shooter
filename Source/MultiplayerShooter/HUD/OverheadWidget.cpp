@@ -12,18 +12,18 @@ void UOverheadWidget::OnLevelRemovedFromWorld(ULevel* Level, UWorld* World)
 
 void UOverheadWidget::SetNetworkRole(APawn* PlayerPawn)
 {
-	ENetRole PawnRole = PlayerPawn->GetRemoteRole();
+	ENetRole PawnRole = PlayerPawn->GetLocalRole();
 	FString PawnRoleText;
 	switch (PawnRole)
 	{
 		case ENetRole::ROLE_Authority:
 			PawnRoleText = FString("Authority");
 			break;
-		case ENetRole::ROLE_AutonomousProxy:
-			PawnRoleText = FString("AutonomousProxy");
-			break;
 		case ENetRole::ROLE_SimulatedProxy:
 			PawnRoleText = FString("SimulatedProxy");
+			break;
+		case ENetRole::ROLE_AutonomousProxy:
+			PawnRoleText = FString("AutonomousProxy");
 			break;
 		case ENetRole::ROLE_None:
 			PawnRoleText = FString("None");

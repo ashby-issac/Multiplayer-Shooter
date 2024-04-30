@@ -18,7 +18,7 @@ class MULTIPLAYERSESSIONS_API UMenuUserWidget : public UUserWidget
 public: 
 	
 	UFUNCTION(BlueprintCallable)
-	void MenuSetup(int32 NumOfConnections = 4, FString MatchType = "FreeForAll", FString LobbyPath = "/Game/ThirdPerson/Maps/Lobby");
+	void MenuSetup(int32 NumOfConnections = 4, FString MatchType = "FreeForAll", FString LobbyPath = "/Game/Maps/Lobby");
 
 	UFUNCTION()
 	void OnHostButtonClicked();
