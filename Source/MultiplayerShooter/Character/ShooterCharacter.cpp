@@ -88,6 +88,19 @@ void AShooterCharacter::EquipWeapon()
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
 	}
+	else
+	{
+		//  Call RPC function
+		ServerEquipButtonPressed();
+	}
+}
+
+void AShooterCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->EquipWeapon(OverlappingWeapon);
+	}
 }
 
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

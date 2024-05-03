@@ -2,6 +2,7 @@
 #include "Weapon.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
 
 AWeapon::AWeapon()
@@ -65,10 +66,39 @@ void AWeapon::OnEquipAreaEndOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	}
 }
 
+void AWeapon::OnRep_WeaponState()
+{
+	switch (WeaponState)
+	{
+		case EWeaponState::EWS_Equipped:
+			ShowPickupWidget(false); // disabled pickup widget on all other clients
+		break;
+	}
+}
+
+void AWeapon::SetWeaponState(EWeaponState CurrentState)
+{
+	WeaponState = CurrentState;
+	switch (WeaponState)
+	{
+		case EWeaponState::EWS_Equipped:
+			ShowPickupWidget(false);
+			EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}
+}
+
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AWeapon, WeaponState);
 }
 
 void AWeapon::ShowPickupWidget(bool isEnabled)
