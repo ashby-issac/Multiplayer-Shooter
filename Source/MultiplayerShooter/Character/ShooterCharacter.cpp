@@ -23,7 +23,7 @@ AShooterCharacter::AShooterCharacter()
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 
-	bUseControllerRotationYaw = false; 
+	bUseControllerRotationYaw = false;
 	// rotate the character according to the mouseX, 
 	// if set to true the controller's rotation gets overridden
 	// and character won't be oriented.
@@ -39,7 +39,7 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
@@ -142,12 +142,17 @@ void AShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 	{
 		if (OverlappingWeapon)
 		{
-			OverlappingWeapon->ShowPickupWidget(true);
+			OverlappingWeapon->ShowPickupWidget(true); // OwnerOnly
 		}
 	}
 }
 
-void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
+bool AShooterCharacter::IsWeaponEquipped()
+{
+	return CombatComponent && CombatComponent->EquippedWeapon;
+}
+
+void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 

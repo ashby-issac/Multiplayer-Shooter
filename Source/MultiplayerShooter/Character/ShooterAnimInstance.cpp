@@ -32,4 +32,6 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	bIsAccelerating = Speed > 0.f;
 	bIsInAir = ShooterCharacter->GetCharacterMovement()->IsFalling();
+
+	bWeaponEquipped = ShooterCharacter->IsWeaponEquipped();
 }

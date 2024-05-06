@@ -71,7 +71,7 @@ void AWeapon::OnRep_WeaponState()
 	switch (WeaponState)
 	{
 		case EWeaponState::EWS_Equipped:
-			ShowPickupWidget(false); // disabled pickup widget on all other clients
+			//ShowPickupWidget(false); // disabled pickup widget on all other clients // TODO :: Remove
 		break;
 	}
 }
@@ -82,7 +82,7 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 	switch (WeaponState)
 	{
 		case EWeaponState::EWS_Equipped:
-			ShowPickupWidget(false);
+			//ShowPickupWidget(false); // TODO :: Remove
 			EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	}
