@@ -20,6 +20,9 @@ public:
 	friend class AShooterCharacter;
 	void EquipWeapon(AWeapon* WeaponToEquip);
 
+	UFUNCTION(Server, Reliable)
+	void ServerAimSync(bool bIsAiming);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -28,4 +31,10 @@ private:
 
 	UPROPERTY(Replicated)
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY(Replicated)
+	bool bAiming;
+
+public:
+	void SetAimingState(bool bIsAiming);
 };

@@ -26,7 +26,11 @@ protected:
 	void MoveRight(float Value);
 	void LookUp(float Value);
 	void LookRight(float Value);
+	void OnCrouchPressed();
+
 	void EquipWeapon();
+	void OnAimPressed();
+	void OnAimReleased();
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -54,4 +58,5 @@ public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
 
 	bool IsWeaponEquipped();
+	bool IsAiming();
 };

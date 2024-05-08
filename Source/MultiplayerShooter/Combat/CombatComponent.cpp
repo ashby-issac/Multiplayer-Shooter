@@ -16,6 +16,12 @@ void UCombatComponent::BeginPlay()
 
 }
 
+void UCombatComponent::SetAimingState(bool bIsAiming)
+{
+	bAiming = bIsAiming;
+	ServerAimSync(bIsAiming);
+}
+
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -28,6 +34,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UCombatComponent, bAiming);
 }
 
 void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
@@ -44,5 +51,10 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	EquippedWeapon->SetOwner(ShooterCharacter);
 	//EquippedWeapon->ShowPickupWidget(false);
 	
+}
+
+void UCombatComponent::ServerAimSync_Implementation(bool bIsAiming)
+{
+	bAiming = bIsAiming;
 }
 

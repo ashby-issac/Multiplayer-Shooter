@@ -34,6 +34,8 @@ AShooterCharacter::AShooterCharacter()
 
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	CombatComponent->SetIsReplicated(true);
+
+	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 }
 
 void AShooterCharacter::BeginPlay()
@@ -90,9 +92,34 @@ void AShooterCharacter::EquipWeapon()
 	}
 	else
 	{
-		//  Call RPC function
+		//  Call RPC function on server
 		ServerEquipButtonPressed();
 	}
+}
+
+void AShooterCharacter::OnAimPressed()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetAimingState(true);
+	}
+}
+
+void AShooterCharacter::OnAimReleased()
+{
+	if (CombatComponent)
+	{
+		CombatComponent->SetAimingState(false);
+	}
+}
+
+void AShooterCharacter::OnCrouchPressed()
+{
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	Crouch();
 }
 
 void AShooterCharacter::ServerEquipButtonPressed_Implementation()
@@ -109,6 +136,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAction(FName("Jump"), EInputEvent::IE_Pressed, this, &ThisClass::Jump);
 	PlayerInputComponent->BindAction(FName("EquipWeapon"), EInputEvent::IE_Pressed, this, &ThisClass::EquipWeapon);
+	PlayerInputComponent->BindAction(FName("Crouch"), EInputEvent::IE_Pressed, this, &ThisClass::OnCrouchPressed);
+	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Pressed, this, &ThisClass::OnAimPressed);
+	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Released, this, &ThisClass::OnAimReleased);
 
 	PlayerInputComponent->BindAxis(FName("MoveForward"), this, &AShooterCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(FName("MoveRight"), this, &AShooterCharacter::MoveRight);
@@ -150,6 +180,11 @@ void AShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 bool AShooterCharacter::IsWeaponEquipped()
 {
 	return CombatComponent && CombatComponent->EquippedWeapon;
+}
+
+bool AShooterCharacter::IsAiming()
+{
+	return CombatComponent && CombatComponent->bAiming;
 }
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
