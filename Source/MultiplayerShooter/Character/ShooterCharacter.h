@@ -27,6 +27,7 @@ protected:
 	void LookUp(float Value);
 	void LookRight(float Value);
 	void OnCrouchPressed();
+	void OnJump();
 
 	void EquipWeapon();
 	void OnAimPressed();

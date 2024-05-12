@@ -57,8 +57,8 @@ void AShooterCharacter::MoveForward(float Value)
 	{
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
 		FVector Direction = FRotationMatrix(Rotation).GetUnitAxis(EAxis::X);
-
-		// Character Movement speed can be changed through the BP panel.
+		Direction.Z = 0.f;
+		
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -69,7 +69,8 @@ void AShooterCharacter::MoveRight(float Value)
 	{
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
 		FVector Direction = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
-
+		Direction.Z = 0.f;
+		
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -134,7 +135,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction(FName("Jump"), EInputEvent::IE_Pressed, this, &ThisClass::Jump);
+	PlayerInputComponent->BindAction(FName("Jump"), EInputEvent::IE_Pressed, this, &ThisClass::OnJump);
 	PlayerInputComponent->BindAction(FName("EquipWeapon"), EInputEvent::IE_Pressed, this, &ThisClass::EquipWeapon);
 	PlayerInputComponent->BindAction(FName("Crouch"), EInputEvent::IE_Pressed, this, &ThisClass::OnCrouchPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Pressed, this, &ThisClass::OnAimPressed);
@@ -144,6 +145,13 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(FName("MoveRight"), this, &AShooterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(FName("LookUp"), this, &AShooterCharacter::LookUp);
 	PlayerInputComponent->BindAxis(FName("LookRight"), this, &AShooterCharacter::LookRight);
+}
+
+void AShooterCharacter::OnJump()
+{
+	UE_LOG(LogTemp, Warning, TEXT(":: Rotation: %s"), *GetActorRotation().ToString());
+	SetActorRotation(GetActorRotation().ZeroRotator);
+	Jump();
 }
 
 void AShooterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)

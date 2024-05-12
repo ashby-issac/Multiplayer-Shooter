@@ -3,6 +3,7 @@
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Net/UnrealNetwork.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -14,6 +15,17 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+void UCombatComponent::OnRep_OnEquippedWeapon()
+{
+	if (!ShooterCharacter || !EquippedWeapon)
+	{
+		return;
+	}
+
+	ShooterCharacter->bUseControllerRotationYaw = true;
+	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 void UCombatComponent::SetAimingState(bool bIsAiming)
@@ -50,6 +62,8 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 
 	EquippedWeapon->SetOwner(ShooterCharacter);
 	//EquippedWeapon->ShowPickupWidget(false);
+	ShooterCharacter->bUseControllerRotationYaw = true;
+	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	
 }
 

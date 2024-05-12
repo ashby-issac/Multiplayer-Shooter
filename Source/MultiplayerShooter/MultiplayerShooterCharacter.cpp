@@ -57,24 +57,24 @@ AMultiplayerShooterCharacter::AMultiplayerShooterCharacter()
 void AMultiplayerShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up gameplay key bindings
-	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	//check(PlayerInputComponent);
+	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AMultiplayerShooterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("Move Right / Left", this, &AMultiplayerShooterCharacter::MoveRight);
+	//PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AMultiplayerShooterCharacter::MoveForward);
+	//PlayerInputComponent->BindAxis("Move Right / Left", this, &AMultiplayerShooterCharacter::MoveRight);
 
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("Turn Right / Left Gamepad", this, &AMultiplayerShooterCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &AMultiplayerShooterCharacter::LookUpAtRate);
+	//// We have 2 versions of the rotation bindings to handle different kinds of devices differently
+	//// "turn" handles devices that provide an absolute delta, such as a mouse.
+	//// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
+	//PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &APawn::AddControllerYawInput);
+	//PlayerInputComponent->BindAxis("Turn Right / Left Gamepad", this, &AMultiplayerShooterCharacter::TurnAtRate);
+	//PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
+	//PlayerInputComponent->BindAxis("Look Up / Down Gamepad", this, &AMultiplayerShooterCharacter::LookUpAtRate);
 
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &AMultiplayerShooterCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &AMultiplayerShooterCharacter::TouchStopped);
+	//// handle touch devices
+	//PlayerInputComponent->BindTouch(IE_Pressed, this, &AMultiplayerShooterCharacter::TouchStarted);
+	//PlayerInputComponent->BindTouch(IE_Released, this, &AMultiplayerShooterCharacter::TouchStopped);
 }
 
 void AMultiplayerShooterCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)

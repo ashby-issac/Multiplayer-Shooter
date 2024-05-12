@@ -17,6 +17,10 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	void CharacterLeaning(float DeltaSeconds);
+
+	void CharacterStrafing(float DeltaSeconds);
+
 private:
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	class AShooterCharacter* ShooterCharacter;
@@ -39,5 +43,15 @@ private:
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	bool bIsAiming;
 	
+	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	float YawOffset;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	float LeanOffset;
+	
+	FRotator CurrentDeltaRot;
+	FRotator RotationLastFrame;
+	FRotator CurrentRotation;
+
 	FVector Velocity;
 };

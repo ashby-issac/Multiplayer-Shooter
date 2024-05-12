@@ -29,11 +29,14 @@ protected:
 private:
 	class AShooterCharacter* ShooterCharacter;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_OnEquippedWeapon)
 	AWeapon* EquippedWeapon;
 
 	UPROPERTY(Replicated)
 	bool bAiming;
+
+	UFUNCTION()
+	void OnRep_OnEquippedWeapon();
 
 public:
 	void SetAimingState(bool bIsAiming);
