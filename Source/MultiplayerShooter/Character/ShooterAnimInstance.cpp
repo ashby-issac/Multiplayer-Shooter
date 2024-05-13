@@ -62,5 +62,8 @@ void UShooterAnimInstance::CharacterStrafing(float DeltaSeconds)
 	FRotator MoveRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
 	FRotator NewDeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MoveRotation);
 	CurrentDeltaRot = UKismetMathLibrary::RInterpTo(CurrentDeltaRot, NewDeltaRot, DeltaSeconds, 6.f);
-	YawOffset = CurrentDeltaRot.Yaw;
+	YawOffset = -(CurrentDeltaRot.Yaw);
+
+	 UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Velocity: %s"), *ShooterCharacter->GetVelocity().ToString());
+	 UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Value: %s"), *CurrentDeltaRot.ToString());
 }
