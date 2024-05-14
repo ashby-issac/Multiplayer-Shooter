@@ -38,6 +38,12 @@ private:
 	UFUNCTION()
 	void OnRep_OnEquippedWeapon();
 
+	UPROPERTY(EditAnywhere)
+	float BaseWalkSpeed;
+
+	UPROPERTY(EditAnywhere)
+	float AimWalkSpeed;
+
 public:
 	void SetAimingState(bool bIsAiming);
 };

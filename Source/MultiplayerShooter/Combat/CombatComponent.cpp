@@ -15,6 +15,10 @@ void UCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (ShooterCharacter)
+	{
+		ShooterCharacter->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	}
 }
 
 void UCombatComponent::OnRep_OnEquippedWeapon()
@@ -31,6 +35,11 @@ void UCombatComponent::OnRep_OnEquippedWeapon()
 void UCombatComponent::SetAimingState(bool bIsAiming)
 {
 	bAiming = bIsAiming;
+	if (ShooterCharacter)
+	{
+		ShooterCharacter->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+	}
+
 	ServerAimSync(bIsAiming);
 }
 
