@@ -9,10 +9,11 @@
 #include "Net/UnrealNetwork.h"
 #include "MultiplayerShooter/Weapon/Weapon.h"
 #include "MultiplayerShooter/Combat/CombatComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AShooterCharacter::AShooterCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComponent->SetupAttachment(GetMesh());
@@ -48,7 +49,40 @@ void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// tick is disabled
+	CalculateAimOffsets();
+}
+
+void AShooterCharacter::CalculateAimOffsets()
+{
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if (Speed == 0.f && !bIsInAir)
+	{
+		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
+		AO_Yaw = DeltaAimRot.Yaw;
+		bUseControllerRotationYaw = false;
+	}
+
+	if (Speed > 0.f || bIsInAir)
+	{
+		InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		AO_Yaw = 0.f;
+		bUseControllerRotationYaw = true;
+	}
+
+	AO_Pitch = GetBaseAimRotation().Pitch;
+
+	if (!IsLocallyControlled() && AO_Pitch > 90.f)
+	{
+		FVector2D InRange = FVector2D(270.f, 360.f);
+		FVector2D OutRange = FVector2D(-90.f, 0.f);
+
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
 }
 
 void AShooterCharacter::MoveForward(float Value)

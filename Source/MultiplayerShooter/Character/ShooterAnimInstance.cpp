@@ -39,6 +39,9 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsCrouched = ShooterCharacter->bIsCrouched;
 	bIsAiming = ShooterCharacter->IsAiming();
 
+	AO_Yaw = ShooterCharacter->GetAO_Yaw();
+	AO_Pitch = ShooterCharacter->GetAO_Pitch();
+
 	// Logic for Strafing
 	CharacterStrafing(DeltaSeconds);
 	
