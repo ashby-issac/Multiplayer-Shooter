@@ -3,6 +3,7 @@
 #include "ShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "MultiplayerShooter/Weapon/Weapon.h"
 
 UShooterAnimInstance::UShooterAnimInstance()
 {
@@ -42,11 +43,15 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	AO_Yaw = ShooterCharacter->GetAO_Yaw();
 	AO_Pitch = ShooterCharacter->GetAO_Pitch();
 
+	EquippedWeapon = ShooterCharacter->GetEquippedWeapon();
+
 	// Logic for Strafing
 	CharacterStrafing(DeltaSeconds);
 	
 	// Logic for Leaning
 	CharacterLeaning(DeltaSeconds);
+
+	CalculateLeftHandTransform();
 }
 
 void UShooterAnimInstance::CharacterLeaning(float DeltaSeconds)
@@ -69,4 +74,23 @@ void UShooterAnimInstance::CharacterStrafing(float DeltaSeconds)
 
 	 UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Velocity: %s"), *ShooterCharacter->GetVelocity().ToString());
 	 UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Value: %s"), *CurrentDeltaRot.ToString());
+}
+
+void UShooterAnimInstance::CalculateLeftHandTransform()
+{
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && ShooterCharacter->GetMesh())
+	{
+		// Getting the Weapon's socket in world space to position left hand 
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), 
+																				ERelativeTransformSpace::RTS_World);
+		FVector OutLocation;
+		FRotator OutRotator;
+		ShooterCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"),
+														  LeftHandTransform.GetLocation(),
+														  FRotator::ZeroRotator,
+														  OutLocation,
+														  OutRotator);
+		LeftHandTransform.SetLocation(OutLocation);
+		LeftHandTransform.SetRotation(FQuat(OutRotator));
+	}
 }

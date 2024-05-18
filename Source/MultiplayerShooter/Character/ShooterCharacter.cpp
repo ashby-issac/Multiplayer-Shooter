@@ -61,7 +61,7 @@ void AShooterCharacter::CalculateAimOffsets()
 
 	if (Speed == 0.f && !bIsInAir)
 	{
-		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		FRotator CurrentAimRot = GetBaseAimRotation();
 		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
 		AO_Yaw = DeltaAimRot.Yaw;
 		bUseControllerRotationYaw = false;
@@ -69,7 +69,7 @@ void AShooterCharacter::CalculateAimOffsets()
 
 	if (Speed > 0.f || bIsInAir)
 	{
-		InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		InitialAimRot = GetBaseAimRotation();
 		AO_Yaw = 0.f;
 		bUseControllerRotationYaw = true;
 	}
@@ -83,6 +83,15 @@ void AShooterCharacter::CalculateAimOffsets()
 
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
+
+	/*if (!IsLocallyControlled() && !HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Server In Other client machine :: AO_Yaw: %f"), AO_Yaw);
+	}
+	if (IsLocallyControlled() && HasAuthority())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("In Server :: AO_Yaw: %f"), AO_Yaw);
+	}*/
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -121,7 +130,7 @@ void AShooterCharacter::LookRight(float Value)
 
 void AShooterCharacter::EquipWeapon()
 {
-	if (CombatComponent && HasAuthority())
+	if (CombatComponent && HasAuthority()) // if on server
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
 	}
@@ -227,6 +236,11 @@ bool AShooterCharacter::IsWeaponEquipped()
 bool AShooterCharacter::IsAiming()
 {
 	return CombatComponent && CombatComponent->bAiming;
+}
+
+AWeapon* AShooterCharacter::GetEquippedWeapon()
+{
+	return !CombatComponent ? nullptr : CombatComponent->GetEquippedWeapon();
 }
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

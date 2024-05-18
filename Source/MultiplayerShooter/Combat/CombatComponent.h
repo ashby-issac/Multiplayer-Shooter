@@ -46,4 +46,6 @@ private:
 
 public:
 	void SetAimingState(bool bIsAiming);
+	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
+
 };
