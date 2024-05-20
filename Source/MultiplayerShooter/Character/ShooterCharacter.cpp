@@ -40,6 +40,9 @@ AShooterCharacter::AShooterCharacter()
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
 	TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
+
+	NetUpdateFrequency = 66.f;
+	MinNetUpdateFrequency = 33.f;
 }
 
 void AShooterCharacter::BeginPlay()
@@ -57,7 +60,6 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 {
-
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	float Speed = Velocity.Size();
