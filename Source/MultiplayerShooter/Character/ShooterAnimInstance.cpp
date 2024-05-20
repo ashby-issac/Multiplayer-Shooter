@@ -28,7 +28,7 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (!ShooterCharacter) { return; }
 	
-	UE_LOG(LogTemp, Warning, TEXT(":: Inside NativeUpdateAnimation"));
+	//UE_LOG(LogTemp, Warning, TEXT(":: Inside NativeUpdateAnimation"));
 
 	Velocity = ShooterCharacter->GetVelocity();
 	Velocity.Z = 0.f;
@@ -39,6 +39,7 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bWeaponEquipped = ShooterCharacter->IsWeaponEquipped();
 	bIsCrouched = ShooterCharacter->bIsCrouched;
 	bIsAiming = ShooterCharacter->IsAiming();
+	TurningInPlaceState = ShooterCharacter->GetTurningInPlaceState();
 
 	AO_Yaw = ShooterCharacter->GetAO_Yaw();
 	AO_Pitch = ShooterCharacter->GetAO_Pitch();
@@ -72,8 +73,8 @@ void UShooterAnimInstance::CharacterStrafing(float DeltaSeconds)
 	CurrentDeltaRot = UKismetMathLibrary::RInterpTo(CurrentDeltaRot, NewDeltaRot, DeltaSeconds, 6.f);
 	YawOffset = -(CurrentDeltaRot.Yaw);
 
-	 UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Velocity: %s"), *ShooterCharacter->GetVelocity().ToString());
-	 UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Value: %s"), *CurrentDeltaRot.ToString());
+	 //UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Velocity: %s"), *ShooterCharacter->GetVelocity().ToString());
+	 //UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Value: %s"), *CurrentDeltaRot.ToString());
 }
 
 void UShooterAnimInstance::CalculateLeftHandTransform()

@@ -10,6 +10,7 @@
 #include "MultiplayerShooter/Weapon/Weapon.h"
 #include "MultiplayerShooter/Combat/CombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/SkeletalMeshComponent.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -37,6 +38,8 @@ AShooterCharacter::AShooterCharacter()
 	CombatComponent->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+
+	TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
 }
 
 void AShooterCharacter::BeginPlay()
@@ -49,11 +52,12 @@ void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CalculateAimOffsets();
+	CalculateAimOffsets(DeltaTime);
 }
 
-void AShooterCharacter::CalculateAimOffsets()
+void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 {
+
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	float Speed = Velocity.Size();
@@ -61,17 +65,38 @@ void AShooterCharacter::CalculateAimOffsets()
 
 	if (Speed == 0.f && !bIsInAir)
 	{
-		FRotator CurrentAimRot = GetBaseAimRotation();
+		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
 		AO_Yaw = DeltaAimRot.Yaw;
-		bUseControllerRotationYaw = false;
-	}
 
-	if (Speed > 0.f || bIsInAir)
+		if (TurnInPlaceState == ETurningInPlace::ETIP_NotTurning)
+		{
+			Interp_AO = AO_Yaw; // -89 || -90 degrees
+		}
+
+		if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
+		{
+			// Get the index of the root bone
+			int32 RootBoneIndex = SkeletalMeshComp->GetBoneIndex(TEXT("root")); // Replace "root" with your root bone name if different
+			if (RootBoneIndex != INDEX_NONE)
+			{
+				// Get the transform of the root bone in component space
+				FTransform BoneTrans = SkeletalMeshComp->GetBoneTransform(RootBoneIndex);
+				UE_LOG(LogTemp, Warning, TEXT(":: BoneTrans Rotation Yaw: %f"), BoneTrans.GetRotation().Rotator().Yaw);
+			}
+		}
+
+		//bUseControllerRotationYaw = true;
+		
+		// Set Turning In Place states
+		CheckForTurningInPlace(DeltaTime);
+	}
+	else if (Speed > 0.f || bIsInAir)
 	{
-		InitialAimRot = GetBaseAimRotation();
-		AO_Yaw = 0.f;
+		TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
+		InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		bUseControllerRotationYaw = true;
+		AO_Yaw = 0.f;
 	}
 
 	AO_Pitch = GetBaseAimRotation().Pitch;
@@ -83,15 +108,32 @@ void AShooterCharacter::CalculateAimOffsets()
 
 		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
+}
 
-	/*if (!IsLocallyControlled() && !HasAuthority())
+void AShooterCharacter::CheckForTurningInPlace(float DeltaTime)
+{
+	if (AO_Yaw > 90.f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Server In Other client machine :: AO_Yaw: %f"), AO_Yaw);
+		TurnInPlaceState = ETurningInPlace::ETIP_TurnRight;
 	}
-	if (IsLocallyControlled() && HasAuthority())
+	else if (AO_Yaw < -90.f)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("In Server :: AO_Yaw: %f"), AO_Yaw);
-	}*/
+		TurnInPlaceState = ETurningInPlace::ETIP_TurnLeft;
+	}
+
+	if (TurnInPlaceState != ETurningInPlace::ETIP_NotTurning) // if Turning
+	{
+		// -89 || -90 degree
+		Interp_AO = FMath::FInterpTo(Interp_AO, 0.f, DeltaTime, 4.f);
+		AO_Yaw = Interp_AO;
+		UE_LOG(LogTemp, Warning, TEXT("Turning AO_Yaw: %f"), AO_Yaw);
+
+		if (FMath::Abs(AO_Yaw) < 10.f)
+		{
+			TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
+			InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		}
+	}
 }
 
 void AShooterCharacter::MoveForward(float Value)
@@ -101,7 +143,7 @@ void AShooterCharacter::MoveForward(float Value)
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
 		FVector Direction = FRotationMatrix(Rotation).GetUnitAxis(EAxis::X);
 		Direction.Z = 0.f;
-		
+
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -113,7 +155,7 @@ void AShooterCharacter::MoveRight(float Value)
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
 		FVector Direction = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
 		Direction.Z = 0.f;
-		
+
 		AddMovementInput(Direction, Value);
 	}
 }
@@ -192,7 +234,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void AShooterCharacter::OnJump()
 {
-	UE_LOG(LogTemp, Warning, TEXT(":: Rotation: %s"), *GetActorRotation().ToString());
+	//UE_LOG(LogTemp, Warning, TEXT(":: Rotation: %s"), *GetActorRotation().ToString());
 	SetActorRotation(GetActorRotation().ZeroRotator);
 	Jump();
 }

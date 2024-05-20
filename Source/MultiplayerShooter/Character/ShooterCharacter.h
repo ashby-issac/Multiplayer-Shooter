@@ -3,6 +3,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "MultiplayerShooter/BlasterTypes/TurningInPlace.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
@@ -52,8 +53,12 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* CombatComponent;
 
+	ETurningInPlace TurnInPlaceState;
+
 	float AO_Yaw;
 	float AO_Pitch;
+
+	float Interp_AO;
 
 	FRotator InitialAimRot;
 	FRotator DeltaAimRot;
@@ -61,7 +66,8 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // Server RPC
 
-	void CalculateAimOffsets();
+	void CalculateAimOffsets(float DeltaTime);
+	void CheckForTurningInPlace(float DeltaTime);
 
 public:
 	void SetOverlappingWeapon(AWeapon* Weapon);
@@ -71,6 +77,7 @@ public:
 
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
-	
+	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
+
 	AWeapon* GetEquippedWeapon();
 };

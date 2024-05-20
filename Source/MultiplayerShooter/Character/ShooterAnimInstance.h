@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "MultiplayerShooter/BlasterTypes/TurningInPlace.h"
 #include "ShooterAnimInstance.generated.h"
 
 UCLASS()
@@ -57,6 +58,9 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 	FTransform LeftHandTransform;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
+	ETurningInPlace TurningInPlaceState;
 
 	FRotator CurrentDeltaRot;
 	FRotator RotationLastFrame;
