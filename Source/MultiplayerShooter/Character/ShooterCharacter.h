@@ -28,7 +28,8 @@ protected:
 	void LookUp(float Value);
 	void LookRight(float Value);
 	void OnCrouchPressed();
-	void OnJump();
+	//void OnJump();
+	virtual void Jump() override;
 
 	void EquipWeapon();
 	void OnAimPressed();

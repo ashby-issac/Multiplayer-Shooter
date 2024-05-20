@@ -60,6 +60,11 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 {
+	if (!IsWeaponEquipped())
+	{
+		return;
+	}
+
 	FVector Velocity = GetVelocity();
 	Velocity.Z = 0.f;
 	float Speed = Velocity.Size();
@@ -222,7 +227,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction(FName("Jump"), EInputEvent::IE_Pressed, this, &ThisClass::OnJump);
+	PlayerInputComponent->BindAction(FName("Jump"), EInputEvent::IE_Pressed, this, &ThisClass::Jump);
 	PlayerInputComponent->BindAction(FName("EquipWeapon"), EInputEvent::IE_Pressed, this, &ThisClass::EquipWeapon);
 	PlayerInputComponent->BindAction(FName("Crouch"), EInputEvent::IE_Pressed, this, &ThisClass::OnCrouchPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Pressed, this, &ThisClass::OnAimPressed);
@@ -234,11 +239,23 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(FName("LookRight"), this, &AShooterCharacter::LookRight);
 }
 
-void AShooterCharacter::OnJump()
+//void AShooterCharacter::OnJump()
+//{
+//	//UE_LOG(LogTemp, Warning, TEXT(":: Rotation: %s"), *GetActorRotation().ToString());
+//	//SetActorRotation(GetActorRotation().ZeroRotator);
+//	Jump();
+//}
+
+void AShooterCharacter::Jump()
 {
-	//UE_LOG(LogTemp, Warning, TEXT(":: Rotation: %s"), *GetActorRotation().ToString());
-	SetActorRotation(GetActorRotation().ZeroRotator);
-	Jump();
+	if (bIsCrouched)
+	{
+		UnCrouch();
+	}
+	else 
+	{
+		Jump();
+	}
 }
 
 void AShooterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
