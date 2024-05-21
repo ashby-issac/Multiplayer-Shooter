@@ -43,6 +43,8 @@ AShooterCharacter::AShooterCharacter()
 
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 0.f, 720.f);
 }
 
 void AShooterCharacter::BeginPlay()
@@ -84,7 +86,8 @@ void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 		if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
 		{
 			// Get the index of the root bone
-			int32 RootBoneIndex = SkeletalMeshComp->GetBoneIndex(TEXT("root")); // Replace "root" with your root bone name if different
+			int32 RootBoneIndex = SkeletalMeshComp->GetBoneIndex(TEXT("root")); 
+			// Replace "root" with your root bone name if different
 			if (RootBoneIndex != INDEX_NONE)
 			{
 				// Get the transform of the root bone in component space
@@ -239,13 +242,6 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(FName("LookRight"), this, &AShooterCharacter::LookRight);
 }
 
-//void AShooterCharacter::OnJump()
-//{
-//	//UE_LOG(LogTemp, Warning, TEXT(":: Rotation: %s"), *GetActorRotation().ToString());
-//	//SetActorRotation(GetActorRotation().ZeroRotator);
-//	Jump();
-//}
-
 void AShooterCharacter::Jump()
 {
 	if (bIsCrouched)
@@ -254,7 +250,7 @@ void AShooterCharacter::Jump()
 	}
 	else 
 	{
-		Jump();
+		Super::Jump();
 	}
 }
 
