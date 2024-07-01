@@ -1,0 +1,137 @@
+[
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Plugins\\MultiplayerSessions\\Source\\MultiplayerSessions\\MultiplayerSessions.Build.cs",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerSessions.38.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Plugins\\MultiplayerSessions\\Source\\MultiplayerSessions\\Private\\MenuUserWidget.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerSessions.38.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Plugins\\MultiplayerSessions\\Source\\MultiplayerSessions\\Private\\MultiplayerSessions.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerSessions.38.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Plugins\\MultiplayerSessions\\Source\\MultiplayerSessions\\Private\\MultiplayerSessionsSubsystem.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerSessions.38.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Plugins\\MultiplayerSessions\\Source\\MultiplayerSessions\\Public\\MenuUserWidget.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerSessions.38.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Plugins\\MultiplayerSessions\\Source\\MultiplayerSessions\\Public\\MultiplayerSessions.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerSessions.38.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Plugins\\MultiplayerSessions\\Source\\MultiplayerSessions\\Public\\MultiplayerSessionsSubsystem.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerSessions.38.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\BlasterTypes\\TurningInPlace.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Character\\ShooterAnimInstance.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Character\\ShooterAnimInstance.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Character\\ShooterCharacter.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Character\\ShooterCharacter.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Combat\\CombatComponent.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Combat\\CombatComponent.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\GameModes\\LobbyGameMode.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\GameModes\\LobbyGameMode.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\HUD\\OverheadWidget.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\HUD\\OverheadWidget.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\MultiplayerShooter.Build.cs",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\MultiplayerShooter.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\MultiplayerShooter.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\MultiplayerShooterCharacter.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\MultiplayerShooterCharacter.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\MultiplayerShooterGameMode.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\MultiplayerShooterGameMode.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Weapon\\Weapon.cpp",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Weapon\\Weapon.h",
+		"command": "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.34.31933\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	}
+]

@@ -28,7 +28,7 @@ void UOverheadWidget::SetNetworkRole(APawn* PlayerPawn)
 			break;
 	}
 
-	FString RoleString = FString::Printf(TEXT("RemoteRole: %s"), *PawnRoleText);
+	FString RoleString = FString::Printf(TEXT("LocalRole: %s"), *PawnRoleText);
 	SetOverheadText(RoleString);
 }
 

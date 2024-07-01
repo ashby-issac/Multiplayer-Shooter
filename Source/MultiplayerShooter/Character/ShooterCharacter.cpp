@@ -75,28 +75,16 @@ void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 	if (Speed == 0.f && !bIsInAir)
 	{
 		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		/*	InitialAimRot: Initial Rotation from place before rotating
+		    CurrentAimRot: BaseAimRotation (Rotation relative to the world's rotation)
+		*/
 		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
-		AO_Yaw = DeltaAimRot.Yaw;
+		AO_Yaw = DeltaAimRot.Yaw; // 0 - 89... 90
 
 		if (TurnInPlaceState == ETurningInPlace::ETIP_NotTurning)
 		{
 			Interp_AO = AO_Yaw; // -89 || -90 degrees
 		}
-
-		if (USkeletalMeshComponent* SkeletalMeshComp = GetMesh())
-		{
-			// Get the index of the root bone
-			int32 RootBoneIndex = SkeletalMeshComp->GetBoneIndex(TEXT("root")); 
-			// Replace "root" with your root bone name if different
-			if (RootBoneIndex != INDEX_NONE)
-			{
-				// Get the transform of the root bone in component space
-				FTransform BoneTrans = SkeletalMeshComp->GetBoneTransform(RootBoneIndex);
-				UE_LOG(LogTemp, Warning, TEXT(":: BoneTrans Rotation Yaw: %f"), BoneTrans.GetRotation().Rotator().Yaw);
-			}
-		}
-
-		//bUseControllerRotationYaw = true;
 		
 		// Set Turning In Place states
 		CheckForTurningInPlace(DeltaTime);
@@ -131,12 +119,11 @@ void AShooterCharacter::CheckForTurningInPlace(float DeltaTime)
 		TurnInPlaceState = ETurningInPlace::ETIP_TurnLeft;
 	}
 
-	if (TurnInPlaceState != ETurningInPlace::ETIP_NotTurning) // if Turning
+	if (TurnInPlaceState != ETurningInPlace::ETIP_NotTurning) // if any of Turning states
 	{
 		// -89 || -90 degree
-		Interp_AO = FMath::FInterpTo(Interp_AO, 0.f, DeltaTime, 4.f);
+		Interp_AO = FMath::FInterpTo(Interp_AO, 0.f, DeltaTime, 3.f);
 		AO_Yaw = Interp_AO;
-		UE_LOG(LogTemp, Warning, TEXT("Turning AO_Yaw: %f"), AO_Yaw);
 
 		if (FMath::Abs(AO_Yaw) < 10.f)
 		{
@@ -185,10 +172,12 @@ void AShooterCharacter::EquipWeapon()
 	if (CombatComponent && HasAuthority()) // if on server
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
+		UE_LOG(LogTemp, Warning, TEXT("Has Authority"));
 	}
 	else
 	{
-		//  Call RPC function on server
+		UE_LOG(LogTemp, Warning, TEXT("No Authority"));
+		// Call RPC function on server from client
 		ServerEquipButtonPressed();
 	}
 }
@@ -256,6 +245,7 @@ void AShooterCharacter::Jump()
 
 void AShooterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
+	UE_LOG(LogTemp, Warning, TEXT(":: OnRep_OverlappingWeapon"));
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->ShowPickupWidget(true);
@@ -275,12 +265,14 @@ void AShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 		OverlappingWeapon->ShowPickupWidget(false);
 	}
 
+	// OnRep_OverlappingWeapon gets called after value's set if not server
 	OverlappingWeapon = Weapon;
-	if (IsLocallyControlled()) // if character controlled by server itself
+
+	if (IsLocallyControlled()) // if server's character
 	{
 		if (OverlappingWeapon)
 		{
-			OverlappingWeapon->ShowPickupWidget(true); // OwnerOnly
+			OverlappingWeapon->ShowPickupWidget(true);
 		}
 	}
 }

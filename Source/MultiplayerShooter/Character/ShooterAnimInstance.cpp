@@ -28,8 +28,6 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (!ShooterCharacter) { return; }
 	
-	//UE_LOG(LogTemp, Warning, TEXT(":: Inside NativeUpdateAnimation"));
-
 	Velocity = ShooterCharacter->GetVelocity();
 	Velocity.Z = 0.f;
 	Speed = Velocity.Size();
@@ -52,7 +50,10 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// Logic for Leaning
 	CharacterLeaning(DeltaSeconds);
 
-	CalculateLeftHandTransform();
+	if (bWeaponEquipped)
+	{
+		CalculateLeftHandTransform();
+	}
 }
 
 void UShooterAnimInstance::CharacterLeaning(float DeltaSeconds)
@@ -69,17 +70,14 @@ void UShooterAnimInstance::CharacterStrafing(float DeltaSeconds)
 {
 	FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
 	FRotator MoveRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
-	FRotator NewDeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MoveRotation);
-	CurrentDeltaRot = UKismetMathLibrary::RInterpTo(CurrentDeltaRot, NewDeltaRot, DeltaSeconds, 6.f);
-	YawOffset = -(CurrentDeltaRot.Yaw);
-
-	 //UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Velocity: %s"), *ShooterCharacter->GetVelocity().ToString());
-	 //UE_LOG(LogTemp, Warning, TEXT(":: CharacterStrafing Value: %s"), *CurrentDeltaRot.ToString());
+	FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(AimRotation, MoveRotation);
+	CurrentDeltaRot = UKismetMathLibrary::RInterpTo(CurrentDeltaRot, DeltaRot, DeltaSeconds, 10.f);
+	YawOffset = -(DeltaRot.Yaw);
 }
 
 void UShooterAnimInstance::CalculateLeftHandTransform()
 {
-	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && ShooterCharacter->GetMesh())
+	if (EquippedWeapon->GetWeaponMesh() && ShooterCharacter->GetMesh())
 	{
 		// Getting the Weapon's socket in world space to position left hand 
 		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), 

@@ -9,20 +9,20 @@ AWeapon::AWeapon()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	// making the weapon a replicating actor so server is responsible for all weapon objects
+	// makes weapon a replicating actor so server is responsible for controlling all weapon objects
 	bReplicates = true; 
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(RootComponent);
 	SetRootComponent(WeaponMesh);
 
-	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
-	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	EquipArea = CreateDefaultSubobject<USphereComponent>(TEXT("EquipArea"));
 	EquipArea->SetupAttachment(RootComponent);
 
+	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	EquipArea->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -33,7 +33,7 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (PickupWidget)
 	{
 		PickupWidget->SetVisibility(false);
@@ -71,7 +71,7 @@ void AWeapon::OnRep_WeaponState()
 	switch (WeaponState)
 	{
 		case EWeaponState::EWS_Equipped:
-			//ShowPickupWidget(false); // disabled pickup widget on all other clients // TODO :: Remove
+			ShowPickupWidget(false); // disabled pickup widget on all other clients
 		break;
 	}
 }
@@ -82,7 +82,7 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 	switch (WeaponState)
 	{
 		case EWeaponState::EWS_Equipped:
-			//ShowPickupWidget(false); // TODO :: Remove
+			// ShowPickupWidget(false);
 			EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	}

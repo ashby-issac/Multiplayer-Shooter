@@ -21,6 +21,7 @@ class MULTIPLAYERSHOOTER_API AWeapon : public AActor
 	
 public:	
 	AWeapon();
+	
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
