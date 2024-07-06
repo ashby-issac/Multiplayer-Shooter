@@ -23,6 +23,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerAimSync(bool bIsAiming);
 
+	void SetFiringState(bool isFiring);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -43,6 +45,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
+
+	bool bIsFireBtnPressed;
 
 public:
 	void SetAimingState(bool bIsAiming);

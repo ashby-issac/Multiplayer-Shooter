@@ -35,6 +35,9 @@ protected:
 	void OnAimPressed();
 	void OnAimReleased();
 
+	void OnFirePressed();
+	void OnFireReleased();
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* CameraComponent;
@@ -53,6 +56,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* CombatComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess="true"))
+	class UAnimMontage* FireMontage;
 
 	ETurningInPlace TurnInPlaceState;
 
@@ -75,6 +81,7 @@ public:
 
 	bool IsWeaponEquipped();
 	bool IsAiming();
+	void PlayFireMontage(bool bAiming);
 
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }

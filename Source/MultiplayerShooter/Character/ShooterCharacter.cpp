@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "ShooterCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -11,6 +10,7 @@
 #include "MultiplayerShooter/Combat/CombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimInstance.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -26,7 +26,7 @@ AShooterCharacter::AShooterCharacter()
 	CameraComponent->bUsePawnControlRotation = false;
 
 	bUseControllerRotationYaw = false;
-	// rotate the character according to the mouseX, 
+	// rotate the character according to the mouseX,
 	// if set to true the controller's rotation gets overridden
 	// and character won't be oriented.
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -50,7 +50,6 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
@@ -76,8 +75,11 @@ void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 	{
 		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		/*	InitialAimRot: Initial Rotation from place before rotating
-		    CurrentAimRot: BaseAimRotation (Rotation relative to the world's rotation)
+			CurrentAimRot: BaseAimRotation (Rotation relative to the world's rotation)
 		*/
+		// UE_LOG(LogTemp, Warning, TEXT(":: InitialAimRot: %s"), *InitialAimRot.ToString());
+		// UE_LOG(LogTemp, Warning, TEXT(":: CurrentAimRot: %s"), *CurrentAimRot.ToString());
+
 		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
 		AO_Yaw = DeltaAimRot.Yaw; // 0 - 89... 90
 
@@ -85,7 +87,8 @@ void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 		{
 			Interp_AO = AO_Yaw; // -89 || -90 degrees
 		}
-		
+
+		bUseControllerRotationYaw = true;
 		// Set Turning In Place states
 		CheckForTurningInPlace(DeltaTime);
 	}
@@ -112,6 +115,7 @@ void AShooterCharacter::CheckForTurningInPlace(float DeltaTime)
 {
 	if (AO_Yaw > 90.f)
 	{
+		// Changes animation state
 		TurnInPlaceState = ETurningInPlace::ETIP_TurnRight;
 	}
 	else if (AO_Yaw < -90.f)
@@ -121,15 +125,35 @@ void AShooterCharacter::CheckForTurningInPlace(float DeltaTime)
 
 	if (TurnInPlaceState != ETurningInPlace::ETIP_NotTurning) // if any of Turning states
 	{
-		// -89 || -90 degree
-		Interp_AO = FMath::FInterpTo(Interp_AO, 0.f, DeltaTime, 3.f);
-		AO_Yaw = Interp_AO;
+		// Setting AO_Yaw from InterpAO to 0.f means value will be
+		// reflected in blend space and as a result the upper body
+		// animation would  be layered on top of the turn left/right animation
+		Interp_AO = FMath::FInterpTo(Interp_AO, 0.f, DeltaTime, 4.f);
+		AO_Yaw = 0.f;
 
 		if (FMath::Abs(AO_Yaw) < 10.f)
 		{
+			// Resetting state will make the animation
+			// go back to idle state inside equipped state machine
 			TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
 			InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
+	}
+
+	// UE_LOG(LogTemp, Warning, TEXT(":: ShooterCharacter => AO_Yaw: %f"), AO_Yaw);
+	// UE_LOG(LogTemp, Warning, TEXT(":: ShooterCharacter => ActorRotation: %s"), *GetActorRotation().ToString());
+	// UE_LOG(LogTemp, Warning, TEXT(":: ShooterCharacter => ControlRotation: %s"), *Controller->GetControlRotation().ToString());
+}
+
+void AShooterCharacter::PlayFireMontage(bool bAiming)
+{
+	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && FireMontage)
+	{
+		AnimInstance->Montage_Play(FireMontage);
+		FName FireSection = bAiming ? FName("Aim_Fire") : FName("Hip_Fire");
+		AnimInstance->Montage_JumpToSection(FireSection, FireMontage);
+		UE_LOG(LogTemp, Warning, TEXT(":: OnFire PlayMontage"));
 	}
 }
 
@@ -139,7 +163,7 @@ void AShooterCharacter::MoveForward(float Value)
 	{
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
 		FVector Direction = FRotationMatrix(Rotation).GetUnitAxis(EAxis::X);
-		Direction.Z = 0.f;
+		Direction.Z = 0.f; // zeroing vertical axis
 
 		AddMovementInput(Direction, Value);
 	}
@@ -151,7 +175,7 @@ void AShooterCharacter::MoveRight(float Value)
 	{
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
 		FVector Direction = FRotationMatrix(Rotation).GetUnitAxis(EAxis::Y);
-		Direction.Z = 0.f;
+		Direction.Z = 0.f; // zeroing vertical axis
 
 		AddMovementInput(Direction, Value);
 	}
@@ -176,8 +200,9 @@ void AShooterCharacter::EquipWeapon()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Authority"));
-		// Call RPC function on server from client
+		// Not on server
+		/* Execute RPC function on the server machine
+		   by calling it from the client machine */
 		ServerEquipButtonPressed();
 	}
 }
@@ -198,6 +223,26 @@ void AShooterCharacter::OnAimReleased()
 	}
 }
 
+void AShooterCharacter::OnFirePressed()
+{
+	if (!CombatComponent || !CombatComponent->EquippedWeapon)
+	{
+		return;
+	}
+
+	CombatComponent->SetFiringState(true);
+}
+
+void AShooterCharacter::OnFireReleased()
+{
+	if (!CombatComponent || !CombatComponent->EquippedWeapon)
+	{
+		return;
+	}
+
+	CombatComponent->SetFiringState(false);
+}
+
 void AShooterCharacter::OnCrouchPressed()
 {
 	if (bIsCrouched)
@@ -215,7 +260,7 @@ void AShooterCharacter::ServerEquipButtonPressed_Implementation()
 	}
 }
 
-void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AShooterCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -224,6 +269,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction(FName("Crouch"), EInputEvent::IE_Pressed, this, &ThisClass::OnCrouchPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Pressed, this, &ThisClass::OnAimPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Released, this, &ThisClass::OnAimReleased);
+	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Pressed, this, &ThisClass::OnFirePressed);
+	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Released, this, &ThisClass::OnFireReleased);
 
 	PlayerInputComponent->BindAxis(FName("MoveForward"), this, &AShooterCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(FName("MoveRight"), this, &AShooterCharacter::MoveRight);
@@ -237,13 +284,13 @@ void AShooterCharacter::Jump()
 	{
 		UnCrouch();
 	}
-	else 
+	else
 	{
 		Super::Jump();
 	}
 }
 
-void AShooterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+void AShooterCharacter::OnRep_OverlappingWeapon(AWeapon *LastWeapon)
 {
 	UE_LOG(LogTemp, Warning, TEXT(":: OnRep_OverlappingWeapon"));
 	if (OverlappingWeapon)
@@ -257,7 +304,7 @@ void AShooterCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 	}
 }
 
-void AShooterCharacter::SetOverlappingWeapon(AWeapon* Weapon)
+void AShooterCharacter::SetOverlappingWeapon(AWeapon *Weapon)
 {
 	if (OverlappingWeapon)
 	{
@@ -287,12 +334,12 @@ bool AShooterCharacter::IsAiming()
 	return CombatComponent && CombatComponent->bAiming;
 }
 
-AWeapon* AShooterCharacter::GetEquippedWeapon()
+AWeapon *AShooterCharacter::GetEquippedWeapon()
 {
 	return !CombatComponent ? nullptr : CombatComponent->GetEquippedWeapon();
 }
 
-void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
@@ -308,8 +355,3 @@ void AShooterCharacter::PostInitializeComponents()
 		CombatComponent->ShooterCharacter = this;
 	}
 }
-
-
-
-
-

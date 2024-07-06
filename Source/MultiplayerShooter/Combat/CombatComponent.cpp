@@ -43,6 +43,14 @@ void UCombatComponent::SetAimingState(bool bIsAiming)
 	ServerAimSync(bIsAiming);
 }
 
+void UCombatComponent::SetFiringState(bool isFiring)
+{
+	bIsFireBtnPressed = isFiring;
+	if (ShooterCharacter && bIsFireBtnPressed)
+	{
+		ShooterCharacter->PlayFireMontage(bIsFireBtnPressed);
+	}
+}
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
