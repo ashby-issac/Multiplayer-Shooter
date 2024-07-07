@@ -129,7 +129,7 @@ void AShooterCharacter::CheckForTurningInPlace(float DeltaTime)
 		// reflected in blend space and as a result the upper body
 		// animation would  be layered on top of the turn left/right animation
 		Interp_AO = FMath::FInterpTo(Interp_AO, 0.f, DeltaTime, 4.f);
-		AO_Yaw = 0.f;
+		AO_Yaw = Interp_AO;
 
 		if (FMath::Abs(AO_Yaw) < 10.f)
 		{

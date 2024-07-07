@@ -48,6 +48,7 @@ void UCombatComponent::SetFiringState(bool isFiring)
 	bIsFireBtnPressed = isFiring;
 	if (ShooterCharacter && bIsFireBtnPressed)
 	{
+		EquippedWeapon->Fire();
 		ShooterCharacter->PlayFireMontage(bIsFireBtnPressed);
 	}
 }
