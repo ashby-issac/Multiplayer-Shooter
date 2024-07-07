@@ -28,6 +28,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(Server, Reliable)
+	void ServerFire();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastFire();
+
 private:
 	class AShooterCharacter* ShooterCharacter;
 

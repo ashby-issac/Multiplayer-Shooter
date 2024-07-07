@@ -10,7 +10,7 @@ AWeapon::AWeapon()
 	PrimaryActorTick.bCanEverTick = false;
 
 	// makes weapon a replicating actor so server is responsible for controlling all weapon objects
-	bReplicates = true; 
+	bReplicates = true;
 
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	WeaponMesh->SetupAttachment(RootComponent);
@@ -22,7 +22,7 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 	EquipArea->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -48,18 +48,18 @@ void AWeapon::BeginPlay()
 	}
 }
 
-void AWeapon::OnEquipAreaOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AWeapon::OnEquipAreaOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
+	AShooterCharacter *ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
 	if (ShooterCharacter)
 	{
 		ShooterCharacter->SetOverlappingWeapon(this);
 	}
 }
 
-void AWeapon::OnEquipAreaEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AWeapon::OnEquipAreaEndOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex)
 {
-	AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
+	AShooterCharacter *ShooterCharacter = Cast<AShooterCharacter>(OtherActor);
 	if (ShooterCharacter)
 	{
 		ShooterCharacter->SetOverlappingWeapon(nullptr);
@@ -70,8 +70,8 @@ void AWeapon::OnRep_WeaponState()
 {
 	switch (WeaponState)
 	{
-		case EWeaponState::EWS_Equipped:
-			ShowPickupWidget(false); // disabled pickup widget on all other clients
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false); // disabled pickup widget on all other clients
 		break;
 	}
 }
@@ -81,9 +81,8 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 	WeaponState = CurrentState;
 	switch (WeaponState)
 	{
-		case EWeaponState::EWS_Equipped:
-			// ShowPickupWidget(false);
-			EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	case EWeaponState::EWS_Equipped:
+		EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 	}
 }
@@ -91,10 +90,9 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 

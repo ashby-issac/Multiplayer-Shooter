@@ -8,7 +8,6 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 void UCombatComponent::BeginPlay()
@@ -46,20 +45,32 @@ void UCombatComponent::SetAimingState(bool bIsAiming)
 void UCombatComponent::SetFiringState(bool isFiring)
 {
 	bIsFireBtnPressed = isFiring;
-	if (ShooterCharacter && bIsFireBtnPressed)
+	if (bIsFireBtnPressed)
 	{
-		EquippedWeapon->Fire();
-		ShooterCharacter->PlayFireMontage(bIsFireBtnPressed);
+		ServerFire();
 	}
 }
 
-void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UCombatComponent::ServerFire_Implementation()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	MulticastFire();
 }
 
-void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UCombatComponent::MulticastFire_Implementation()
+{
+	if (!ShooterCharacter || !EquippedWeapon)
+		return;
+
+	EquippedWeapon->Fire();
+	ShooterCharacter->PlayFireMontage(bAiming);
+}
+
+void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
@@ -67,26 +78,25 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(UCombatComponent, bAiming);
 }
 
-void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
+void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 {
-	if (!ShooterCharacter || !WeaponToEquip) return;
+	if (!ShooterCharacter || !WeaponToEquip)
+		return;
 
 	EquippedWeapon = WeaponToEquip;
-	
+
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
-	
-	const USkeletalMeshSocket* RightHandSocket = ShooterCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+
+	const USkeletalMeshSocket *RightHandSocket = ShooterCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
 
 	EquippedWeapon->SetOwner(ShooterCharacter);
-	//EquippedWeapon->ShowPickupWidget(false);
+	// EquippedWeapon->ShowPickupWidget(false);
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
-	
 }
 
 void UCombatComponent::ServerAimSync_Implementation(bool bIsAiming)
 {
 	bAiming = bIsAiming;
 }
-
