@@ -139,10 +139,6 @@ void AShooterCharacter::CheckForTurningInPlace(float DeltaTime)
 			InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		}
 	}
-
-	// UE_LOG(LogTemp, Warning, TEXT(":: ShooterCharacter => AO_Yaw: %f"), AO_Yaw);
-	// UE_LOG(LogTemp, Warning, TEXT(":: ShooterCharacter => ActorRotation: %s"), *GetActorRotation().ToString());
-	// UE_LOG(LogTemp, Warning, TEXT(":: ShooterCharacter => ControlRotation: %s"), *Controller->GetControlRotation().ToString());
 }
 
 void AShooterCharacter::PlayFireMontage(bool bAiming)
@@ -153,7 +149,6 @@ void AShooterCharacter::PlayFireMontage(bool bAiming)
 		AnimInstance->Montage_Play(FireMontage);
 		FName FireSection = bAiming ? FName("Aim_Fire") : FName("Hip_Fire");
 		AnimInstance->Montage_JumpToSection(FireSection, FireMontage);
-		UE_LOG(LogTemp, Warning, TEXT(":: OnFire PlayMontage"));
 	}
 }
 

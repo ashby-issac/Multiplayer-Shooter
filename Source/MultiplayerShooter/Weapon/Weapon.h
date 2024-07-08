@@ -26,7 +26,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void ShowPickupWidget(bool isEnabled);
-	void Fire();
+	virtual void Fire(const FVector& HitLocation);
 
 protected:
 	virtual void BeginPlay() override;

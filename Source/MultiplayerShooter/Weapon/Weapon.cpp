@@ -107,7 +107,7 @@ void AWeapon::ShowPickupWidget(bool isEnabled)
 	}
 }
 
-void AWeapon::Fire()
+void AWeapon::Fire(const FVector& HitLocation)
 {
 	if (FireAnimation && WeaponMesh)
 	{

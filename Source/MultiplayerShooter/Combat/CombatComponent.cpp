@@ -63,7 +63,7 @@ void UCombatComponent::MulticastFire_Implementation()
 	if (!ShooterCharacter || !EquippedWeapon)
 		return;
 
-	EquippedWeapon->Fire();
+	EquippedWeapon->Fire(FireHitTarget);
 	ShooterCharacter->PlayFireMontage(bAiming);
 }
 
@@ -81,6 +81,7 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 			ViewportCenter,
 			CrosshairWorldLocation,
 			CrosshairWorldDirection);
+
 		if (bIsDeprojected)
 		{
 			FVector3d Start(CrosshairWorldLocation);
@@ -93,10 +94,11 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 
 			if (!HitResult.bBlockingHit)
 			{
-				HitResult.ImpactPoint = End;
+				HitResult.ImpactPoint = FireHitTarget = End;
 			}
 			else
 			{
+				FireHitTarget = HitResult.ImpactPoint;
 				DrawDebugSphere(
 					GetWorld(),
 					HitResult.ImpactPoint,
@@ -112,7 +114,8 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FindCrosshairHitTarget(CrosshairHitResult);
+	FHitResult FireHitResult;
+	FindCrosshairHitTarget(FireHitResult);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const

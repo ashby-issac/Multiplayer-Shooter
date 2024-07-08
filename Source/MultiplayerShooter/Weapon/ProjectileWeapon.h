@@ -17,6 +17,7 @@ class MULTIPLAYERSHOOTER_API AProjectileWeapon : public AWeapon
 public:
 	AProjectileWeapon();
 	
+	virtual void Fire(const FVector& HitLocation) override;
 	virtual void Tick(float DeltaTime) override;
 
 protected:
@@ -25,4 +26,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectileAmmo> ProjectileAmmo;
 };

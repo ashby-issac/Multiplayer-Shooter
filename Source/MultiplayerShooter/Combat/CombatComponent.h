@@ -58,7 +58,7 @@ private:
 
 	bool bIsFireBtnPressed;
 
-	FHitResult CrosshairHitResult;
+	FVector FireHitTarget;
 
 public:
 	void SetAimingState(bool bIsAiming);
