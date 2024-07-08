@@ -4,10 +4,12 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 UCombatComponent::UCombatComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UCombatComponent::BeginPlay()
@@ -65,9 +67,52 @@ void UCombatComponent::MulticastFire_Implementation()
 	ShooterCharacter->PlayFireMontage(bAiming);
 }
 
+void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
+{
+	if (GEngine && GEngine->GameViewport)
+	{
+		FVector2D ViewportSize;
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+
+		FVector2D ViewportCenter(ViewportSize.X / 2, ViewportSize.Y / 2);
+		FVector3d CrosshairWorldLocation, CrosshairWorldDirection;
+		bool bIsDeprojected = UGameplayStatics::DeprojectScreenToWorld(
+			UGameplayStatics::GetPlayerController(this, 0),
+			ViewportCenter,
+			CrosshairWorldLocation,
+			CrosshairWorldDirection);
+		if (bIsDeprojected)
+		{
+			FVector3d Start(CrosshairWorldLocation);
+			FVector3d End(CrosshairWorldLocation + CrosshairWorldDirection * TRACE_LENGTH);
+			GetWorld()->LineTraceSingleByChannel(
+				HitResult,
+				Start,
+				End,
+				ECollisionChannel::ECC_Visibility);
+
+			if (!HitResult.bBlockingHit)
+			{
+				HitResult.ImpactPoint = End;
+			}
+			else
+			{
+				DrawDebugSphere(
+					GetWorld(),
+					HitResult.ImpactPoint,
+					12.0f,
+					12,
+					FColor::Red);
+			}
+		}
+	}
+}
+
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FindCrosshairHitTarget(CrosshairHitResult);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const

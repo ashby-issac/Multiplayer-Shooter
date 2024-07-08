@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "CombatComponent.generated.h"
 
+#define TRACE_LENGTH 80000.f
+
 class AWeapon;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -34,6 +36,8 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire();
 
+	void FindCrosshairHitTarget(FHitResult& HitResult);
+
 private:
 	class AShooterCharacter* ShooterCharacter;
 
@@ -53,6 +57,8 @@ private:
 	float AimWalkSpeed;
 
 	bool bIsFireBtnPressed;
+
+	FHitResult CrosshairHitResult;
 
 public:
 	void SetAimingState(bool bIsAiming);
