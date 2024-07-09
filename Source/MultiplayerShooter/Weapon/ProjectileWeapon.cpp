@@ -24,24 +24,27 @@ void AProjectileWeapon::Fire(const FVector &HitLocation)
 {
     Super::Fire(HitLocation);
 
+    if (!HasAuthority())
+    {
+        return;
+    }
+
     USkeletalMeshComponent *WeaponSKM = GetWeaponMesh();
     const USkeletalMeshSocket *MuzzleFlashSocket = WeaponSKM->GetSocketByName(FName("MuzzleFlash"));
     APawn *InstigatorPawn = Cast<APawn>(GetOwner());
-    UE_LOG(LogTemp, Warning, TEXT(":: ProjectileWeapon :: Fire"));
 
     if (MuzzleFlashSocket)
     {
         FTransform MuzzleTransform = MuzzleFlashSocket->GetSocketTransform(WeaponSKM);
         FVector SpawnDirection = HitLocation - MuzzleTransform.GetLocation();
         FRotator SpawnRotation = SpawnDirection.Rotation();
-        UE_LOG(LogTemp, Warning, TEXT(":: ProjectileWeapon :: MuzzleFlashSocket"));
 
         if (ProjectileAmmo && InstigatorPawn)
         {
             FActorSpawnParameters SpawnParameters;
             SpawnParameters.Owner = GetOwner();
             SpawnParameters.Instigator = InstigatorPawn;
-            UE_LOG(LogTemp, Warning, TEXT(":: ProjectileWeapon :: SpawnActor"));
+
             GetWorld()->SpawnActor<AProjectileAmmo>(
                 ProjectileAmmo,
                 MuzzleTransform.GetLocation(),

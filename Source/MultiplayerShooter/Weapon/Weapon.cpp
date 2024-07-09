@@ -111,6 +111,7 @@ void AWeapon::Fire(const FVector& HitLocation)
 {
 	if (FireAnimation && WeaponMesh)
 	{
+		// Play SFX and VFX
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 	}
 }

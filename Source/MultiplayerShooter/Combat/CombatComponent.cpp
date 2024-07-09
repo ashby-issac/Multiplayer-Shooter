@@ -49,16 +49,19 @@ void UCombatComponent::SetFiringState(bool isFiring)
 	bIsFireBtnPressed = isFiring;
 	if (bIsFireBtnPressed)
 	{
-		ServerFire();
+		FHitResult FireHitResult;
+		FindCrosshairHitTarget(FireHitResult);
+		ServerFire(FireHitResult.ImpactPoint);
 	}
 }
 
-void UCombatComponent::ServerFire_Implementation()
+void UCombatComponent::ServerFire_Implementation(FVector_NetQuantize FireHitTarget)
 {
-	MulticastFire();
+	// Runs on server and clients for that particular actor
+	MulticastFire(FireHitTarget);
 }
 
-void UCombatComponent::MulticastFire_Implementation()
+void UCombatComponent::MulticastFire_Implementation(FVector_NetQuantize FireHitTarget)
 {
 	if (!ShooterCharacter || !EquippedWeapon)
 		return;
@@ -91,21 +94,6 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 				Start,
 				End,
 				ECollisionChannel::ECC_Visibility);
-
-			if (!HitResult.bBlockingHit)
-			{
-				HitResult.ImpactPoint = FireHitTarget = End;
-			}
-			else
-			{
-				FireHitTarget = HitResult.ImpactPoint;
-				DrawDebugSphere(
-					GetWorld(),
-					HitResult.ImpactPoint,
-					12.0f,
-					12,
-					FColor::Red);
-			}
 		}
 	}
 }
@@ -113,9 +101,6 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	FHitResult FireHitResult;
-	FindCrosshairHitTarget(FireHitResult);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const

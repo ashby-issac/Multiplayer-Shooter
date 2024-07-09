@@ -31,10 +31,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(Server, Reliable)
-	void ServerFire();
+	void ServerFire(FVector_NetQuantize FireHitTarget);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastFire();
+	void MulticastFire(FVector_NetQuantize FireHitTarget);
 
 	void FindCrosshairHitTarget(FHitResult& HitResult);
 
@@ -57,8 +57,6 @@ private:
 	float AimWalkSpeed;
 
 	bool bIsFireBtnPressed;
-
-	FVector FireHitTarget;
 
 public:
 	void SetAimingState(bool bIsAiming);
