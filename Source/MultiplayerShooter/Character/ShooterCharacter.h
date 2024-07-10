@@ -39,6 +39,9 @@ protected:
 	void OnFireReleased();
 
 private:
+	UPROPERTY(Replicated)
+	float Health = 100.f;
+
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* CameraComponent;
 
@@ -76,7 +79,10 @@ private:
 	void CalculateAimOffsets(float DeltaTime);
 	void CheckForTurningInPlace(float DeltaTime);
 
+
 public:
+	void Damage();
+	
 	void SetOverlappingWeapon(AWeapon* Weapon);
 
 	bool IsWeaponEquipped();

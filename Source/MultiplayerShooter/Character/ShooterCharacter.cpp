@@ -275,6 +275,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 
 void AShooterCharacter::Jump()
 {
+	UE_LOG(LogTemp, Warning, TEXT(":: Health: %f"), Health);
+
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -349,4 +351,10 @@ void AShooterCharacter::PostInitializeComponents()
 	{
 		CombatComponent->ShooterCharacter = this;
 	}
+}
+
+void AShooterCharacter::Damage()
+{
+	Health -= 10;
+	UE_LOG(LogTemp, Warning, TEXT(":: Damage %f"), Health);
 }
