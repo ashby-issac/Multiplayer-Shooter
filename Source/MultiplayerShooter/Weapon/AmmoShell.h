@@ -18,7 +18,18 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnShellHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent *ShellMesh;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* HitSFX;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ShellImpulse;
+
+	void DestroyAmmo();
 };
