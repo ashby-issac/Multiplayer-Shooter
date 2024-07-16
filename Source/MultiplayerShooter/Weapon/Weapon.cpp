@@ -4,6 +4,8 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "AmmoShell.h"
 
 AWeapon::AWeapon()
 {
@@ -107,11 +109,23 @@ void AWeapon::ShowPickupWidget(bool isEnabled)
 	}
 }
 
-void AWeapon::Fire(const FVector& HitLocation)
+void AWeapon::Fire(const FVector &HitLocation)
 {
 	if (FireAnimation && WeaponMesh)
 	{
-		// Play SFX and VFX
+		// Play MuzzleFlash at tip of the Gun along with the sound
 		WeaponMesh->PlayAnimation(FireAnimation, false);
+
+		const USkeletalMeshSocket *AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
+
+		if (AmmoEjectSocket)
+		{
+			FTransform AmmoEjectTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+
+			GetWorld()->SpawnActor<AAmmoShell>(
+				AmmoShellClass,
+				AmmoEjectTransform.GetLocation(),
+				AmmoEjectTransform.GetRotation().Rotator());
+		}
 	}
 }
