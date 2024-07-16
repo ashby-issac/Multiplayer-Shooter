@@ -275,7 +275,29 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 
 void AShooterCharacter::Jump()
 {
-	UE_LOG(LogTemp, Warning, TEXT(":: Health: %f"), Health);
+	FName Auth = HasAuthority() ? FName("HasAuth") : FName("HasNoAuth");
+
+	ENetRole PawnRole = GetLocalRole();
+	FString PawnRoleText;
+	switch (PawnRole)
+	{
+	case ENetRole::ROLE_Authority:
+		PawnRoleText = FString("Authority");
+		break;
+	case ENetRole::ROLE_SimulatedProxy:
+		PawnRoleText = FString("SimulatedProxy");
+		break;
+	case ENetRole::ROLE_AutonomousProxy:
+		PawnRoleText = FString("AutonomousProxy");
+		break;
+	case ENetRole::ROLE_None:
+		PawnRoleText = FString("None");
+		break;
+	}
+	FString RoleString = FString::Printf(TEXT("LocalRole: %s"), *PawnRoleText);
+
+	UE_LOG(LogTemp, Warning, TEXT(":: Health: %f :: %s :: %s"),
+		   Health, *Auth.ToString(), *RoleString);
 
 	if (bIsCrouched)
 	{
@@ -340,6 +362,7 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME_CONDITION(AShooterCharacter, Health, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 

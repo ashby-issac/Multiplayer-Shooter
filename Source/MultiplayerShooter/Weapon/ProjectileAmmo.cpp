@@ -4,6 +4,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
+#include "Sound/SoundCue.h"
 
 AProjectileAmmo::AProjectileAmmo()
 {
@@ -38,30 +39,46 @@ void AProjectileAmmo::BeginPlay()
             GetActorLocation(),
             GetActorRotation(),
             EAttachLocation::KeepWorldPosition);
+    }
 
-        // CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnProjectileHit);
+    if (HasAuthority())
+    {
+        CollisionBox->OnComponentHit.AddDynamic(this, &ThisClass::OnProjectileHit);
     }
 }
 
 void AProjectileAmmo::OnProjectileHit(UPrimitiveComponent *HitComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit)
 {
-    FName Auth = HasAuthority() ? FName("HasAuthority") : FName("HasNoAuthority");
-
-    UE_LOG(LogTemp, Warning, TEXT(":: OnProjectileHit"));
     if (auto ShooterChar = Cast<AShooterCharacter>(OtherActor))
     {
-        // if HasAuthority()
         // Apply damage to server controlled character
         // Replicate the damage down to the specific or
         // same character present in the clients.
-        if (ShooterChar != nullptr && HasAuthority())
+        if (ShooterChar != nullptr)
         {
             ShooterChar->Damage();
         }
     }
+
+    Destroy();
 }
 
 void AProjectileAmmo::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+}
+
+void AProjectileAmmo::Destroyed()
+{
+    Super::Destroyed();
+
+    if (ImpactParticles)
+    {
+        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, GetActorTransform());
+    }
+
+    if (ImpactSound)
+    {
+        UGameplayStatics::SpawnSoundAtLocation(this, ImpactSound, GetActorLocation());
+    }
 }

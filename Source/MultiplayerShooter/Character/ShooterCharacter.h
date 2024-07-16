@@ -54,14 +54,17 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class AWeapon* OverlappingWeapon;
 
-	UFUNCTION()
-	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
-
 	UPROPERTY(VisibleAnywhere)
 	class UCombatComponent* CombatComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess="true"))
 	class UAnimMontage* FireMontage;
+
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed(); // Server RPC
 
 	ETurningInPlace TurnInPlaceState;
 
@@ -73,12 +76,8 @@ private:
 	FRotator InitialAimRot;
 	FRotator DeltaAimRot;
 
-	UFUNCTION(Server, Reliable)
-	void ServerEquipButtonPressed(); // Server RPC
-
 	void CalculateAimOffsets(float DeltaTime);
 	void CheckForTurningInPlace(float DeltaTime);
-
 
 public:
 	void Damage();
