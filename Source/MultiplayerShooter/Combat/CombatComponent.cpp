@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
+#include "MultiplayerShooter/HUD/ShooterHUD.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -19,6 +21,49 @@ void UCombatComponent::BeginPlay()
 	if (ShooterCharacter)
 	{
 		ShooterCharacter->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	}
+}
+
+void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	SetCrosshairsForWeapon();
+}
+
+void UCombatComponent::SetCrosshairsForWeapon()
+{
+	if (ShooterCharacter == nullptr || ShooterCharacter->Controller)
+	{
+		return;
+	}
+
+	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller) : ShooterController;
+	if (ShooterController != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ShooterController: %s"), *ShooterController->GetName());	
+		ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(ShooterController->GetHUD()) : ShooterHUD;
+		if (ShooterHUD)
+		{
+			FHUDPackage HUDPackage;
+			if (EquippedWeapon)
+			{
+				HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairCenter;
+				HUDPackage.CrosshairTop = EquippedWeapon->CrosshairTop;
+				HUDPackage.CrosshairBottom = EquippedWeapon->CrosshairBottom;
+				HUDPackage.CrosshairLeft = EquippedWeapon->CrosshairLeft;
+				HUDPackage.CrosshairRight = EquippedWeapon->CrosshairRight;
+			}
+			else
+			{
+				HUDPackage.CrosshairCenter = nullptr;
+				HUDPackage.CrosshairTop = nullptr;
+				HUDPackage.CrosshairBottom = nullptr;
+				HUDPackage.CrosshairLeft = nullptr;
+				HUDPackage.CrosshairRight = nullptr;
+			}
+			ShooterHUD->SetHUDPackageProps(HUDPackage);
+		}
 	}
 }
 
@@ -96,11 +141,6 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 				ECollisionChannel::ECC_Visibility);
 		}
 	}
-}
-
-void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const

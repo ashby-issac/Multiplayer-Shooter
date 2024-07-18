@@ -40,6 +40,8 @@ protected:
 
 private:
 	class AShooterCharacter* ShooterCharacter;
+	class AShooterPlayerController* ShooterController;
+	class AShooterHUD* ShooterHUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OnEquippedWeapon)
 	AWeapon* EquippedWeapon;
@@ -57,6 +59,8 @@ private:
 	float AimWalkSpeed;
 
 	bool bIsFireBtnPressed;
+
+	void SetCrosshairsForWeapon();
 
 public:
 	void SetAimingState(bool bIsAiming);

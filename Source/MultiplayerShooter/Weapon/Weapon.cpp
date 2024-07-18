@@ -121,11 +121,16 @@ void AWeapon::Fire(const FVector &HitLocation)
 		if (AmmoEjectSocket)
 		{
 			FTransform AmmoEjectTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
+			FRotator DefaultRotation = AmmoEjectTransform.GetRotation().Rotator();
 
-			GetWorld()->SpawnActor<AAmmoShell>(
+			AAmmoShell *ShellInstance = GetWorld()->SpawnActor<AAmmoShell>(
 				AmmoShellClass,
 				AmmoEjectTransform.GetLocation(),
-				AmmoEjectTransform.GetRotation().Rotator());
+				DefaultRotation);
+			FRotator Rotation = FRotator(FMath::RandRange(0.f, 180.f),
+										 FMath::RandRange(0.f, 180.f),
+										 FMath::RandRange(0.f, 180.f));
+			ShellInstance->SetActorRotation(Rotation);
 		}
 	}
 }

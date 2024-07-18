@@ -18,41 +18,40 @@ UCLASS()
 class MULTIPLAYERSHOOTER_API AWeapon : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AWeapon();
-	
+
 	virtual void Tick(float DeltaTime) override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 
 	void ShowPickupWidget(bool isEnabled);
-	virtual void Fire(const FVector& HitLocation);
+	virtual void Fire(const FVector &HitLocation);
 
 protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	virtual void OnEquipAreaOverlap(UPrimitiveComponent* OverlappedComponent, 
-							AActor* OtherActor, 
-							UPrimitiveComponent* OtherComp, 
-							int32 OtherBodyIndex, 
-							bool bFromSweep, 
-							const FHitResult& SweepResult);
-	
+	virtual void OnEquipAreaOverlap(UPrimitiveComponent *OverlappedComponent,
+									AActor *OtherActor,
+									UPrimitiveComponent *OtherComp,
+									int32 OtherBodyIndex,
+									bool bFromSweep,
+									const FHitResult &SweepResult);
+
 	UFUNCTION()
 	virtual void OnEquipAreaEndOverlap(
-		UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex
-	);
+		UPrimitiveComponent *OverlappedComponent,
+		AActor *OtherActor,
+		UPrimitiveComponent *OtherComp,
+		int32 OtherBodyIndex);
 
-private:	
+private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USkeletalMeshComponent* WeaponMesh;
+	class USkeletalMeshComponent *WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USphereComponent* EquipArea;
+	class USphereComponent *EquipArea;
 
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;
@@ -61,16 +60,31 @@ private:
 	void OnRep_WeaponState();
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	class UWidgetComponent* PickupWidget;
+	class UWidgetComponent *PickupWidget;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	class UAnimationAsset* FireAnimation;
+	class UAnimationAsset *FireAnimation;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AAmmoShell> AmmoShellClass;
 
 public:
+	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	class UTexture2D *CrosshairCenter;
+
+	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UTexture2D *CrosshairTop;
+
+	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UTexture2D *CrosshairBottom;
+	
+	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UTexture2D *CrosshairLeft;
+
+	UPROPERTY(EditAnywhere, Category = "Crosshairs")
+	UTexture2D *CrosshairRight;
+
 	void SetWeaponState(EWeaponState CurrentState);
 
-	FORCEINLINE USkeletalMeshComponent* GetWeaponMesh() { return WeaponMesh; }
+	FORCEINLINE USkeletalMeshComponent *GetWeaponMesh() { return WeaponMesh; }
 };
