@@ -59,10 +59,15 @@ private:
 	float AimWalkSpeed;
 
 	bool bIsFireBtnPressed;
+	float CrosshairInAirFactor;
 
-	void SetCrosshairsForWeapon();
+	FHitResult CrosshairHitResult;
+
+	void SetCrosshairsForWeapon(float DeltaTime);
 
 public:
+	FVector CrosshairHitTarget;
+	
 	void SetAimingState(bool bIsAiming);
 	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
 

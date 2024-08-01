@@ -88,6 +88,8 @@ public:
 	bool IsAiming();
 	void PlayFireMontage(bool bAiming);
 
+	FVector GetCrosshairHitTarget();
+
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }

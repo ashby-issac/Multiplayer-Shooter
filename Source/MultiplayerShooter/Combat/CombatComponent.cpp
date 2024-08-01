@@ -28,20 +28,25 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetCrosshairsForWeapon();
+	SetCrosshairsForWeapon(DeltaTime);
+	if (ShooterCharacter->IsLocallyControlled())
+	{
+		FindCrosshairHitTarget(CrosshairHitResult);
+		CrosshairHitTarget = CrosshairHitResult.ImpactPoint;
+	}
 }
 
-void UCombatComponent::SetCrosshairsForWeapon()
+void UCombatComponent::SetCrosshairsForWeapon(float DeltaTime)
 {
-	if (ShooterCharacter == nullptr || ShooterCharacter->Controller)
+	if (ShooterCharacter == nullptr || ShooterCharacter->Controller == nullptr)
 	{
 		return;
 	}
 
 	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller) : ShooterController;
+
 	if (ShooterController != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ShooterController: %s"), *ShooterController->GetName());	
 		ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(ShooterController->GetHUD()) : ShooterHUD;
 		if (ShooterHUD)
 		{
@@ -62,6 +67,19 @@ void UCombatComponent::SetCrosshairsForWeapon()
 				HUDPackage.CrosshairLeft = nullptr;
 				HUDPackage.CrosshairRight = nullptr;
 			}
+
+			FVector2D WalkSpeed(0.f, ShooterCharacter->GetCharacterMovement()->MaxWalkSpeed);
+			FVector2D ClampedSpeed(0.f, 1.f);
+
+			FVector CharacterVelocity = ShooterCharacter->GetVelocity();
+			CharacterVelocity.Z = 0.f;
+
+			float CharacterSpeed = CharacterVelocity.Size();
+			float CrosshairSpreadFactor = FMath::GetMappedRangeValueClamped(WalkSpeed, ClampedSpeed, CharacterSpeed);
+
+			CrosshairInAirFactor = ShooterCharacter->GetCharacterMovement()->IsFalling() ? FMath::FInterpTo(CrosshairInAirFactor, 2.f, DeltaTime, 2.f) : FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
+
+			HUDPackage.SpreadFactor = CrosshairSpreadFactor + CrosshairInAirFactor;
 			ShooterHUD->SetHUDPackageProps(HUDPackage);
 		}
 	}

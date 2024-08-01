@@ -17,6 +17,7 @@ public:
 	UTexture2D* CrosshairBottom;
 	UTexture2D* CrosshairLeft;
 	UTexture2D* CrosshairRight;
+	float SpreadFactor;
 };
 
 UCLASS()
@@ -26,9 +27,14 @@ class MULTIPLAYERSHOOTER_API AShooterHUD : public AHUD
 	
 public:
 	virtual void DrawHUD() override;
-
+;
 	FORCEINLINE void SetHUDPackageProps(FHUDPackage Package) { HUDPackage = Package; };
 
 private:
 	FHUDPackage HUDPackage;
+
+	UPROPERTY(EditAnywhere)
+	float CrosshairMultiplier = 10.f;
+
+	void DrawCrosshairToScreen(UTexture2D* CrosshairTexture, FVector2D ViewportCenter, FVector2D SpreadFactor);
 };

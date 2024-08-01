@@ -7,7 +7,6 @@
 
 UShooterAnimInstance::UShooterAnimInstance()
 {
-
 }
 
 void UShooterAnimInstance::NativeInitializeAnimation()
@@ -26,8 +25,11 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		ShooterCharacter = Cast<AShooterCharacter>(TryGetPawnOwner());
 	}
 
-	if (!ShooterCharacter) { return; }
-	
+	if (!ShooterCharacter)
+	{
+		return;
+	}
+
 	Velocity = ShooterCharacter->GetVelocity();
 	Velocity.Z = 0.f;
 	Speed = Velocity.Size();
@@ -46,7 +48,7 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	// Logic for Strafing
 	CharacterStrafing(DeltaSeconds);
-	
+
 	// Logic for Leaning
 	CharacterLeaning(DeltaSeconds);
 
@@ -79,8 +81,8 @@ void UShooterAnimInstance::CalculateLeftHandTransform()
 {
 	if (EquippedWeapon->GetWeaponMesh() && ShooterCharacter->GetMesh())
 	{
-		// Getting the Weapon's socket in world space to position left hand 
-		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), 
+		// Getting the Weapon's socket in world space to position left hand
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"),
 																				ERelativeTransformSpace::RTS_World);
 		FVector OutLocation;
 		FRotator OutRotator;
@@ -91,5 +93,29 @@ void UShooterAnimInstance::CalculateLeftHandTransform()
 														  OutRotator);
 		LeftHandTransform.SetLocation(OutLocation);
 		LeftHandTransform.SetRotation(FQuat(OutRotator));
+
+		if (ShooterCharacter->IsLocallyControlled())
+		{
+			bIsLocallyControlled = true;
+			FTransform BarrelTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"),
+																							 ERelativeTransformSpace::RTS_World);
+			FVector BarrelForward = FRotationMatrix(BarrelTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X);
+			DrawDebugLine(GetWorld(),
+						  BarrelTransform.GetLocation(),
+						  BarrelTransform.GetLocation() + BarrelForward * 2000.f,
+						  FColor::Red);
+
+			DrawDebugLine(GetWorld(),
+						  BarrelTransform.GetLocation(),
+						  ShooterCharacter->GetCrosshairHitTarget(),
+						  FColor::Orange);
+
+			FTransform RightHandTransform = ShooterCharacter->GetMesh()->GetSocketTransform(FName("Hand_R"),
+																							ERelativeTransformSpace::RTS_World);
+			FVector RightHandLocation = RightHandTransform.GetLocation();
+			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandLocation,
+																	   RightHandLocation + (RightHandLocation - ShooterCharacter->GetCrosshairHitTarget()));
+			UE_LOG(LogTemp, Warning, TEXT("::: RightHandRotation: %s"), *RightHandRotation.ToString());
+		}
 	}
 }

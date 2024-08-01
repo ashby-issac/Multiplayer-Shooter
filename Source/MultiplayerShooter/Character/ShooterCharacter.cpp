@@ -358,6 +358,11 @@ AWeapon *AShooterCharacter::GetEquippedWeapon()
 	return !CombatComponent ? nullptr : CombatComponent->GetEquippedWeapon();
 }
 
+FVector AShooterCharacter::GetCrosshairHitTarget()
+{
+	return CombatComponent ? CombatComponent->CrosshairHitTarget : FVector();
+}
+
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

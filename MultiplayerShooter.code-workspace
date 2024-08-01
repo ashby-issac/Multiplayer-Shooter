@@ -10,16 +10,7 @@
 		}
 	],
 	"settings": {
-		"typescript.tsc.autoDetect": "off",
-		"files.associations": {
-			"chrono": "cpp",
-			"random": "cpp",
-			"limits": "cpp",
-			"valarray": "cpp",
-			"ratio": "cpp",
-			"__config": "cpp",
-			"__nullptr": "cpp"
-		}
+		"typescript.tsc.autoDetect": "off"
 	},
 	"extensions": {
 		"recommendations": [
