@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
+#include "Camera/CameraComponent.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -21,6 +22,11 @@ void UCombatComponent::BeginPlay()
 	if (ShooterCharacter)
 	{
 		ShooterCharacter->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+		if (ShooterCharacter->GetFollowCam())
+		{
+			DefaultZoomFOV = ShooterCharacter->GetFollowCam()->FieldOfView;
+			CurrentFOV = DefaultZoomFOV;
+		}
 	}
 }
 
@@ -28,11 +34,37 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetCrosshairsForWeapon(DeltaTime);
 	if (ShooterCharacter->IsLocallyControlled())
 	{
+		SetCrosshairsForWeapon(DeltaTime);
 		FindCrosshairHitTarget(CrosshairHitResult);
 		CrosshairHitTarget = CrosshairHitResult.ImpactPoint;
+
+		SetZoomedFOV(DeltaTime);
+	}
+}
+
+void UCombatComponent::SetZoomedFOV(float DeltaTime)
+{
+	if (EquippedWeapon == nullptr)
+	{
+		return;
+	}
+
+	if (bAiming)
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippedWeapon->GetZoomedFOV(), DeltaTime,
+									  EquippedWeapon->GetZoomedInterpSpeed());
+	}
+	else
+	{
+		CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultZoomFOV, DeltaTime,
+									  DefaultZoomInterpSpeed);
+	}
+
+	if (ShooterCharacter && ShooterCharacter->GetFollowCam())
+	{
+		ShooterCharacter->GetFollowCam()->SetFieldOfView(CurrentFOV);
 	}
 }
 

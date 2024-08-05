@@ -15,7 +15,7 @@ public:
 	AShooterCharacter();
 
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
@@ -43,25 +43,25 @@ private:
 	float Health = 100.f;
 
 	UPROPERTY(VisibleAnywhere)
-	class UCameraComponent* CameraComponent;
+	class UCameraComponent *CameraComponent;
 
 	UPROPERTY(VisibleAnywhere)
-	class USpringArmComponent* SpringArmComponent;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess="true"))
-	class UWidgetComponent* OverheadWidget;
+	class USpringArmComponent *SpringArmComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent *OverheadWidget;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
-	class AWeapon* OverlappingWeapon;
+	class AWeapon *OverlappingWeapon;
 
 	UPROPERTY(VisibleAnywhere)
-	class UCombatComponent* CombatComponent;
+	class UCombatComponent *CombatComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess="true"))
-	class UAnimMontage* FireMontage;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage *FireMontage;
 
 	UFUNCTION()
-	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
+	void OnRep_OverlappingWeapon(AWeapon *LastWeapon);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // Server RPC
@@ -81,8 +81,8 @@ private:
 
 public:
 	void Damage();
-	
-	void SetOverlappingWeapon(AWeapon* Weapon);
+
+	void SetOverlappingWeapon(AWeapon *Weapon);
 
 	bool IsWeaponEquipped();
 	bool IsAiming();
@@ -93,6 +93,7 @@ public:
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
+	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
 
-	AWeapon* GetEquippedWeapon();
+	AWeapon *GetEquippedWeapon();
 };

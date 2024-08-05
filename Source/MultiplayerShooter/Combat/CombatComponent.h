@@ -58,12 +58,20 @@ private:
 	UPROPERTY(EditAnywhere)
 	float AimWalkSpeed;
 
+	UPROPERTY(EditAnywhere)
+	float DefaultZoomFOV;
+
+	UPROPERTY(EditAnywhere)
+	float DefaultZoomInterpSpeed;
+
 	bool bIsFireBtnPressed;
 	float CrosshairInAirFactor;
+	float CurrentFOV;
 
 	FHitResult CrosshairHitResult;
 
 	void SetCrosshairsForWeapon(float DeltaTime);
+	void SetZoomedFOV(float DeltaTime);
 
 public:
 	FVector CrosshairHitTarget;

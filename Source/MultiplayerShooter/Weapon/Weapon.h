@@ -68,6 +68,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AAmmoShell> AmmoShellClass;
 
+	UPROPERTY(EditAnywhere)
+	float ZoomedFOV;
+
+	UPROPERTY(EditAnywhere)
+	float ZoomedInterpSpeed;
+
 public:
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	class UTexture2D *CrosshairCenter;
@@ -77,7 +83,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	UTexture2D *CrosshairBottom;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	UTexture2D *CrosshairLeft;
 
@@ -87,4 +93,6 @@ public:
 	void SetWeaponState(EWeaponState CurrentState);
 
 	FORCEINLINE USkeletalMeshComponent *GetWeaponMesh() { return WeaponMesh; }
+	FORCEINLINE float GetZoomedFOV() { return ZoomedFOV; }
+	FORCEINLINE float GetZoomedInterpSpeed() { return ZoomedInterpSpeed; }
 };
