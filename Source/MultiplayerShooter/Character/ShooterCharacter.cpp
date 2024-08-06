@@ -57,6 +57,40 @@ void AShooterCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CalculateAimOffsets(DeltaTime);
+	CheckCamIsOnCloseContact();
+}
+
+void AShooterCharacter::MulticastHit_Implementation()
+{
+	PlayHitReactMontage();
+}
+
+void AShooterCharacter::CheckCamIsOnCloseContact()
+{
+	if (!IsLocallyControlled())
+	{
+		return;
+	}
+
+	float DistanceToCam = (GetActorLocation() - CameraComponent->GetComponentLocation()).Size();
+	if (DistanceToCam < CamThreshold)
+	{
+		DisableMeshesOnCloseContact(false);
+	}
+	else
+	{
+		DisableMeshesOnCloseContact(true);
+	}
+}
+
+void AShooterCharacter::DisableMeshesOnCloseContact(bool bVisible)
+{
+	GetMesh()->SetVisibility(bVisible);
+	if (CombatComponent && CombatComponent->EquippedWeapon &&
+		CombatComponent->EquippedWeapon->GetWeaponMesh())
+	{
+		CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = !bVisible;
+	}
 }
 
 void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
@@ -149,6 +183,17 @@ void AShooterCharacter::PlayFireMontage(bool bAiming)
 		AnimInstance->Montage_Play(FireMontage);
 		FName FireSection = bAiming ? FName("Aim_Fire") : FName("Hip_Fire");
 		AnimInstance->Montage_JumpToSection(FireSection, FireMontage);
+	}
+}
+
+void AShooterCharacter::PlayHitReactMontage()
+{
+	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && HitReactMontage)
+	{
+		AnimInstance->Montage_Play(HitReactMontage);
+		FName FireSection("HitFront");
+		AnimInstance->Montage_JumpToSection(FireSection, HitReactMontage);
 	}
 }
 

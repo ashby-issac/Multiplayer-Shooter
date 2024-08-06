@@ -18,6 +18,7 @@ public:
 	UTexture2D* CrosshairLeft;
 	UTexture2D* CrosshairRight;
 	float SpreadFactor;
+	FLinearColor CrosshairColor;
 };
 
 UCLASS()
@@ -36,5 +37,5 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CrosshairMultiplier = 10.f;
 
-	void DrawCrosshairToScreen(UTexture2D* CrosshairTexture, FVector2D ViewportCenter, FVector2D SpreadFactor);
+	void DrawCrosshairToScreen(UTexture2D* CrosshairTexture, FVector2D ViewportCenter, FVector2D SpreadFactor, FLinearColor CrosshairColor);
 };

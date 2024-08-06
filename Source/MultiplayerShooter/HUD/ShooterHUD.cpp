@@ -17,33 +17,33 @@ void AShooterHUD::DrawHUD()
         if (HUDPackage.CrosshairCenter)
         {
             FVector2D SpreadFactor(0.f, 0.f);
-            DrawCrosshairToScreen(HUDPackage.CrosshairCenter, ViewportCenter, SpreadFactor);
+            DrawCrosshairToScreen(HUDPackage.CrosshairCenter, ViewportCenter, SpreadFactor, HUDPackage.CrosshairColor);
         }
         if (HUDPackage.CrosshairTop)
         {
             FVector2D SpreadFactor(0.f, -HUDPackage.SpreadFactor);
-            DrawCrosshairToScreen(HUDPackage.CrosshairTop, ViewportCenter, SpreadFactor);
+            DrawCrosshairToScreen(HUDPackage.CrosshairTop, ViewportCenter, SpreadFactor, HUDPackage.CrosshairColor);
         }
         if (HUDPackage.CrosshairBottom)
         {
             FVector2D SpreadFactor(0.f, HUDPackage.SpreadFactor);
-            DrawCrosshairToScreen(HUDPackage.CrosshairBottom, ViewportCenter, SpreadFactor);
+            DrawCrosshairToScreen(HUDPackage.CrosshairBottom, ViewportCenter, SpreadFactor, HUDPackage.CrosshairColor);
         }
         if (HUDPackage.CrosshairLeft)
         {
             FVector2D SpreadFactor(-HUDPackage.SpreadFactor, 0.f);
-            DrawCrosshairToScreen(HUDPackage.CrosshairLeft, ViewportCenter, SpreadFactor);
+            DrawCrosshairToScreen(HUDPackage.CrosshairLeft, ViewportCenter, SpreadFactor, HUDPackage.CrosshairColor);
         }
         if (HUDPackage.CrosshairRight)
         {
             FVector2D SpreadFactor(HUDPackage.SpreadFactor, 0.f);
-            DrawCrosshairToScreen(HUDPackage.CrosshairRight, ViewportCenter, SpreadFactor);
+            DrawCrosshairToScreen(HUDPackage.CrosshairRight, ViewportCenter, SpreadFactor, HUDPackage.CrosshairColor);
         }
     }
 }
 
 void AShooterHUD::DrawCrosshairToScreen(UTexture2D *CrosshairTexture,
-                                        FVector2D ViewportCenter, FVector2D SpreadFactor)
+                                        FVector2D ViewportCenter, FVector2D SpreadFactor, FLinearColor CrosshairColor)
 {
     float TextureWidth = CrosshairTexture->GetSizeX();
     float TextureHeight = CrosshairTexture->GetSizeY();
@@ -59,5 +59,5 @@ void AShooterHUD::DrawCrosshairToScreen(UTexture2D *CrosshairTexture,
                 TextureHeight,
                 0.f, 0.f,
                 1.f, 1.f,
-                FLinearColor::Black);
+                CrosshairColor);
 }

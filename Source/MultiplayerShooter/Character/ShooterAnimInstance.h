@@ -76,5 +76,5 @@ private:
 
 	class AWeapon* EquippedWeapon;
 
-	void CalculateLeftHandTransform();
+	void CalculateLeftHandTransform(float DeltaSeconds);
 };

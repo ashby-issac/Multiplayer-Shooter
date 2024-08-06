@@ -2,25 +2,26 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "MultiplayerShooter/HUD/ShooterHUD.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f
 
 class AWeapon;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MULTIPLAYERSHOOTER_API UCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UCombatComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 
 	friend class AShooterCharacter;
-	void EquipWeapon(AWeapon* WeaponToEquip);
+	void EquipWeapon(AWeapon *WeaponToEquip);
 
 	UFUNCTION(Server, Reliable)
 	void ServerAimSync(bool bIsAiming);
@@ -36,15 +37,15 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(FVector_NetQuantize FireHitTarget);
 
-	void FindCrosshairHitTarget(FHitResult& HitResult);
+	void FindCrosshairHitTarget(FHitResult &HitResult);
 
 private:
-	class AShooterCharacter* ShooterCharacter;
-	class AShooterPlayerController* ShooterController;
-	class AShooterHUD* ShooterHUD;
+	class AShooterCharacter *ShooterCharacter;
+	class AShooterPlayerController *ShooterController;
+	class AShooterHUD *ShooterHUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OnEquippedWeapon)
-	AWeapon* EquippedWeapon;
+	AWeapon *EquippedWeapon;
 
 	UPROPERTY(Replicated)
 	bool bAiming;
@@ -65,18 +66,18 @@ private:
 	float DefaultZoomInterpSpeed;
 
 	bool bIsFireBtnPressed;
-	float CrosshairInAirFactor;
+	float CrosshairInAirFactor, CrosshairAimFactor;
 	float CurrentFOV;
 
 	FHitResult CrosshairHitResult;
+	FHUDPackage HUDPackage;
 
 	void SetCrosshairsForWeapon(float DeltaTime);
 	void SetZoomedFOV(float DeltaTime);
 
 public:
 	FVector CrosshairHitTarget;
-	
-	void SetAimingState(bool bIsAiming);
-	FORCEINLINE AWeapon* GetEquippedWeapon() const { return EquippedWeapon; }
 
+	void SetAimingState(bool bIsAiming);
+	FORCEINLINE AWeapon *GetEquippedWeapon() const { return EquippedWeapon; }
 };

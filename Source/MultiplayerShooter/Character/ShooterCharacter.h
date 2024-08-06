@@ -4,10 +4,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "MultiplayerShooter/BlasterTypes/TurningInPlace.h"
+#include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
-class MULTIPLAYERSHOOTER_API AShooterCharacter : public ACharacter
+class MULTIPLAYERSHOOTER_API AShooterCharacter : public ACharacter, public ICrosshairsInteractor
 {
 	GENERATED_BODY()
 
@@ -60,6 +61,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage *FireMontage;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage *HitReactMontage;
+
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon *LastWeapon);
 
@@ -72,12 +76,16 @@ private:
 	float AO_Pitch;
 
 	float Interp_AO;
+	float CamThreshold = 200.f;
 
 	FRotator InitialAimRot;
 	FRotator DeltaAimRot;
 
 	void CalculateAimOffsets(float DeltaTime);
 	void CheckForTurningInPlace(float DeltaTime);
+	void CheckCamIsOnCloseContact();
+	void DisableMeshesOnCloseContact(bool bActive);
+	void PlayHitReactMontage();
 
 public:
 	void Damage();
@@ -87,6 +95,9 @@ public:
 	bool IsWeaponEquipped();
 	bool IsAiming();
 	void PlayFireMontage(bool bAiming);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastHit();
 
 	FVector GetCrosshairHitTarget();
 

@@ -9,6 +9,7 @@
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
 #include "Camera/CameraComponent.h"
+#include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -36,10 +37,9 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (ShooterCharacter->IsLocallyControlled())
 	{
-		SetCrosshairsForWeapon(DeltaTime);
 		FindCrosshairHitTarget(CrosshairHitResult);
+		SetCrosshairsForWeapon(DeltaTime);
 		CrosshairHitTarget = CrosshairHitResult.ImpactPoint;
-
 		SetZoomedFOV(DeltaTime);
 	}
 }
@@ -82,7 +82,6 @@ void UCombatComponent::SetCrosshairsForWeapon(float DeltaTime)
 		ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(ShooterController->GetHUD()) : ShooterHUD;
 		if (ShooterHUD)
 		{
-			FHUDPackage HUDPackage;
 			if (EquippedWeapon)
 			{
 				HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairCenter;
@@ -111,7 +110,10 @@ void UCombatComponent::SetCrosshairsForWeapon(float DeltaTime)
 
 			CrosshairInAirFactor = ShooterCharacter->GetCharacterMovement()->IsFalling() ? FMath::FInterpTo(CrosshairInAirFactor, 2.f, DeltaTime, 2.f) : FMath::FInterpTo(CrosshairInAirFactor, 0.f, DeltaTime, 30.f);
 
-			HUDPackage.SpreadFactor = CrosshairSpreadFactor + CrosshairInAirFactor;
+			CrosshairAimFactor = bAiming ? FMath::FInterpTo(CrosshairAimFactor, 0.5f, DeltaTime, 30.f)
+										 : FMath::FInterpTo(CrosshairAimFactor, 0.f, DeltaTime, 30.f);
+
+			HUDPackage.SpreadFactor = CrosshairSpreadFactor + CrosshairInAirFactor - CrosshairAimFactor;
 			ShooterHUD->SetHUDPackageProps(HUDPackage);
 		}
 	}
@@ -183,12 +185,28 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 		if (bIsDeprojected)
 		{
 			FVector3d Start(CrosshairWorldLocation);
+
+			float Distance = (ShooterCharacter->GetActorLocation() 
+								- ShooterCharacter->GetFollowCam()->GetComponentLocation()).Size();
+			Start += CrosshairWorldDirection * (Distance + 100.f);
+			DrawDebugSphere(GetWorld(), Start, 30.f, 12, FColor::Red);
+			
 			FVector3d End(CrosshairWorldLocation + CrosshairWorldDirection * TRACE_LENGTH);
+
 			GetWorld()->LineTraceSingleByChannel(
 				HitResult,
 				Start,
 				End,
 				ECollisionChannel::ECC_Visibility);
+
+			if (HitResult.GetActor() && HitResult.GetActor()->Implements<UCrosshairsInteractor>())
+			{
+				HUDPackage.CrosshairColor = FLinearColor::Red;
+			}
+			else
+			{
+				HUDPackage.CrosshairColor = FLinearColor::Black;
+			}
 		}
 	}
 }

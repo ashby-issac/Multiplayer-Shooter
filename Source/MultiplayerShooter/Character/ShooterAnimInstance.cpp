@@ -54,7 +54,7 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	if (bWeaponEquipped)
 	{
-		CalculateLeftHandTransform();
+		CalculateLeftHandTransform(DeltaSeconds);
 	}
 }
 
@@ -77,7 +77,7 @@ void UShooterAnimInstance::CharacterStrafing(float DeltaSeconds)
 	YawOffset = -(DeltaRot.Yaw);
 }
 
-void UShooterAnimInstance::CalculateLeftHandTransform()
+void UShooterAnimInstance::CalculateLeftHandTransform(float DeltaSeconds)
 {
 	if (EquippedWeapon->GetWeaponMesh() && ShooterCharacter->GetMesh())
 	{
@@ -113,9 +113,9 @@ void UShooterAnimInstance::CalculateLeftHandTransform()
 			FTransform RightHandTransform = ShooterCharacter->GetMesh()->GetSocketTransform(FName("Hand_R"),
 																							ERelativeTransformSpace::RTS_World);
 			FVector RightHandLocation = RightHandTransform.GetLocation();
-			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandLocation,
+			FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(RightHandLocation,
 																	   RightHandLocation + (RightHandLocation - ShooterCharacter->GetCrosshairHitTarget()));
-			UE_LOG(LogTemp, Warning, TEXT("::: RightHandRotation: %s"), *RightHandRotation.ToString());
+			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookRotation, DeltaSeconds, 10.f);
 		}
 	}
 }
