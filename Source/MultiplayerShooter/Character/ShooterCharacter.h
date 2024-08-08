@@ -23,6 +23,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Jump() override;
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -30,7 +31,6 @@ protected:
 	void LookRight(float Value);
 	void OnCrouchPressed();
 
-	virtual void Jump() override;
 
 	void EquipWeapon();
 	void OnAimPressed();
@@ -77,15 +77,24 @@ private:
 
 	float Interp_AO;
 	float CamThreshold = 200.f;
+	float TurnThreshold = 0.5f;
+	float ProxyRotYaw;
+	float TimeForProxyRotation;
+
+	bool bRotateRootBone = false;
 
 	FRotator InitialAimRot;
 	FRotator DeltaAimRot;
+	FRotator ProxyRotationLastFrame;
+	FRotator CurrentProxyRotation;
 
 	void CalculateAimOffsets(float DeltaTime);
 	void CheckForTurningInPlace(float DeltaTime);
 	void CheckCamIsOnCloseContact();
 	void DisableMeshesOnCloseContact(bool bActive);
 	void PlayHitReactMontage();
+	void SimulatedProxiesTurn();
+	void CalculatePitch();
 
 public:
 	void Damage();
@@ -105,6 +114,9 @@ public:
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
 	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
+	FORCEINLINE bool GetRotateRootBoneState() { return bRotateRootBone; }
+
+	virtual void OnRep_ReplicatedMovement() override;
 
 	AWeapon *GetEquippedWeapon();
 };

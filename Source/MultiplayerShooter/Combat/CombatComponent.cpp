@@ -141,14 +141,45 @@ void UCombatComponent::SetAimingState(bool bIsAiming)
 	ServerAimSync(bIsAiming);
 }
 
+void UCombatComponent::SetFireTimer(bool bStart)
+{
+	if (!EquippedWeapon->bIsAutomatic)
+	{
+		return;
+	}
+
+	if (bStart)
+	{
+		// Start the timer
+		ShooterCharacter->GetWorldTimerManager().SetTimer(FireRateTimerHandle,
+														  this,
+														  &UCombatComponent::Fire,
+														  EquippedWeapon->FireDelay,
+														  true);
+	}
+	else
+	{
+		// Stop the timer
+		ShooterCharacter->GetWorldTimerManager().ClearTimer(FireRateTimerHandle);
+	}
+}
+
+void UCombatComponent::Fire()
+{
+	ServerFire(CrosshairHitTarget);
+}
+
 void UCombatComponent::SetFiringState(bool isFiring)
 {
 	bIsFireBtnPressed = isFiring;
 	if (bIsFireBtnPressed)
 	{
-		FHitResult FireHitResult;
-		FindCrosshairHitTarget(FireHitResult);
-		ServerFire(FireHitResult.ImpactPoint);
+		Fire();
+		SetFireTimer(true);
+	}
+	else
+	{
+		SetFireTimer(false);
 	}
 }
 
@@ -186,11 +217,10 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 		{
 			FVector3d Start(CrosshairWorldLocation);
 
-			float Distance = (ShooterCharacter->GetActorLocation() 
-								- ShooterCharacter->GetFollowCam()->GetComponentLocation()).Size();
+			float Distance = (ShooterCharacter->GetActorLocation() - ShooterCharacter->GetFollowCam()->GetComponentLocation()).Size();
 			Start += CrosshairWorldDirection * (Distance + 100.f);
 			DrawDebugSphere(GetWorld(), Start, 30.f, 12, FColor::Red);
-			
+
 			FVector3d End(CrosshairWorldLocation + CrosshairWorldDirection * TRACE_LENGTH);
 
 			GetWorld()->LineTraceSingleByChannel(

@@ -39,6 +39,7 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bWeaponEquipped = ShooterCharacter->IsWeaponEquipped();
 	bIsCrouched = ShooterCharacter->bIsCrouched;
 	bIsAiming = ShooterCharacter->IsAiming();
+	bRotateRootBone = ShooterCharacter->GetRotateRootBoneState();
 	TurningInPlaceState = ShooterCharacter->GetTurningInPlaceState();
 
 	AO_Yaw = ShooterCharacter->GetAO_Yaw();

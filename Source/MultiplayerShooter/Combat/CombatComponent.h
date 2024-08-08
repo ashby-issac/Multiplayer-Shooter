@@ -71,9 +71,12 @@ private:
 
 	FHitResult CrosshairHitResult;
 	FHUDPackage HUDPackage;
+	FTimerHandle FireRateTimerHandle;
 
 	void SetCrosshairsForWeapon(float DeltaTime);
 	void SetZoomedFOV(float DeltaTime);
+	void SetFireTimer(bool bStart);
+	void Fire();
 
 public:
 	FVector CrosshairHitTarget;

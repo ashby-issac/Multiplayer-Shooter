@@ -56,8 +56,119 @@ void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CalculateAimOffsets(DeltaTime);
+	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
+	{
+		CalculateAimOffsets(DeltaTime);
+	}
+	else
+	{
+		TimeForProxyRotation += DeltaTime;
+		if (TimeForProxyRotation > 0.25f)
+		{
+			OnRep_ReplicatedMovement();
+		}
+		CalculatePitch();
+	}
+
 	CheckCamIsOnCloseContact();
+}
+
+void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
+{
+	if (!IsWeaponEquipped())
+	{
+		return;
+	}
+
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0.f;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if (Speed == 0.f && !bIsInAir)
+	{
+		bRotateRootBone = true;
+		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		/*	InitialAimRot: Initial Rotation from place before rotating
+			CurrentAimRot: BaseAimRotation (Rotation relative to the world's rotation)
+		*/
+		// UE_LOG(LogTemp, Warning, TEXT(":: InitialAimRot: %s"), *InitialAimRot.ToString());
+		// UE_LOG(LogTemp, Warning, TEXT(":: CurrentAimRot: %s"), *CurrentAimRot.ToString());
+
+		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
+		AO_Yaw = DeltaAimRot.Yaw; // 0 - 89... 90
+
+		if (TurnInPlaceState == ETurningInPlace::ETIP_NotTurning)
+		{
+			Interp_AO = AO_Yaw; // -89 || -90 degrees
+		}
+
+		bUseControllerRotationYaw = true;
+		// Set Turning In Place states
+		CheckForTurningInPlace(DeltaTime);
+	}
+	else if (Speed > 0.f || bIsInAir)
+	{
+		bRotateRootBone = false;
+		TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
+		InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
+		bUseControllerRotationYaw = true;
+		AO_Yaw = 0.f;
+	}
+
+	CalculatePitch();
+}
+
+void AShooterCharacter::CalculatePitch()
+{
+	AO_Pitch = GetBaseAimRotation().Pitch;
+	if (!IsLocallyControlled() && AO_Pitch > 90.f)
+	{
+		FVector2D InRange = FVector2D(270.f, 360.f);
+		FVector2D OutRange = FVector2D(-90.f, 0.f);
+
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
+}
+
+void AShooterCharacter::SimulatedProxiesTurn()
+{
+	if (!CombatComponent && !CombatComponent->EquippedWeapon)
+	{
+		return;
+	}
+
+	bRotateRootBone = false;
+	ProxyRotationLastFrame = CurrentProxyRotation;
+	CurrentProxyRotation = GetActorRotation();
+	ProxyRotYaw = UKismetMathLibrary::NormalizedDeltaRotator(ProxyRotationLastFrame, CurrentProxyRotation).Yaw;
+
+	if (FMath::Abs(ProxyRotYaw) > TurnThreshold)
+	{
+		if (ProxyRotYaw > TurnThreshold)
+		{
+			TurnInPlaceState = ETurningInPlace::ETIP_TurnRight;
+		}
+		else if (ProxyRotYaw < -TurnThreshold)
+		{
+			TurnInPlaceState = ETurningInPlace::ETIP_TurnLeft;
+		}
+		else
+		{
+			TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
+		}
+		return;
+	}
+
+	TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
+}
+
+void AShooterCharacter::OnRep_ReplicatedMovement()
+{
+	Super::OnRep_ReplicatedMovement();
+
+	SimulatedProxiesTurn();
+	TimeForProxyRotation = 0.f;
 }
 
 void AShooterCharacter::MulticastHit_Implementation()
@@ -90,58 +201,6 @@ void AShooterCharacter::DisableMeshesOnCloseContact(bool bVisible)
 		CombatComponent->EquippedWeapon->GetWeaponMesh())
 	{
 		CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = !bVisible;
-	}
-}
-
-void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
-{
-	if (!IsWeaponEquipped())
-	{
-		return;
-	}
-
-	FVector Velocity = GetVelocity();
-	Velocity.Z = 0.f;
-	float Speed = Velocity.Size();
-	bool bIsInAir = GetCharacterMovement()->IsFalling();
-
-	if (Speed == 0.f && !bIsInAir)
-	{
-		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		/*	InitialAimRot: Initial Rotation from place before rotating
-			CurrentAimRot: BaseAimRotation (Rotation relative to the world's rotation)
-		*/
-		// UE_LOG(LogTemp, Warning, TEXT(":: InitialAimRot: %s"), *InitialAimRot.ToString());
-		// UE_LOG(LogTemp, Warning, TEXT(":: CurrentAimRot: %s"), *CurrentAimRot.ToString());
-
-		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
-		AO_Yaw = DeltaAimRot.Yaw; // 0 - 89... 90
-
-		if (TurnInPlaceState == ETurningInPlace::ETIP_NotTurning)
-		{
-			Interp_AO = AO_Yaw; // -89 || -90 degrees
-		}
-
-		bUseControllerRotationYaw = true;
-		// Set Turning In Place states
-		CheckForTurningInPlace(DeltaTime);
-	}
-	else if (Speed > 0.f || bIsInAir)
-	{
-		TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
-		InitialAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
-		bUseControllerRotationYaw = true;
-		AO_Yaw = 0.f;
-	}
-
-	AO_Pitch = GetBaseAimRotation().Pitch;
-
-	if (!IsLocallyControlled() && AO_Pitch > 90.f)
-	{
-		FVector2D InRange = FVector2D(270.f, 360.f);
-		FVector2D OutRange = FVector2D(-90.f, 0.f);
-
-		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
 	}
 }
 
@@ -279,7 +338,7 @@ void AShooterCharacter::OnFireReleased()
 	{
 		return;
 	}
-
+	
 	CombatComponent->SetFiringState(false);
 }
 
@@ -309,6 +368,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 	PlayerInputComponent->BindAction(FName("Crouch"), EInputEvent::IE_Pressed, this, &ThisClass::OnCrouchPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Pressed, this, &ThisClass::OnAimPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Released, this, &ThisClass::OnAimReleased);
+
 	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Pressed, this, &ThisClass::OnFirePressed);
 	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Released, this, &ThisClass::OnFireReleased);
 

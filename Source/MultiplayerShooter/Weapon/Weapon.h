@@ -90,6 +90,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	UTexture2D *CrosshairRight;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	bool bIsAutomatic = false;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	float FireDelay = 0.2f;
+
 	void SetWeaponState(EWeaponState CurrentState);
 
 	FORCEINLINE USkeletalMeshComponent *GetWeaponMesh() { return WeaponMesh; }
