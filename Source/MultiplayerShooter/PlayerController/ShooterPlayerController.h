@@ -11,4 +11,12 @@ class MULTIPLAYERSHOOTER_API AShooterPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	void UpdatePlayerHUD(float Health, float MaxHealth);
+
+protected:
+	virtual void BeginPlay() override;
+
+private:
+	class AShooterHUD* ShooterHUD;
 };

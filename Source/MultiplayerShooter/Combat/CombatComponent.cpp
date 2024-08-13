@@ -75,7 +75,8 @@ void UCombatComponent::SetCrosshairsForWeapon(float DeltaTime)
 		return;
 	}
 
-	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller) : ShooterController;
+	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller)
+													 : ShooterController;
 
 	if (ShooterController != nullptr)
 	{

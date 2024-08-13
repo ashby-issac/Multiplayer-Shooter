@@ -11,6 +11,8 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
+#include "MultiplayerShooter/HUD/CharacterOverlay.h"
+#include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -50,6 +52,13 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Health = MaxHealth;
+	ShooterController = Cast<AShooterPlayerController>(Controller);
+	if (ShooterController != nullptr)
+	{
+		ShooterController->UpdatePlayerHUD(Health, MaxHealth);
+	}
 }
 
 void AShooterCharacter::Tick(float DeltaTime)
@@ -338,7 +347,7 @@ void AShooterCharacter::OnFireReleased()
 	{
 		return;
 	}
-	
+
 	CombatComponent->SetFiringState(false);
 }
 
@@ -400,9 +409,6 @@ void AShooterCharacter::Jump()
 		break;
 	}
 	FString RoleString = FString::Printf(TEXT("LocalRole: %s"), *PawnRoleText);
-
-	UE_LOG(LogTemp, Warning, TEXT(":: Health: %f :: %s :: %s"),
-		   Health, *Auth.ToString(), *RoleString);
 
 	if (bIsCrouched)
 	{
@@ -472,8 +478,8 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(AShooterCharacter, Health, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, Health, COND_OwnerOnly); // TODO :: Double Check
 }
 
 void AShooterCharacter::PostInitializeComponents()
@@ -489,5 +495,18 @@ void AShooterCharacter::PostInitializeComponents()
 void AShooterCharacter::Damage()
 {
 	Health -= 10;
-	UE_LOG(LogTemp, Warning, TEXT(":: Damage %f"), Health);
+}
+
+void AShooterCharacter::OnRep_HealthDamaged()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_HealthDamaged"));
+	if (IsLocallyControlled())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnRep_HealthDamaged IsLocallyControlled"));
+		ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterController;
+		if (ShooterController != nullptr)
+		{
+			ShooterController->UpdatePlayerHUD(Health, MaxHealth);
+		}
+	}
 }

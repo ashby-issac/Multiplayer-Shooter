@@ -54,10 +54,10 @@ void AProjectileAmmo::OnProjectileHit(UPrimitiveComponent *HitComponent, AActor 
         // Apply damage to server controlled character
         // Replicate the damage down to the specific or
         // same character present in the clients.
-        // if (ShooterChar != nullptr)
-        // {
-        //     ShooterChar->Damage();
-        // }
+        if (ShooterChar != nullptr)
+        {
+            ShooterChar->Damage();
+        }
 
         ShooterChar->MulticastHit();
     }

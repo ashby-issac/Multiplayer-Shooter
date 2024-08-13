@@ -40,7 +40,10 @@ protected:
 	void OnFireReleased();
 
 private:
-	UPROPERTY(Replicated)
+	UPROPERTY(EditAnywhere, Category = "Character Health")
+	float MaxHealth = 100.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_HealthDamaged)
 	float Health = 100.f;
 
 	UPROPERTY(VisibleAnywhere)
@@ -66,6 +69,9 @@ private:
 
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon *LastWeapon);
+
+	UFUNCTION()
+	void OnRep_HealthDamaged();
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // Server RPC
@@ -97,6 +103,10 @@ private:
 	void CalculatePitch();
 
 public:
+	FVector GetCrosshairHitTarget();
+	class AShooterPlayerController* ShooterController;
+	class AShooterHUD* ShooterHUD;
+
 	void Damage();
 
 	void SetOverlappingWeapon(AWeapon *Weapon);
@@ -104,11 +114,10 @@ public:
 	bool IsWeaponEquipped();
 	bool IsAiming();
 	void PlayFireMontage(bool bAiming);
+	AWeapon *GetEquippedWeapon();
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastHit();
-
-	FVector GetCrosshairHitTarget();
 
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
@@ -118,5 +127,4 @@ public:
 
 	virtual void OnRep_ReplicatedMovement() override;
 
-	AWeapon *GetEquippedWeapon();
 };
