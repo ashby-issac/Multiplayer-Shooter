@@ -53,11 +53,15 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = MaxHealth;
-	ShooterController = Cast<AShooterPlayerController>(Controller);
-	if (ShooterController != nullptr)
+	if (IsLocallyControlled())
 	{
-		ShooterController->UpdatePlayerHUD(Health, MaxHealth);
+		Health = MaxHealth;
+		UpdatePlayerHUD();
+	}
+
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 	}
 }
 
@@ -180,11 +184,6 @@ void AShooterCharacter::OnRep_ReplicatedMovement()
 	TimeForProxyRotation = 0.f;
 }
 
-void AShooterCharacter::MulticastHit_Implementation()
-{
-	PlayHitReactMontage();
-}
-
 void AShooterCharacter::CheckCamIsOnCloseContact()
 {
 	if (!IsLocallyControlled())
@@ -304,7 +303,6 @@ void AShooterCharacter::EquipWeapon()
 	if (CombatComponent && HasAuthority()) // if on server
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
-		UE_LOG(LogTemp, Warning, TEXT("Has Authority"));
 	}
 	else
 	{
@@ -422,7 +420,6 @@ void AShooterCharacter::Jump()
 
 void AShooterCharacter::OnRep_OverlappingWeapon(AWeapon *LastWeapon)
 {
-	UE_LOG(LogTemp, Warning, TEXT(":: OnRep_OverlappingWeapon"));
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->ShowPickupWidget(true);
@@ -479,7 +476,7 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(AShooterCharacter, Health, COND_OwnerOnly); // TODO :: Double Check
+	DOREPLIFETIME(AShooterCharacter, Health); // TODO :: TEST
 }
 
 void AShooterCharacter::PostInitializeComponents()
@@ -492,21 +489,31 @@ void AShooterCharacter::PostInitializeComponents()
 	}
 }
 
-void AShooterCharacter::Damage()
+void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser)
 {
-	Health -= 10;
+	UE_LOG(LogTemp, Warning, TEXT(":: ReceiveDamage"));
+	Health -= Damage;
+
+	// For the server i.e., the authoritative versions
+	// if (IsLocallyControlled())
+	UpdatePlayerHUD();
+
+	PlayHitReactMontage();
 }
 
 void AShooterCharacter::OnRep_HealthDamaged()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_HealthDamaged"));
-	if (IsLocallyControlled())
+	// if (IsLocallyControlled())
+	UpdatePlayerHUD();
+
+	PlayHitReactMontage();
+}
+
+void AShooterCharacter::UpdatePlayerHUD()
+{
+	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterController;
+	if (ShooterController != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnRep_HealthDamaged IsLocallyControlled"));
-		ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterController;
-		if (ShooterController != nullptr)
-		{
-			ShooterController->UpdatePlayerHUD(Health, MaxHealth);
-		}
+		ShooterController->UpdatePlayerHUD(Health, MaxHealth);
 	}
 }

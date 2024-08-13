@@ -39,6 +39,9 @@ protected:
 	void OnFirePressed();
 	void OnFireReleased();
 
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Character Health")
 	float MaxHealth = 100.f;
@@ -101,13 +104,12 @@ private:
 	void PlayHitReactMontage();
 	void SimulatedProxiesTurn();
 	void CalculatePitch();
+	void UpdatePlayerHUD();
 
 public:
 	FVector GetCrosshairHitTarget();
 	class AShooterPlayerController* ShooterController;
 	class AShooterHUD* ShooterHUD;
-
-	void Damage();
 
 	void SetOverlappingWeapon(AWeapon *Weapon);
 
@@ -115,9 +117,6 @@ public:
 	bool IsAiming();
 	void PlayFireMontage(bool bAiming);
 	AWeapon *GetEquippedWeapon();
-
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastHit();
 
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }

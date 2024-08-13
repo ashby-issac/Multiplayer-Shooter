@@ -15,7 +15,13 @@ public:
 	AProjectileAmmo();
 
 protected:
+	UPROPERTY(EditAnywhere)
+	float Damage;
+
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -40,6 +46,4 @@ private:
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ImpactSound;
 
-	UFUNCTION()
-	void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

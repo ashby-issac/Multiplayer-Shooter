@@ -49,19 +49,7 @@ void AProjectileAmmo::BeginPlay()
 
 void AProjectileAmmo::OnProjectileHit(UPrimitiveComponent *HitComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit)
 {
-    if (auto ShooterChar = Cast<AShooterCharacter>(OtherActor))
-    {
-        // Apply damage to server controlled character
-        // Replicate the damage down to the specific or
-        // same character present in the clients.
-        if (ShooterChar != nullptr)
-        {
-            ShooterChar->Damage();
-        }
-
-        ShooterChar->MulticastHit();
-    }
-
+    UE_LOG(LogTemp, Warning, TEXT(":: Destroy"));
     Destroy();
 }
 

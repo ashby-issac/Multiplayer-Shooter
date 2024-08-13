@@ -10,7 +10,7 @@ void UOverheadWidget::OnLevelRemovedFromWorld(ULevel* Level, UWorld* World)
 
 void UOverheadWidget::SetNetworkRole(APawn* PlayerPawn)
 {
-	ENetRole PawnRole = PlayerPawn->GetLocalRole();
+	ENetRole PawnRole = PlayerPawn->GetRemoteRole();
 	FString PawnRoleText;
 	switch (PawnRole)
 	{
@@ -28,7 +28,7 @@ void UOverheadWidget::SetNetworkRole(APawn* PlayerPawn)
 			break;
 	}
 
-	FString RoleString = FString::Printf(TEXT("LocalRole: %s"), *PawnRoleText);
+	FString RoleString = FString::Printf(TEXT("RemoteRole: %s"), *PawnRoleText);
 	SetOverheadText(RoleString);
 }
 
