@@ -13,9 +13,6 @@ class UCrosshairsInteractor : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class MULTIPLAYERSHOOTER_API ICrosshairsInteractor
 {
 	GENERATED_BODY()

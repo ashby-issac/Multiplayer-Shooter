@@ -41,20 +41,6 @@ void AShooterPlayerController::BeginPlay()
 
 void AShooterPlayerController::UpdatePlayerHUD(float Health, float MaxHealth)
 {
-    if (GetHUD() == nullptr)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("GETHUD() is null"));
-    }
-
-    if (ShooterHUD == nullptr)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("ShooterHUD is null"));
-    }
-    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay == nullptr)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("ShooterHUD: CharacterOverlay is null"));
-    }
-
     if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
     {
         ShooterHUD->CharacterOverlay->UpdateHealthInfo(Health, MaxHealth);

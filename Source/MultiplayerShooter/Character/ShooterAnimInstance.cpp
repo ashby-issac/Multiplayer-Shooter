@@ -40,6 +40,7 @@ void UShooterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsCrouched = ShooterCharacter->bIsCrouched;
 	bIsAiming = ShooterCharacter->IsAiming();
 	bRotateRootBone = ShooterCharacter->GetRotateRootBoneState();
+	bIsEliminated = ShooterCharacter->GetIsEliminated();
 	TurningInPlaceState = ShooterCharacter->GetTurningInPlaceState();
 
 	AO_Yaw = ShooterCharacter->GetAO_Yaw();
@@ -87,6 +88,9 @@ void UShooterAnimInstance::CalculateLeftHandTransform(float DeltaSeconds)
 																				ERelativeTransformSpace::RTS_World);
 		FVector OutLocation;
 		FRotator OutRotator;
+
+		// Transform the LeftHandTransform WorldSpace to BoneSpace 
+		// with respect to the right hand
 		ShooterCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"),
 														  LeftHandTransform.GetLocation(),
 														  FRotator::ZeroRotator,

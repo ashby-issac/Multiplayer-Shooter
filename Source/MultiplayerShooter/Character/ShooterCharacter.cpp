@@ -13,6 +13,8 @@
 #include "Animation/AnimInstance.h"
 #include "MultiplayerShooter/HUD/CharacterOverlay.h"
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
+#include "MultiplayerShooter/GameModes/ShooterGameMode.h"
+#include "TimerManager.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -264,6 +266,15 @@ void AShooterCharacter::PlayHitReactMontage()
 	}
 }
 
+void AShooterCharacter::PlayElimMontage()
+{
+	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
 void AShooterCharacter::MoveForward(float Value)
 {
 	if (Controller && Value != 0)
@@ -491,14 +502,44 @@ void AShooterCharacter::PostInitializeComponents()
 
 void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT(":: ReceiveDamage"));
-	Health -= Damage;
+	Health = FMath::Clamp(Health -= Damage, 0.f, MaxHealth);
 
-	// For the server i.e., the authoritative versions
-	// if (IsLocallyControlled())
 	UpdatePlayerHUD();
-
 	PlayHitReactMontage();
+
+	if (Health <= 0.f)
+	{
+		AShooterGameMode *ShooterGameMode = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode());
+		AShooterPlayerController *InsigatorController = Cast<AShooterPlayerController>(InstigatedBy);
+
+		ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterController;
+		if (ShooterGameMode != nullptr)
+		{
+			ShooterGameMode->OnPlayerEliminated(this, ShooterController, InsigatorController);
+		}
+	}
+}
+
+void AShooterCharacter::OnEliminated()
+{
+	MulticastEliminate();
+
+	GetWorldTimerManager().SetTimer(ElimTimerHandle, this, &ThisClass::RespawnCharacter, ElimDelay);
+}
+
+void AShooterCharacter::RespawnCharacter()
+{
+	AShooterGameMode *ShooterGameMode = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode());
+	if (ShooterGameMode != nullptr)
+	{
+		ShooterGameMode->RespawnPlayer(Controller, this);
+	}
+}
+
+void AShooterCharacter::MulticastEliminate_Implementation()
+{
+	bIsEliminated = true;
+	PlayElimMontage();
 }
 
 void AShooterCharacter::OnRep_HealthDamaged()
