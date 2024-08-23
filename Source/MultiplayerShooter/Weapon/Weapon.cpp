@@ -74,6 +74,10 @@ void AWeapon::OnRep_WeaponState()
 	{
 	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false); // disabled pickup widget on all other clients
+		SetCollisionProps(ECollisionEnabled::NoCollision, false, false);
+		break;
+	case EWeaponState::EWS_Dropped:
+		SetCollisionProps(ECollisionEnabled::QueryAndPhysics, true, true);
 		break;
 	}
 }
@@ -84,9 +88,27 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 	switch (WeaponState)
 	{
 	case EWeaponState::EWS_Equipped:
-		EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if (HasAuthority())
+		{
+			EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+		SetCollisionProps(ECollisionEnabled::NoCollision, false, false);
+		break;
+	case EWeaponState::EWS_Dropped:
+		if (HasAuthority())
+		{
+			EquipArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		}
+		SetCollisionProps(ECollisionEnabled::QueryAndPhysics, true, true);
 		break;
 	}
+}
+
+void AWeapon::SetCollisionProps(ECollisionEnabled::Type CollisionState, bool bSimulatePhysics, bool bEnableGravity)
+{
+	WeaponMesh->SetSimulatePhysics(bSimulatePhysics);
+	WeaponMesh->SetEnableGravity(bEnableGravity);
+	WeaponMesh->SetCollisionEnabled(CollisionState);
 }
 
 void AWeapon::Tick(float DeltaTime)
@@ -133,4 +155,12 @@ void AWeapon::Fire(const FVector &HitLocation)
 			ShellInstance->SetActorRotation(Rotation);
 		}
 	}
+}
+
+void AWeapon::Dropped()
+{
+	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
+	WeaponMesh->DetachFromComponent(DetachRules);
+	SetWeaponState(EWeaponState::EWS_Dropped);
+	SetOwner(nullptr);
 }

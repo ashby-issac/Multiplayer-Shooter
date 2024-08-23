@@ -56,9 +56,6 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;
 
-	UFUNCTION()
-	void OnRep_WeaponState();
-
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent *PickupWidget;
 
@@ -73,6 +70,11 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float ZoomedInterpSpeed;
+
+	UFUNCTION()
+	void OnRep_WeaponState();
+
+	void SetCollisionProps(ECollisionEnabled::Type CollisionState, bool bSimulatePhysics, bool bEnableGravity);
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
@@ -97,6 +99,7 @@ public:
 	float FireDelay = 0.2f;
 
 	void SetWeaponState(EWeaponState CurrentState);
+	void Dropped();
 
 	FORCEINLINE USkeletalMeshComponent *GetWeaponMesh() { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() { return ZoomedFOV; }

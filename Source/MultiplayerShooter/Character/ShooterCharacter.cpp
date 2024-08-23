@@ -525,8 +525,12 @@ void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const 
 
 void AShooterCharacter::OnEliminated()
 {
+	if (CombatComponent && CombatComponent->EquippedWeapon)
+	{
+		CombatComponent->EquippedWeapon->Dropped();
+	}
+	
 	MulticastEliminate();
-
 	GetWorldTimerManager().SetTimer(ElimTimerHandle, this, &ThisClass::RespawnCharacter, ElimDelay);
 }
 

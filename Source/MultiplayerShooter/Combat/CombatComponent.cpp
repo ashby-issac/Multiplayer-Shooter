@@ -127,6 +127,14 @@ void UCombatComponent::OnRep_OnEquippedWeapon()
 		return;
 	}
 
+	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+
+	const USkeletalMeshSocket *RightHandSocket = ShooterCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+	if (RightHandSocket)
+	{
+		RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
+	}
+	
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
