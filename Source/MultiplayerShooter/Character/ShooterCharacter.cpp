@@ -15,6 +15,7 @@
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "MultiplayerShooter/GameModes/ShooterGameMode.h"
 #include "TimerManager.h"
+#include "Components/CapsuleComponent.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -552,6 +553,17 @@ void AShooterCharacter::MulticastEliminate_Implementation()
 	}
 
 	StartDissolve(); // Start Dissolving the Character On Elim
+
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+
+	if (ShooterController)
+	{
+		DisableInput(ShooterController);
+	}
+
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AShooterCharacter::OnRep_HealthDamaged()
