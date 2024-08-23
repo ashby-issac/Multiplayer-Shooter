@@ -41,6 +41,8 @@ AShooterCharacter::AShooterCharacter()
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	CombatComponent->SetIsReplicated(true);
 
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
 	TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
@@ -540,6 +542,16 @@ void AShooterCharacter::MulticastEliminate_Implementation()
 {
 	bIsEliminated = true;
 	PlayElimMontage();
+
+	if (DissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveAmt"), -0.55f);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+
+	StartDissolve(); // Start Dissolving the Character On Elim
 }
 
 void AShooterCharacter::OnRep_HealthDamaged()
@@ -556,5 +568,23 @@ void AShooterCharacter::UpdatePlayerHUD()
 	if (ShooterController != nullptr)
 	{
 		ShooterController->UpdatePlayerHUD(Health, MaxHealth);
+	}
+}
+
+void AShooterCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ThisClass::UpdateDissolveMaterial);
+	if (DissolveTimeline && DissolveCurve)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+	}
+}
+
+void AShooterCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveAmt"), DissolveValue);
 	}
 }

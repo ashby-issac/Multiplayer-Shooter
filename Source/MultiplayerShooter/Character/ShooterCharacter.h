@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "MultiplayerShooter/BlasterTypes/TurningInPlace.h"
 #include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
+#include "Components/TimelineComponent.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
@@ -20,6 +21,23 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
+
+	class AShooterPlayerController *ShooterController;
+	class AShooterHUD *ShooterHUD;
+
+	bool IsWeaponEquipped();
+	bool IsAiming();
+	void SetOverlappingWeapon(AWeapon *Weapon);
+	void PlayFireMontage(bool bAiming);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastEliminate();
+	void OnEliminated();
+
+	AWeapon *GetEquippedWeapon();
+	FVector GetCrosshairHitTarget();
+
+	virtual void OnRep_ReplicatedMovement() override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -39,8 +57,9 @@ protected:
 	void OnFireReleased();
 
 	void RespawnCharacter();
+
 	UFUNCTION()
-	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
+	void ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Character Health")
@@ -76,6 +95,20 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float ElimDelay = 3.f;
 
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+	class UTimelineComponent *DissolveTimeline;
+
+	UPROPERTY(EditAnywhere, Category = "Elim")
+	UCurveFloat *DissolveCurve;
+
+	UPROPERTY(EditAnywhere, Category = "Elim")
+	UMaterialInstance *DissolveMaterialInstance;
+
+	UPROPERTY(VisibleAnywhere, Category = "Elim")
+	UMaterialInstanceDynamic *DynamicDissolveMaterialInstance;
+
+	FOnTimelineFloat DissolveTrack; // Dynamic Delegate
+
 	ETurningInPlace TurnInPlaceState;
 	FTimerHandle ElimTimerHandle;
 
@@ -105,6 +138,10 @@ private:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // Server RPC
 
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+
+	void StartDissolve();
 	void CalculateAimOffsets(float DeltaTime);
 	void CheckForTurningInPlace(float DeltaTime);
 	void CheckCamIsOnCloseContact();
@@ -116,23 +153,7 @@ private:
 	void UpdatePlayerHUD();
 
 public:
-	class AShooterPlayerController* ShooterController;
-	class AShooterHUD* ShooterHUD;
-
-	bool IsWeaponEquipped();
-	bool IsAiming();
-	void SetOverlappingWeapon(AWeapon *Weapon);
-	void PlayFireMontage(bool bAiming);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastEliminate();
-	void OnEliminated();
-
-	AWeapon *GetEquippedWeapon();
-	FVector GetCrosshairHitTarget();
-
-	virtual void OnRep_ReplicatedMovement() override;
-
+	// 	FORCEINLINE functions should be kept after the respective private variables
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }

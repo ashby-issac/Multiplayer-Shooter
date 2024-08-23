@@ -204,10 +204,13 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 	if (GEngine && GEngine->GameViewport)
 	{
 		FVector2D ViewportSize;
-		GEngine->GameViewport->GetViewportSize(ViewportSize);
+		if (GEngine && GEngine->GameViewport)
+		{
+			GEngine->GameViewport->GetViewportSize(ViewportSize);
+		}
 
-		FVector2D ViewportCenter(ViewportSize.X / 2, ViewportSize.Y / 2);
-		FVector3d CrosshairWorldLocation, CrosshairWorldDirection;
+		FVector2D ViewportCenter(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+		FVector CrosshairWorldLocation, CrosshairWorldDirection;
 		bool bIsDeprojected = UGameplayStatics::DeprojectScreenToWorld(
 			UGameplayStatics::GetPlayerController(this, 0),
 			ViewportCenter,
@@ -216,13 +219,12 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 
 		if (bIsDeprojected)
 		{
-			FVector3d Start(CrosshairWorldLocation);
+			FVector Start(CrosshairWorldLocation);
 
-			float Distance = (ShooterCharacter->GetActorLocation() - ShooterCharacter->GetFollowCam()->GetComponentLocation()).Size();
+			float Distance = (ShooterCharacter->GetActorLocation() - Start).Size();
 			Start += CrosshairWorldDirection * (Distance + 100.f);
-			DrawDebugSphere(GetWorld(), Start, 30.f, 12, FColor::Red);
 
-			FVector3d End(CrosshairWorldLocation + CrosshairWorldDirection * TRACE_LENGTH);
+			FVector3d End(Start + CrosshairWorldDirection * TRACE_LENGTH);
 
 			GetWorld()->LineTraceSingleByChannel(
 				HitResult,
@@ -230,12 +232,14 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 				End,
 				ECollisionChannel::ECC_Visibility);
 
-			if (HitResult.GetActor() && HitResult.GetActor()->Implements<UCrosshairsInteractor>())
+			if (HitResult.GetActor() != nullptr && HitResult.GetActor()->Implements<UCrosshairsInteractor>())
 			{
+				// DrawDebugSphere(GetWorld(), Start, 30.f, 12, FColor::Red);
 				HUDPackage.CrosshairColor = FLinearColor::Red;
 			}
 			else
 			{
+				// DrawDebugSphere(GetWorld(), Start, 30.f, 12, FColor::Black);
 				HUDPackage.CrosshairColor = FLinearColor::Black;
 			}
 		}

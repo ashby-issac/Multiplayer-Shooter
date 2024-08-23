@@ -29,7 +29,7 @@ void UOverheadWidget::SetNetworkRole(APawn* PlayerPawn)
 	}
 
 	FString RoleString = FString::Printf(TEXT("RemoteRole: %s"), *PawnRoleText);
-	SetOverheadText(RoleString);
+	SetOverheadText("");
 }
 
 void UOverheadWidget::SetOverheadText(FString DisplayText)
