@@ -9,6 +9,7 @@
 #include "MultiplayerShooter/Weapon/Weapon.h"
 #include "MultiplayerShooter/Combat/CombatComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimInstance.h"
 #include "MultiplayerShooter/HUD/CharacterOverlay.h"
@@ -16,6 +17,10 @@
 #include "MultiplayerShooter/GameModes/ShooterGameMode.h"
 #include "TimerManager.h"
 #include "Components/CapsuleComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Sound/SoundCue.h"
+#include "MultiplayerShooter/PlayerStates/ShooterPlayerState.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -89,6 +94,20 @@ void AShooterCharacter::Tick(float DeltaTime)
 	}
 
 	CheckCamIsOnCloseContact();
+	PollInit();
+}
+
+void AShooterCharacter::PollInit()
+{
+	if (ShooterPlayerState == nullptr && IsLocallyControlled())
+	{
+		ShooterPlayerState = GetPlayerState<AShooterPlayerState>();
+		if (ShooterPlayerState)
+		{
+			ShooterPlayerState->AddToScore(0.f);
+			ShooterPlayerState->AddToDefeats(0.f);
+		}
+	}
 }
 
 void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
@@ -403,25 +422,6 @@ void AShooterCharacter::Jump()
 {
 	FName Auth = HasAuthority() ? FName("HasAuth") : FName("HasNoAuth");
 
-	ENetRole PawnRole = GetLocalRole();
-	FString PawnRoleText;
-	switch (PawnRole)
-	{
-	case ENetRole::ROLE_Authority:
-		PawnRoleText = FString("Authority");
-		break;
-	case ENetRole::ROLE_SimulatedProxy:
-		PawnRoleText = FString("SimulatedProxy");
-		break;
-	case ENetRole::ROLE_AutonomousProxy:
-		PawnRoleText = FString("AutonomousProxy");
-		break;
-	case ENetRole::ROLE_None:
-		PawnRoleText = FString("None");
-		break;
-	}
-	FString RoleString = FString::Printf(TEXT("LocalRole: %s"), *PawnRoleText);
-
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -529,7 +529,7 @@ void AShooterCharacter::OnEliminated()
 	{
 		CombatComponent->EquippedWeapon->Dropped();
 	}
-	
+
 	MulticastEliminate();
 	GetWorldTimerManager().SetTimer(ElimTimerHandle, this, &ThisClass::RespawnCharacter, ElimDelay);
 }
@@ -568,6 +568,30 @@ void AShooterCharacter::MulticastEliminate_Implementation()
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (ElimBotParticle)
+	{
+		ElimBotComponent = UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			ElimBotParticle,
+			FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + ElimBotZOffset),
+			GetActorRotation());
+	}
+
+	if (ElimBotSoundCue)
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ElimBotSoundCue, GetActorLocation());
+	}
+}
+
+void AShooterCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	if (ElimBotComponent)
+	{
+		ElimBotComponent->DestroyComponent();
+	}
 }
 
 void AShooterCharacter::OnRep_HealthDamaged()
@@ -583,7 +607,7 @@ void AShooterCharacter::UpdatePlayerHUD()
 	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterController;
 	if (ShooterController != nullptr)
 	{
-		ShooterController->UpdatePlayerHUD(Health, MaxHealth);
+		ShooterController->SendHealthHUDUpdate(Health, MaxHealth);
 	}
 }
 

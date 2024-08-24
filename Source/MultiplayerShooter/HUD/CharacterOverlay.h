@@ -16,6 +16,8 @@ class MULTIPLAYERSHOOTER_API UCharacterOverlay : public UUserWidget
 
 public:
 	void UpdateHealthInfo(float Health, float MaxHealth);
+	void UpdateScoreValue(float Score);
+	void UpdateDefeatValue(int32 Defeat);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -24,4 +26,9 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* HealthPercent;
 
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* ScoreValue;
+
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* DefeatsValue;
 };

@@ -4,45 +4,49 @@
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
 #include "MultiplayerShooter/HUD/CharacterOverlay.h"
 #include "Kismet/GameplayStatics.h"
+#include "MultiplayerShooter/Character/ShooterCharacter.h"
 
 void AShooterPlayerController::BeginPlay()
 {
     Super::BeginPlay();
 
     ShooterHUD = Cast<AShooterHUD>(GetHUD());
-    auto PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+}
 
-    FString PawnRoleText;
-	switch (PlayerPawn->GetLocalRole())
-	{
-		case ENetRole::ROLE_Authority:
-			PawnRoleText = FString("Authority");
-			break;
-		case ENetRole::ROLE_SimulatedProxy:
-			PawnRoleText = FString("SimulatedProxy");
-			break;
-		case ENetRole::ROLE_AutonomousProxy:
-			PawnRoleText = FString("AutonomousProxy");
-			break;
-		case ENetRole::ROLE_None:
-			PawnRoleText = FString("None");
-			break;
-	}
+void AShooterPlayerController::OnPossess(APawn *aPawn)
+{
+    Super::OnPossess(aPawn);
 
-    if (ShooterHUD == nullptr)
+    AShooterCharacter *ShooterCharacter = Cast<AShooterCharacter>(aPawn);
+    if (ShooterCharacter != nullptr)
     {
-        UE_LOG(LogTemp, Warning, TEXT("%s ShooterHUD is null"), *PawnRoleText);
-    }
-    else 
-    {
-        UE_LOG(LogTemp, Warning, TEXT("%s ShooterHUD is not null"), *PawnRoleText);
+        SendHealthHUDUpdate(ShooterCharacter->GetHealth(), ShooterCharacter->GetMaxHealth());
     }
 }
 
-void AShooterPlayerController::UpdatePlayerHUD(float Health, float MaxHealth)
+void AShooterPlayerController::SendHealthHUDUpdate(float Health, float MaxHealth)
 {
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
     if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
     {
         ShooterHUD->CharacterOverlay->UpdateHealthInfo(Health, MaxHealth);
+    }
+}
+
+void AShooterPlayerController::SendScoreHUDUpdate(float Score)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+    {
+        ShooterHUD->CharacterOverlay->UpdateScoreValue(Score);
+    }
+}
+
+void AShooterPlayerController::SendDefeatsHUDUpdate(int32 Defeat)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+    {
+        ShooterHUD->CharacterOverlay->UpdateDefeatValue(Defeat);
     }
 }

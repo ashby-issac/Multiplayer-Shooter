@@ -18,6 +18,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
+	virtual void Destroyed() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
@@ -107,6 +108,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Elim")
 	UMaterialInstanceDynamic *DynamicDissolveMaterialInstance;
 
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem *ElimBotParticle;
+
+	UPROPERTY(VisibleAnywhere)
+	class UParticleSystemComponent *ElimBotComponent;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue *ElimBotSoundCue;
+
+	class AShooterPlayerState* ShooterPlayerState;
 	FOnTimelineFloat DissolveTrack; // Dynamic Delegate
 
 	ETurningInPlace TurnInPlaceState;
@@ -114,7 +125,7 @@ private:
 
 	float AO_Yaw;
 	float AO_Pitch;
-
+	float ElimBotZOffset = 200.f;
 	float Interp_AO;
 	float CamThreshold = 200.f;
 	float TurnThreshold = 0.5f;
@@ -151,11 +162,14 @@ private:
 	void SimulatedProxiesTurn();
 	void CalculatePitch();
 	void UpdatePlayerHUD();
+	void PollInit();
 
 public:
 	// 	FORCEINLINE functions should be kept after the respective private variables
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
+	FORCEINLINE float GetHealth() { return Health; }
+	FORCEINLINE float GetMaxHealth() { return MaxHealth; }
 	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
 	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
 	FORCEINLINE bool GetRotateRootBoneState() { return bRotateRootBone; }

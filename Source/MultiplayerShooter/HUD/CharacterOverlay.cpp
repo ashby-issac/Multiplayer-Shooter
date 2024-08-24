@@ -12,3 +12,15 @@ void UCharacterOverlay::UpdateHealthInfo(float Health, float MaxHealth)
     HealthPercent->SetText(FText::FromString(ValueString));
     HealthBar->SetPercent(Health/MaxHealth);
 }
+
+void UCharacterOverlay::UpdateScoreValue(float Score)
+{
+    FString ValueString = FString::Printf(TEXT("%d"), FMath::CeilToInt(Score));
+    ScoreValue->SetText(FText::FromString(ValueString));
+}
+
+void UCharacterOverlay::UpdateDefeatValue(int32 Defeat)
+{
+    FString ValueString = FString::Printf(TEXT("%d"), Defeat);
+    DefeatsValue->SetText(FText::FromString(ValueString));
+}
