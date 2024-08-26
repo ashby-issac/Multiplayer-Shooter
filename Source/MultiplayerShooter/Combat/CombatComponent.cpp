@@ -134,7 +134,7 @@ void UCombatComponent::OnRep_OnEquippedWeapon()
 	{
 		RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
 	}
-	
+
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
@@ -180,6 +180,11 @@ void UCombatComponent::Fire()
 
 void UCombatComponent::SetFiringState(bool isFiring)
 {
+	if (!CanFire())
+	{
+		return;
+	}
+
 	bIsFireBtnPressed = isFiring;
 	if (bIsFireBtnPressed)
 	{
@@ -192,9 +197,13 @@ void UCombatComponent::SetFiringState(bool isFiring)
 	}
 }
 
+bool UCombatComponent::CanFire()
+{
+	return EquippedWeapon != nullptr && EquippedWeapon->GetWeaponAmmo() > 0;
+}
+
 void UCombatComponent::ServerFire_Implementation(FVector_NetQuantize FireHitTarget)
 {
-	// Runs on server and clients for that particular actor
 	MulticastFire(FireHitTarget);
 }
 

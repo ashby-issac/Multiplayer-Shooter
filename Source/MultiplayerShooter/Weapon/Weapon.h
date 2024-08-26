@@ -123,4 +123,6 @@ public:
 	FORCEINLINE USkeletalMeshComponent *GetWeaponMesh() { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() { return ZoomedFOV; }
 	FORCEINLINE float GetZoomedInterpSpeed() { return ZoomedInterpSpeed; }
+	FORCEINLINE int32 GetWeaponAmmo() { return Ammo; }
+	FORCEINLINE int32 GetWeaponMagCapacity() { return MagCapacity; }
 };

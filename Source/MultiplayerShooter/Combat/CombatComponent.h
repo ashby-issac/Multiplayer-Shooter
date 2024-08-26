@@ -77,6 +77,7 @@ private:
 	void SetZoomedFOV(float DeltaTime);
 	void SetFireTimer(bool bStart);
 	void Fire();
+	bool CanFire();
 
 public:
 	FVector CrosshairHitTarget;
