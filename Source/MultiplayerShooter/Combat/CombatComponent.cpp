@@ -267,6 +267,11 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 	if (!ShooterCharacter || !WeaponToEquip)
 		return;
 
+	if (EquippedWeapon != nullptr)
+	{
+		EquippedWeapon->Dropped();
+	}
+
 	EquippedWeapon = WeaponToEquip;
 
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
@@ -275,7 +280,7 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 	RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
 
 	EquippedWeapon->SetOwner(ShooterCharacter);
-	// EquippedWeapon->ShowPickupWidget(false);
+	EquippedWeapon->UpdateWeaponAmmoHUD();
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }

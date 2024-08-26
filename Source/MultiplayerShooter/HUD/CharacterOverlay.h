@@ -18,6 +18,7 @@ public:
 	void UpdateHealthInfo(float Health, float MaxHealth);
 	void UpdateScoreValue(float Score);
 	void UpdateDefeatValue(int32 Defeat);
+	void UpdateWeaponAmmoValue(int32 Ammo);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -27,8 +28,11 @@ private:
 	class UTextBlock* HealthPercent;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* ScoreValue;
+	UTextBlock* ScoreValue;
 
 	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* DefeatsValue;
+	UTextBlock* DefeatsValue;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* WeaponAmmoValue;
 };

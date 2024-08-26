@@ -24,3 +24,9 @@ void UCharacterOverlay::UpdateDefeatValue(int32 Defeat)
     FString ValueString = FString::Printf(TEXT("%d"), Defeat);
     DefeatsValue->SetText(FText::FromString(ValueString));
 }
+
+void UCharacterOverlay::UpdateWeaponAmmoValue(int32 Ammo)
+{
+    FString ValueString = FString::Printf(TEXT("%d"), Ammo);
+    WeaponAmmoValue->SetText(FText::FromString(ValueString));
+}

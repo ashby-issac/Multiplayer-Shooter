@@ -23,7 +23,7 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 
-	class AShooterPlayerController *ShooterController;
+	class AShooterPlayerController *ShooterPlayerController;
 	class AShooterHUD *ShooterHUD;
 
 	bool IsWeaponEquipped();

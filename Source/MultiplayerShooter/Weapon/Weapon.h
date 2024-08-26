@@ -31,6 +31,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnRep_Owner() override;
+
+	UFUNCTION()
+	void OnRep_WeaponState();
+
+	UFUNCTION()
+	void OnRep_Ammo();
+
 	UFUNCTION()
 	virtual void OnEquipAreaOverlap(UPrimitiveComponent *OverlappedComponent,
 									AActor *OtherActor,
@@ -71,9 +79,19 @@ private:
 	UPROPERTY(EditAnywhere)
 	float ZoomedInterpSpeed;
 
-	UFUNCTION()
-	void OnRep_WeaponState();
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_Ammo)
+	int32 Ammo;
 
+	UPROPERTY(EditAnywhere)
+	int32 MagCapacity;
+
+	UPROPERTY()
+	class AShooterCharacter *PlayerCharacter;
+
+	UPROPERTY()
+	class AShooterPlayerController *ShooterPlayerController;
+
+	void UpdateWeaponAmmoRound(int32 AmmoCount);
 	void SetCollisionProps(ECollisionEnabled::Type CollisionState, bool bSimulatePhysics, bool bEnableGravity);
 
 public:
@@ -98,6 +116,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	float FireDelay = 0.2f;
 
+	void UpdateWeaponAmmoHUD();
 	void SetWeaponState(EWeaponState CurrentState);
 	void Dropped();
 

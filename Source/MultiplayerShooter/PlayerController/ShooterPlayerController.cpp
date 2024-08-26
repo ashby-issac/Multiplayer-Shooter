@@ -50,3 +50,12 @@ void AShooterPlayerController::SendDefeatsHUDUpdate(int32 Defeat)
         ShooterHUD->CharacterOverlay->UpdateDefeatValue(Defeat);
     }
 }
+
+void AShooterPlayerController::SendWeaponAmmoHUDUpdate(int32 Ammo)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+{
+        ShooterHUD->CharacterOverlay->UpdateWeaponAmmoValue(Ammo);
+}
+}

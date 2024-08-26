@@ -67,3 +67,4 @@ void AShooterPlayerState::UpdateDefeatsHUD()
         }
     }
 }
+

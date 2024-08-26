@@ -23,7 +23,6 @@ public:
 	void AddToScore(float ScoreAmt);
 	void AddToDefeats(int32 DefeatAmt);
 
-
 private:
 	UPROPERTY()
 	class AShooterCharacter* ShooterCharacter;

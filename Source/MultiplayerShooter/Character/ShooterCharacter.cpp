@@ -515,10 +515,10 @@ void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const 
 		AShooterGameMode *ShooterGameMode = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode());
 		AShooterPlayerController *InsigatorController = Cast<AShooterPlayerController>(InstigatedBy);
 
-		ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterController;
+		ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterPlayerController;
 		if (ShooterGameMode != nullptr)
 		{
-			ShooterGameMode->OnPlayerEliminated(this, ShooterController, InsigatorController);
+			ShooterGameMode->OnPlayerEliminated(this, ShooterPlayerController, InsigatorController);
 		}
 	}
 }
@@ -548,6 +548,11 @@ void AShooterCharacter::MulticastEliminate_Implementation()
 	bIsEliminated = true;
 	PlayElimMontage();
 
+	if (ShooterPlayerController != nullptr)
+	{
+		ShooterPlayerController->SendWeaponAmmoHUDUpdate(0.f);
+	}
+
 	if (DissolveMaterialInstance)
 	{
 		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
@@ -561,9 +566,9 @@ void AShooterCharacter::MulticastEliminate_Implementation()
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 
-	if (ShooterController)
+	if (ShooterPlayerController)
 	{
-		DisableInput(ShooterController);
+		DisableInput(ShooterPlayerController);
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -604,10 +609,10 @@ void AShooterCharacter::OnRep_HealthDamaged()
 
 void AShooterCharacter::UpdatePlayerHUD()
 {
-	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterController;
-	if (ShooterController != nullptr)
+	ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterPlayerController;
+	if (ShooterPlayerController != nullptr)
 	{
-		ShooterController->SendHealthHUDUpdate(Health, MaxHealth);
+		ShooterPlayerController->SendHealthHUDUpdate(Health, MaxHealth);
 	}
 }
 

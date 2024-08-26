@@ -4,6 +4,7 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
+#include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "AmmoShell.h"
 
@@ -82,6 +83,47 @@ void AWeapon::OnRep_WeaponState()
 	}
 }
 
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+
+	if (GetOwner() == nullptr)
+	{
+		PlayerCharacter = nullptr;
+		ShooterPlayerController = nullptr;
+	}
+	else
+	{
+		UpdateWeaponAmmoHUD();
+	}
+}
+
+void AWeapon::UpdateWeaponAmmoRound(int32 AmmoCount)
+{
+	Ammo -= AmmoCount;
+
+	UpdateWeaponAmmoHUD();
+}
+
+void AWeapon::UpdateWeaponAmmoHUD()
+{
+	PlayerCharacter = PlayerCharacter == nullptr ? Cast<AShooterCharacter>(GetOwner()) : PlayerCharacter;
+	if (PlayerCharacter)
+	{
+		ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(PlayerCharacter->Controller)
+																	 : ShooterPlayerController;
+		if (ShooterPlayerController)
+		{
+			ShooterPlayerController->SendWeaponAmmoHUDUpdate(Ammo);
+		}
+	}
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	UpdateWeaponAmmoHUD();
+}
+
 void AWeapon::SetWeaponState(EWeaponState CurrentState)
 {
 	WeaponState = CurrentState;
@@ -121,6 +163,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::ShowPickupWidget(bool isEnabled)
@@ -155,6 +198,7 @@ void AWeapon::Fire(const FVector &HitLocation)
 			ShellInstance->SetActorRotation(Rotation);
 		}
 	}
+	UpdateWeaponAmmoRound(1);
 }
 
 void AWeapon::Dropped()
@@ -163,4 +207,6 @@ void AWeapon::Dropped()
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetWeaponState(EWeaponState::EWS_Dropped);
 	SetOwner(nullptr);
+	PlayerCharacter = nullptr;
+	ShooterPlayerController = nullptr;
 }

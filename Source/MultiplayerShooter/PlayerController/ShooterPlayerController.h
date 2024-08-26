@@ -15,6 +15,7 @@ public:
 	void SendHealthHUDUpdate(float Health, float MaxHealth);
 	void SendScoreHUDUpdate(float Score);
 	void SendDefeatsHUDUpdate(int32 Defeat);
+	void SendWeaponAmmoHUDUpdate(int32 Ammo);
 
 protected:
 	virtual void BeginPlay() override;
