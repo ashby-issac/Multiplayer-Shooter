@@ -19,15 +19,15 @@ AWeapon::AWeapon()
 	WeaponMesh->SetupAttachment(RootComponent);
 	SetRootComponent(WeaponMesh);
 
-	EquipArea = CreateDefaultSubobject<USphereComponent>(TEXT("EquipArea"));
-	EquipArea->SetupAttachment(RootComponent);
+	EquipAreaSphere = CreateDefaultSubobject<USphereComponent>(TEXT("EquipArea"));
+	EquipAreaSphere->SetupAttachment(RootComponent);
 
 	WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	EquipArea->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	EquipAreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupText"));
 	PickupWidget->SetupAttachment(RootComponent);
@@ -44,10 +44,10 @@ void AWeapon::BeginPlay()
 
 	if (HasAuthority())
 	{
-		EquipArea->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-		EquipArea->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		EquipArea->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnEquipAreaOverlap);
-		EquipArea->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEquipAreaEndOverlap);
+		EquipAreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+		EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		EquipAreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnEquipAreaOverlap);
+		EquipAreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEquipAreaEndOverlap);
 	}
 }
 
@@ -132,14 +132,14 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 	case EWeaponState::EWS_Equipped:
 		if (HasAuthority())
 		{
-			EquipArea->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 		SetCollisionProps(ECollisionEnabled::NoCollision, false, false);
 		break;
 	case EWeaponState::EWS_Dropped:
 		if (HasAuthority())
 		{
-			EquipArea->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
 		SetCollisionProps(ECollisionEnabled::QueryAndPhysics, true, true);
 		break;

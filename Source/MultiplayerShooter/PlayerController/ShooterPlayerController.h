@@ -16,7 +16,8 @@ public:
 	void SendScoreHUDUpdate(float Score);
 	void SendDefeatsHUDUpdate(int32 Defeat);
 	void SendWeaponAmmoHUDUpdate(int32 Ammo);
-
+	void SendCarriedAmmoHUDUpdate(int32 Ammo);
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* aPawn) override;

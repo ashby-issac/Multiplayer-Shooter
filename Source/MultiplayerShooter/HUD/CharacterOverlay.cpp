@@ -30,3 +30,9 @@ void UCharacterOverlay::UpdateWeaponAmmoValue(int32 Ammo)
     FString ValueString = FString::Printf(TEXT("%d"), Ammo);
     WeaponAmmoValue->SetText(FText::FromString(ValueString));
 }
+
+void UCharacterOverlay::UpdateCarriedAmmoValue(int32 Ammo)
+{
+    FString ValueString = FString::Printf(TEXT("%d"), Ammo);
+    CarriedAmmoValue->SetText(FText::FromString(ValueString));
+}

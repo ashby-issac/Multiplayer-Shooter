@@ -55,7 +55,16 @@ void AShooterPlayerController::SendWeaponAmmoHUDUpdate(int32 Ammo)
 {
     ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
     if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
-{
+    {
         ShooterHUD->CharacterOverlay->UpdateWeaponAmmoValue(Ammo);
+    }
 }
+
+void AShooterPlayerController::SendCarriedAmmoHUDUpdate(int32 Ammo)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+    {
+        ShooterHUD->CharacterOverlay->UpdateCarriedAmmoValue(Ammo);
+    }
 }

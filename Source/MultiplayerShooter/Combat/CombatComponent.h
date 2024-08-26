@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
+#include "MultiplayerShooter/Weapon/WeaponTypes.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f
@@ -40,8 +41,13 @@ protected:
 	void FindCrosshairHitTarget(FHitResult &HitResult);
 
 private:
+	UPROPERTY()
 	class AShooterCharacter *ShooterCharacter;
+
+	UPROPERTY()
 	class AShooterPlayerController *ShooterController;
+
+	UPROPERTY()
 	class AShooterHUD *ShooterHUD;
 
 	UPROPERTY(ReplicatedUsing = OnRep_OnEquippedWeapon)
@@ -49,6 +55,12 @@ private:
 
 	UPROPERTY(Replicated)
 	bool bAiming;
+
+	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_CarriedAmmo)
+	int32 CarriedAmmo;
+
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
 
 	UFUNCTION()
 	void OnRep_OnEquippedWeapon();
@@ -65,6 +77,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DefaultZoomInterpSpeed;
 
+	UPROPERTY(EditAnywhere)
+	int32 ARInitialAmmo;
+
+	TMap<EWeaponType, int32> CarriedAmmoMap;
+
 	bool bIsFireBtnPressed;
 	bool bCanFire = true;
 	float CrosshairInAirFactor, CrosshairAimFactor;
@@ -80,6 +97,8 @@ private:
 	void Fire();
 	void OnFireDelayed();
 	bool CanFire();
+	void InitializeCarriedAmmo();
+	void UpdateCarriedAmmoHUD();
 
 public:
 	FVector CrosshairHitTarget;

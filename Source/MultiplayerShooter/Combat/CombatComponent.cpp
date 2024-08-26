@@ -28,7 +28,13 @@ void UCombatComponent::BeginPlay()
 			DefaultZoomFOV = ShooterCharacter->GetFollowCam()->FieldOfView;
 			CurrentFOV = DefaultZoomFOV;
 		}
+		InitializeCarriedAmmo();
 	}
+}
+
+void UCombatComponent::InitializeCarriedAmmo()
+{
+	CarriedAmmoMap.Add(EWeaponType::EWT_AssaultRifle, ARInitialAmmo);
 }
 
 void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
@@ -130,7 +136,7 @@ void UCombatComponent::OnRep_OnEquippedWeapon()
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
 	const USkeletalMeshSocket *RightHandSocket = ShooterCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-	if (RightHandSocket)
+	if (RightHandSocket != nullptr)
 	{
 		RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
 	}
@@ -185,9 +191,13 @@ void UCombatComponent::SetFiringState(bool isFiring)
 	if (bIsFireBtnPressed && bCanFire)
 	{
 		Fire();
-		if (EquippedWeapon->bIsAutomaticWeapon)
+		if (EquippedWeapon->bIsAutomaticWeapon) // feature for auto mode
 		{
 			EnableAutomaticFiring();
+		}
+		else
+		{
+			// WaitAndFire for weapons like ShotGun
 		}
 	}
 }
@@ -264,6 +274,24 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
+	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
+}
+
+void UCombatComponent::OnRep_CarriedAmmo()
+{
+	UpdateCarriedAmmoHUD();
+}
+
+void UCombatComponent::UpdateCarriedAmmoHUD()
+{
+	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller) : ShooterController;
+	if (ShooterController != nullptr)
+	{
+		if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
+		{
+			ShooterController->SendCarriedAmmoHUDUpdate(CarriedAmmo);
+		}
+	}
 }
 
 void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
@@ -277,14 +305,20 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 	}
 
 	EquippedWeapon = WeaponToEquip;
-
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
 	const USkeletalMeshSocket *RightHandSocket = ShooterCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
-	RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
-
+	if (RightHandSocket != nullptr)
+	{
+		RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
+	}
+	
 	EquippedWeapon->SetOwner(ShooterCharacter);
+
+	CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 	EquippedWeapon->UpdateWeaponAmmoHUD();
+	UpdateCarriedAmmoHUD();
+
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }

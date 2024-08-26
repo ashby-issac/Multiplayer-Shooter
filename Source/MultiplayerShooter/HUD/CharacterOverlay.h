@@ -19,6 +19,7 @@ public:
 	void UpdateScoreValue(float Score);
 	void UpdateDefeatValue(int32 Defeat);
 	void UpdateWeaponAmmoValue(int32 Ammo);
+	void UpdateCarriedAmmoValue(int32 Ammo);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -35,4 +36,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponAmmoValue;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CarriedAmmoValue;
 };

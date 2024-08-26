@@ -393,7 +393,7 @@ void AShooterCharacter::OnCrouchPressed()
 
 void AShooterCharacter::ServerEquipButtonPressed_Implementation()
 {
-	if (CombatComponent)
+	if (CombatComponent != nullptr)
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
 	}

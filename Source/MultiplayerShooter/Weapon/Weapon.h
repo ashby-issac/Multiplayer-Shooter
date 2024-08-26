@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "WeaponTypes.h"
 #include "Weapon.generated.h"
 
 UENUM(BlueprintType)
@@ -59,7 +60,7 @@ private:
 	class USkeletalMeshComponent *WeaponMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USphereComponent *EquipArea;
+	class USphereComponent *EquipAreaSphere;
 
 	UPROPERTY(ReplicatedUsing = OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;
@@ -84,6 +85,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 MagCapacity;
+
+	UPROPERTY(EditAnywhere)
+	EWeaponType WeaponType;
 
 	UPROPERTY()
 	class AShooterCharacter *PlayerCharacter;
@@ -125,4 +129,5 @@ public:
 	FORCEINLINE float GetZoomedInterpSpeed() { return ZoomedInterpSpeed; }
 	FORCEINLINE int32 GetWeaponAmmo() { return Ammo; }
 	FORCEINLINE int32 GetWeaponMagCapacity() { return MagCapacity; }
+	FORCEINLINE EWeaponType GetWeaponType() { return WeaponType; }
 };
