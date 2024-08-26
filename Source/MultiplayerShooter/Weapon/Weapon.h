@@ -111,7 +111,7 @@ public:
 	UTexture2D *CrosshairRight;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
-	bool bIsAutomatic = false;
+	bool bIsAutomaticWeapon = false;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	float FireDelay = 0.2f;

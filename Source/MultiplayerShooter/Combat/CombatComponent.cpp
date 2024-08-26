@@ -150,26 +150,22 @@ void UCombatComponent::SetAimingState(bool bIsAiming)
 	ServerAimSync(bIsAiming);
 }
 
-void UCombatComponent::SetFireTimer(bool bStart)
+void UCombatComponent::EnableAutomaticFiring()
 {
-	if (!EquippedWeapon->bIsAutomatic)
-	{
-		return;
-	}
+	bCanFire = false;
+	ShooterCharacter->GetWorldTimerManager().SetTimer(FireRateTimerHandle,
+													  this,
+													  &ThisClass::OnFireDelayed,
+													  EquippedWeapon->FireDelay,
+													  false);
+}
 
-	if (bStart)
+void UCombatComponent::OnFireDelayed()
+{
+	bCanFire = true;
+	if (bIsFireBtnPressed) // if button is still on hold
 	{
-		// Start the timer
-		ShooterCharacter->GetWorldTimerManager().SetTimer(FireRateTimerHandle,
-														  this,
-														  &UCombatComponent::Fire,
-														  EquippedWeapon->FireDelay,
-														  true);
-	}
-	else
-	{
-		// Stop the timer
-		ShooterCharacter->GetWorldTimerManager().ClearTimer(FireRateTimerHandle);
+		SetFiringState(true);
 	}
 }
 
@@ -186,14 +182,13 @@ void UCombatComponent::SetFiringState(bool isFiring)
 	}
 
 	bIsFireBtnPressed = isFiring;
-	if (bIsFireBtnPressed)
+	if (bIsFireBtnPressed && bCanFire)
 	{
 		Fire();
-		SetFireTimer(true);
-	}
-	else
-	{
-		SetFireTimer(false);
+		if (EquippedWeapon->bIsAutomaticWeapon)
+		{
+			EnableAutomaticFiring();
+		}
 	}
 }
 
