@@ -213,5 +213,10 @@
 		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Weapon\\Weapon.h",
 		"command": "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
 		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
+	},
+	{
+		"file": "C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\Source\\MultiplayerShooter\\Weapon\\WeaponTypes.h",
+		"command": "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.29.30133\\bin\\HostX64\\x64\\cl.exe\" @C:\\Users\\ashby\\gaming-self-development\\unreal-project-folders\\MultiplayerShooter\\.vscode\\compileCommands_Default\\MultiplayerShooter.214.rsp",
+		"directory": "C:\\Program Files\\Epic Games\\UE_5.0\\Engine\\Source"
 	}
 ]

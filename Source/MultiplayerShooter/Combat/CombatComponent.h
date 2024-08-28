@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
 #include "MultiplayerShooter/Weapon/WeaponTypes.h"
+#include "MultiplayerShooter/BlasterTypes/CombatTypes.h"
 #include "CombatComponent.generated.h"
 
 #define TRACE_LENGTH 80000.f
@@ -28,17 +29,33 @@ public:
 	void ServerAimSync(bool bIsAiming);
 
 	void SetFiringState(bool isFiring);
+	
+	UFUNCTION(BlueprintCallable)
+	void OnReloadFinished();
 
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
+	UFUNCTION()
+	void OnRep_OnEquippedWeapon();
+
+	UFUNCTION()
+	void OnRep_CombatState();
+
 	UFUNCTION(Server, Reliable)
 	void ServerFire(FVector_NetQuantize FireHitTarget);
+
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(FVector_NetQuantize FireHitTarget);
 
 	void FindCrosshairHitTarget(FHitResult &HitResult);
+	void HandleReload();
 
 private:
 	UPROPERTY()
@@ -59,12 +76,6 @@ private:
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_CarriedAmmo)
 	int32 CarriedAmmo;
 
-	UFUNCTION()
-	void OnRep_CarriedAmmo();
-
-	UFUNCTION()
-	void OnRep_OnEquippedWeapon();
-
 	UPROPERTY(EditAnywhere)
 	float BaseWalkSpeed;
 
@@ -80,6 +91,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 ARInitialAmmo;
 
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CombatState)
+	ECombatState CombatState = ECombatState::ECS_Unoccupied;
+
 	TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	bool bIsFireBtnPressed;
@@ -91,6 +105,7 @@ private:
 	FHUDPackage HUDPackage;
 	FTimerHandle FireRateTimerHandle;
 
+	void ReloadWeapon();
 	void SetCrosshairsForWeapon(float DeltaTime);
 	void SetZoomedFOV(float DeltaTime);
 	void EnableAutomaticFiring();
@@ -105,4 +120,5 @@ public:
 
 	void SetAimingState(bool bIsAiming);
 	FORCEINLINE AWeapon *GetEquippedWeapon() const { return EquippedWeapon; }
+	FORCEINLINE int32 GetCarriedAmmo() const { return CarriedAmmo; }
 };

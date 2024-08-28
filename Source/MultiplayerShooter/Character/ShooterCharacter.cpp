@@ -21,6 +21,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
 #include "MultiplayerShooter/PlayerStates/ShooterPlayerState.h"
+#include "MultiplayerShooter/Weapon/WeaponTypes.h"
 
 AShooterCharacter::AShooterCharacter()
 {
@@ -269,11 +270,30 @@ void AShooterCharacter::CheckForTurningInPlace(float DeltaTime)
 void AShooterCharacter::PlayFireMontage(bool bAiming)
 {
 	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && FireMontage)
+	if (AnimInstance != nullptr && FireWeaponMontage != nullptr)
 	{
-		AnimInstance->Montage_Play(FireMontage);
+		AnimInstance->Montage_Play(FireWeaponMontage);
 		FName FireSection = bAiming ? FName("Aim_Fire") : FName("Hip_Fire");
-		AnimInstance->Montage_JumpToSection(FireSection, FireMontage);
+		AnimInstance->Montage_JumpToSection(FireSection, FireWeaponMontage);
+	}
+}
+
+void AShooterCharacter::PlayReloadMontage()
+{
+	UAnimInstance *AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr && ReloadMontage != nullptr)
+	{
+		AnimInstance->Montage_Play(ReloadMontage);
+		FName ReloadSection;
+
+		switch (CombatComponent->EquippedWeapon->GetWeaponType())
+		{
+		case EWeaponType::EWT_AssaultRifle:
+			ReloadSection = "Reload_Rifle";
+			break;
+		}
+
+		AnimInstance->Montage_JumpToSection(ReloadSection, ReloadMontage);
 	}
 }
 
@@ -391,6 +411,14 @@ void AShooterCharacter::OnCrouchPressed()
 	Crouch();
 }
 
+void AShooterCharacter::OnReloadPressed()
+{
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->ReloadWeapon();
+	}
+}
+
 void AShooterCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (CombatComponent != nullptr)
@@ -406,16 +434,18 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 	PlayerInputComponent->BindAction(FName("Jump"), EInputEvent::IE_Pressed, this, &ThisClass::Jump);
 	PlayerInputComponent->BindAction(FName("EquipWeapon"), EInputEvent::IE_Pressed, this, &ThisClass::EquipWeapon);
 	PlayerInputComponent->BindAction(FName("Crouch"), EInputEvent::IE_Pressed, this, &ThisClass::OnCrouchPressed);
+	PlayerInputComponent->BindAction(FName("Reload"), EInputEvent::IE_Pressed, this, &ThisClass::OnReloadPressed);
+
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Pressed, this, &ThisClass::OnAimPressed);
 	PlayerInputComponent->BindAction(FName("Aim"), EInputEvent::IE_Released, this, &ThisClass::OnAimReleased);
 
 	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Pressed, this, &ThisClass::OnFirePressed);
 	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Released, this, &ThisClass::OnFireReleased);
 
-	PlayerInputComponent->BindAxis(FName("MoveForward"), this, &AShooterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis(FName("MoveRight"), this, &AShooterCharacter::MoveRight);
-	PlayerInputComponent->BindAxis(FName("LookUp"), this, &AShooterCharacter::LookUp);
-	PlayerInputComponent->BindAxis(FName("LookRight"), this, &AShooterCharacter::LookRight);
+	PlayerInputComponent->BindAxis(FName("MoveForward"), this, &ThisClass::MoveForward);
+	PlayerInputComponent->BindAxis(FName("MoveRight"), this, &ThisClass::MoveRight);
+	PlayerInputComponent->BindAxis(FName("LookUp"), this, &ThisClass::LookUp);
+	PlayerInputComponent->BindAxis(FName("LookRight"), this, &ThisClass::LookRight);
 }
 
 void AShooterCharacter::Jump()
@@ -633,3 +663,10 @@ void AShooterCharacter::UpdateDissolveMaterial(float DissolveValue)
 		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("DissolveAmt"), DissolveValue);
 	}
 }
+
+ECombatState AShooterCharacter::GetCombatState() const
+{
+	if (CombatComponent == nullptr) return ECombatState::ETIP_MAX;
+
+	return CombatComponent->CombatState;
+} 

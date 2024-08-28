@@ -171,40 +171,40 @@ void UCombatComponent::OnFireDelayed()
 	bCanFire = true;
 	if (bIsFireBtnPressed) // if button is still on hold
 	{
-		SetFiringState(true);
+		Fire();
 	}
 }
 
 void UCombatComponent::Fire()
-{
-	ServerFire(CrosshairHitTarget);
-}
-
-void UCombatComponent::SetFiringState(bool isFiring)
 {
 	if (!CanFire())
 	{
 		return;
 	}
 
+	ServerFire(CrosshairHitTarget);
+	if (EquippedWeapon->bIsAutomaticWeapon) // for auto mode
+	{
+		EnableAutomaticFiring();
+	}
+	else
+	{
+		// WaitAndFire for weapons like ShotGun
+	}
+}
+
+void UCombatComponent::SetFiringState(bool isFiring)
+{
 	bIsFireBtnPressed = isFiring;
-	if (bIsFireBtnPressed && bCanFire)
+	if (bIsFireBtnPressed)
 	{
 		Fire();
-		if (EquippedWeapon->bIsAutomaticWeapon) // feature for auto mode
-		{
-			EnableAutomaticFiring();
-		}
-		else
-		{
-			// WaitAndFire for weapons like ShotGun
-		}
 	}
 }
 
 bool UCombatComponent::CanFire()
 {
-	return EquippedWeapon != nullptr && EquippedWeapon->GetWeaponAmmo() > 0;
+	return EquippedWeapon != nullptr && EquippedWeapon->GetWeaponAmmo() > 0 && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 
 void UCombatComponent::ServerFire_Implementation(FVector_NetQuantize FireHitTarget)
@@ -217,8 +217,71 @@ void UCombatComponent::MulticastFire_Implementation(FVector_NetQuantize FireHitT
 	if (!ShooterCharacter || !EquippedWeapon)
 		return;
 
-	EquippedWeapon->Fire(FireHitTarget);
-	ShooterCharacter->PlayFireMontage(bAiming);
+	if (CombatState == ECombatState::ECS_Unoccupied)
+	{
+		EquippedWeapon->Fire(FireHitTarget);
+		ShooterCharacter->PlayFireMontage(bAiming);
+	}
+}
+
+void UCombatComponent::ServerReload_Implementation()
+{
+	if (ShooterCharacter == nullptr)
+		return;
+
+	CombatState = ECombatState::ECS_Reloading;
+	HandleReload();
+}
+
+void UCombatComponent::OnRep_CombatState()
+{
+	switch (CombatState)
+	{
+	case ECombatState::ECS_Reloading:
+		HandleReload();
+		break;
+	case ECombatState::ECS_Unoccupied:
+		if (bIsFireBtnPressed)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::OnRep_CombatState"));
+			Fire();
+		}
+		break;
+	}
+}
+
+void UCombatComponent::ReloadWeapon()
+{
+	if (CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	{
+		ServerReload();
+	}
+}
+
+void UCombatComponent::HandleReload()
+{
+	if (ShooterCharacter == nullptr)
+		return;
+
+	ShooterCharacter->PlayReloadMontage();
+	// TODO :: Ammo functionality
+}
+
+void UCombatComponent::OnReloadFinished()
+{
+	if (ShooterCharacter == nullptr)
+		return;
+
+	if (ShooterCharacter->HasAuthority())
+	{
+		CombatState = ECombatState::ECS_Unoccupied;
+	}
+
+	if (bIsFireBtnPressed)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::OnReloadFinished"));
+		Fire();
+	}
 }
 
 void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
@@ -274,6 +337,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
+	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 }
 
@@ -312,7 +376,7 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 	{
 		RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
 	}
-	
+
 	EquippedWeapon->SetOwner(ShooterCharacter);
 
 	CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];

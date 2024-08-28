@@ -6,6 +6,7 @@
 #include "MultiplayerShooter/BlasterTypes/TurningInPlace.h"
 #include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
 #include "Components/TimelineComponent.h"
+#include "MultiplayerShooter/BlasterTypes/CombatTypes.h"
 #include "ShooterCharacter.generated.h"
 
 UCLASS()
@@ -30,6 +31,7 @@ public:
 	bool IsAiming();
 	void SetOverlappingWeapon(AWeapon *Weapon);
 	void PlayFireMontage(bool bAiming);
+	void PlayReloadMontage();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminate();
@@ -39,6 +41,7 @@ public:
 	FVector GetCrosshairHitTarget();
 
 	virtual void OnRep_ReplicatedMovement() override;
+	ECombatState GetCombatState() const; 
 
 protected:
 	virtual void BeginPlay() override;
@@ -49,6 +52,7 @@ protected:
 	void LookUp(float Value);
 	void LookRight(float Value);
 	void OnCrouchPressed();
+	void OnReloadPressed();
 
 	void EquipWeapon();
 	void OnAimPressed();
@@ -58,6 +62,15 @@ protected:
 	void OnFireReleased();
 
 	void RespawnCharacter();
+
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(AWeapon *LastWeapon);
+
+	UFUNCTION()
+	void OnRep_HealthDamaged();
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed(); // Server RPC
 
 	UFUNCTION()
 	void ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser);
@@ -81,17 +94,8 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class AWeapon *OverlappingWeapon;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent *CombatComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UAnimMontage *FireMontage;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UAnimMontage *HitReactMontage;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	class UAnimMontage *ElimMontage;
 
 	UPROPERTY(EditDefaultsOnly)
 	float ElimDelay = 3.f;
@@ -117,9 +121,22 @@ private:
 	UPROPERTY(EditAnywhere)
 	class USoundCue *ElimBotSoundCue;
 
-	class AShooterPlayerState* ShooterPlayerState;
-	FOnTimelineFloat DissolveTrack; // Dynamic Delegate
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage *FireWeaponMontage;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage *HitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage *ElimMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage *ReloadMontage;
+
+	UPROPERTY()
+	class AShooterPlayerState *ShooterPlayerState;
+
+	FOnTimelineFloat DissolveTrack; // Dynamic Delegate
 	ETurningInPlace TurnInPlaceState;
 	FTimerHandle ElimTimerHandle;
 
@@ -139,15 +156,6 @@ private:
 	FRotator DeltaAimRot;
 	FRotator ProxyRotationLastFrame;
 	FRotator CurrentProxyRotation;
-
-	UFUNCTION()
-	void OnRep_OverlappingWeapon(AWeapon *LastWeapon);
-
-	UFUNCTION()
-	void OnRep_HealthDamaged();
-
-	UFUNCTION(Server, Reliable)
-	void ServerEquipButtonPressed(); // Server RPC
 
 	UFUNCTION()
 	void UpdateDissolveMaterial(float DissolveValue);
