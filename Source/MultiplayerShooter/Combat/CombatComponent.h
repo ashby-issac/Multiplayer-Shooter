@@ -25,10 +25,8 @@ public:
 	friend class AShooterCharacter;
 	void EquipWeapon(AWeapon *WeaponToEquip);
 
-	UFUNCTION(Server, Reliable)
-	void ServerAimSync(bool bIsAiming);
-
 	void SetFiringState(bool isFiring);
+	void SetAimingState(bool bIsAiming);
 	
 	UFUNCTION(BlueprintCallable)
 	void OnReloadFinished();
@@ -37,16 +35,19 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-	void OnRep_CarriedAmmo();
-
-	UFUNCTION()
 	void OnRep_OnEquippedWeapon();
 
 	UFUNCTION()
 	void OnRep_CombatState();
 
+	UFUNCTION()
+	void OnRep_CarriedAmmo();
+
 	UFUNCTION(Server, Reliable)
 	void ServerFire(FVector_NetQuantize FireHitTarget);
+
+	UFUNCTION(Server, Reliable)
+	void ServerAimSync(bool bIsAiming);
 
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
@@ -56,6 +57,7 @@ protected:
 
 	void FindCrosshairHitTarget(FHitResult &HitResult);
 	void HandleReload();
+	void CalculateReloading();
 
 private:
 	UPROPERTY()
@@ -94,7 +96,6 @@ private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
 
-	TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	bool bIsFireBtnPressed;
 	bool bCanFire = true;
@@ -104,6 +105,7 @@ private:
 	FHitResult CrosshairHitResult;
 	FHUDPackage HUDPackage;
 	FTimerHandle FireRateTimerHandle;
+	TMap<EWeaponType, int32> CarriedAmmoMap;
 
 	void ReloadWeapon();
 	void SetCrosshairsForWeapon(float DeltaTime);
@@ -118,7 +120,6 @@ private:
 public:
 	FVector CrosshairHitTarget;
 
-	void SetAimingState(bool bIsAiming);
 	FORCEINLINE AWeapon *GetEquippedWeapon() const { return EquippedWeapon; }
 	FORCEINLINE int32 GetCarriedAmmo() const { return CarriedAmmo; }
 };

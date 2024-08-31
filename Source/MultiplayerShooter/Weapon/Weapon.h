@@ -123,11 +123,12 @@ public:
 	void UpdateWeaponAmmoHUD();
 	void SetWeaponState(EWeaponState CurrentState);
 	void Dropped();
+	void UpdateAmmoData(int32 Ammos);
 
 	FORCEINLINE USkeletalMeshComponent *GetWeaponMesh() { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() { return ZoomedFOV; }
 	FORCEINLINE float GetZoomedInterpSpeed() { return ZoomedInterpSpeed; }
-	FORCEINLINE int32 GetWeaponAmmo() { return Ammo; }
+	FORCEINLINE int32 GetAvailableAmmo() { return Ammo; }
 	FORCEINLINE int32 GetWeaponMagCapacity() { return MagCapacity; }
 	FORCEINLINE EWeaponType GetWeaponType() { return WeaponType; }
 };

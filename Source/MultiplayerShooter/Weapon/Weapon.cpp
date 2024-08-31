@@ -210,3 +210,8 @@ void AWeapon::Dropped()
 	PlayerCharacter = nullptr;
 	ShooterPlayerController = nullptr;
 }
+
+void AWeapon::UpdateAmmoData(int32 Ammos)
+{
+	Ammo += Ammos;
+}
