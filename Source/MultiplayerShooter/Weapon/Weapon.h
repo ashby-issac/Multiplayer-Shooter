@@ -114,6 +114,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Crosshairs")
 	UTexture2D *CrosshairRight;
 
+	UPROPERTY(EditAnywhere)
+	class USoundCue* EquipSound;
+
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	bool bIsAutomaticWeapon = false;
 

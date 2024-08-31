@@ -10,6 +10,7 @@
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
 #include "Camera/CameraComponent.h"
 #include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
+#include "Sound/SoundCue.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -82,6 +83,19 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 	EquippedWeapon->UpdateWeaponAmmoHUD();
 	UpdateCarriedAmmoHUD();
 
+	if (EquippedWeapon->EquipSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			EquippedWeapon->EquipSound,
+			ShooterCharacter->GetActorLocation());
+	}
+
+	if (EquippedWeapon->GetAvailableAmmo() < 1)
+	{
+		ReloadWeapon();
+	}
+
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 }
@@ -139,6 +153,14 @@ void UCombatComponent::OnRep_OnEquippedWeapon()
 	if (RightHandSocket != nullptr)
 	{
 		RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
+	}
+
+	if (EquippedWeapon->EquipSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			this,
+			EquippedWeapon->EquipSound,
+			ShooterCharacter->GetActorLocation());
 	}
 
 	ShooterCharacter->bUseControllerRotationYaw = true;
@@ -262,8 +284,7 @@ void UCombatComponent::CalculateReloading()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CarriedAmmo: %d"), CarriedAmmo);
 		EquippedWeapon->UpdateAmmoData(FMath::Min(ReloadAmt, CarriedAmmo));
-		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] = ReloadAmt <= CarriedAmmo ? 
-															CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmt : 0;
+		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] = ReloadAmt <= CarriedAmmo ? CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmt : 0;
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 	}
 
@@ -369,6 +390,11 @@ void UCombatComponent::EnableAutomaticFiring()
 
 void UCombatComponent::OnFireDelayed()
 {
+	if (EquippedWeapon->GetAvailableAmmo() < 1)
+	{
+		ReloadWeapon();
+	}
+
 	bCanFire = true;
 	if (bIsFireBtnPressed) // if button is still on hold
 	{

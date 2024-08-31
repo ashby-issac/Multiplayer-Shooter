@@ -7,6 +7,7 @@
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "AmmoShell.h"
+#include "Sound/SoundCue.h"
 
 AWeapon::AWeapon()
 {
