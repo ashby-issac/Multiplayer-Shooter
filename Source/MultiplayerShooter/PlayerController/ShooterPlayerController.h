@@ -13,6 +13,7 @@ class MULTIPLAYERSHOOTER_API AShooterPlayerController : public APlayerController
 	
 public:
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void ReceivedPlayer() override;
 
 	void SendHealthHUDUpdate(float Health, float MaxHealth);
 	void SendScoreHUDUpdate(float Score);
@@ -20,16 +21,32 @@ public:
 	void SendWeaponAmmoHUDUpdate(int32 Ammo);
 	void SendCarriedAmmoHUDUpdate(int32 Ammo);
 	void SendMatchCountdownHUDUpdate(float TotalSeconds);
+
+	float GetServerTime();
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* aPawn) override;
 
+	UFUNCTION(Server, Reliable)
+	void ClientRequestServerTime(float ClientRequestTime);
+
+	UFUNCTION(Client, Reliable)
+	void ServerResponseServerTime(float ClientRequestTime, float ServersTimeOfReceipt);
+
 private:
+	UPROPERTY(EditAnywhere, Category = "Time")
+	float SyncTimerDelay = 5.f;
+
+	UPROPERTY()
 	class AShooterHUD* ShooterHUD;
 
 	uint32 MatchTimer = 120;
 	uint32 CountdownInt = 0;
 
+	float ClientServerDelta;
+	float SyncTimer = 0;
+
 	void SetHUDCountdown();
+	void CheckTimeSync(float DeltaSeconds);
 };

@@ -18,6 +18,25 @@ void AShooterPlayerController::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 
     SetHUDCountdown();
+    CheckTimeSync(DeltaSeconds);
+}
+
+void AShooterPlayerController::CheckTimeSync(float DeltaSeconds)
+{
+    SyncTimer += DeltaSeconds;
+    if (SyncTimer >= SyncTimerDelay)
+    {
+        ClientRequestServerTime(GetWorld()->GetTimeSeconds());
+        SyncTimer = 0;
+    }
+}
+
+void AShooterPlayerController::ReceivedPlayer()
+{
+    Super::ReceivedPlayer();
+
+    UE_LOG(LogTemp, Warning, TEXT(":: ReceivedPlayer %d"), HasAuthority());
+    ClientRequestServerTime(GetWorld()->GetTimeSeconds());
 }
 
 void AShooterPlayerController::OnPossess(APawn *aPawn)
@@ -29,6 +48,23 @@ void AShooterPlayerController::OnPossess(APawn *aPawn)
     {
         SendHealthHUDUpdate(ShooterCharacter->GetHealth(), ShooterCharacter->GetMaxHealth());
     }
+}
+
+void AShooterPlayerController::ClientRequestServerTime_Implementation(float ClientRequestTime)
+{
+    ServerResponseServerTime(ClientRequestTime, GetWorld()->GetTimeSeconds());
+}
+
+void AShooterPlayerController::ServerResponseServerTime_Implementation(float ClientRequestTime, float ServersTimeOfReceipt)
+{
+    float RoundTripTime = GetWorld()->GetTimeSeconds() - ClientRequestTime;
+    float CurrentServerTime = ServersTimeOfReceipt + (0.5f * RoundTripTime);
+    ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+
+float AShooterPlayerController::GetServerTime()
+{
+    return HasAuthority() ? GetWorld()->GetTimeSeconds() : GetWorld()->GetTimeSeconds() + ClientServerDelta;
 }
 
 void AShooterPlayerController::SendHealthHUDUpdate(float Health, float MaxHealth)
@@ -87,7 +123,7 @@ void AShooterPlayerController::SendMatchCountdownHUDUpdate(float TotalSeconds)
 
 void AShooterPlayerController::SetHUDCountdown()
 {
-    int32 TimeLeft = FMath::CeilToInt32(MatchTimer - GetWorld()->GetTimeSeconds());
+    int32 TimeLeft = FMath::CeilToInt32(MatchTimer - GetServerTime());
 
     if (CountdownInt != TimeLeft)
         SendMatchCountdownHUDUpdate(TimeLeft);
