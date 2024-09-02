@@ -20,6 +20,7 @@ public:
 	void UpdateDefeatValue(int32 Defeat);
 	void UpdateWeaponAmmoValue(int32 Ammo);
 	void UpdateCarriedAmmoValue(int32 Ammo);
+	void UpdateMatchCountdownValue(float TotalSeconds);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -39,4 +40,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* CarriedAmmoValue;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* MatchCountdownValue;
 };

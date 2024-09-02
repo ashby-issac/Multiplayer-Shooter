@@ -13,6 +13,13 @@ void AShooterPlayerController::BeginPlay()
     ShooterHUD = Cast<AShooterHUD>(GetHUD());
 }
 
+void AShooterPlayerController::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+
+    SetHUDCountdown();
+}
+
 void AShooterPlayerController::OnPossess(APawn *aPawn)
 {
     Super::OnPossess(aPawn);
@@ -67,4 +74,23 @@ void AShooterPlayerController::SendCarriedAmmoHUDUpdate(int32 Ammo)
     {
         ShooterHUD->CharacterOverlay->UpdateCarriedAmmoValue(Ammo);
     }
+}
+
+void AShooterPlayerController::SendMatchCountdownHUDUpdate(float TotalSeconds)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+    {
+        ShooterHUD->CharacterOverlay->UpdateMatchCountdownValue(TotalSeconds);
+    }
+}
+
+void AShooterPlayerController::SetHUDCountdown()
+{
+    int32 TimeLeft = FMath::CeilToInt32(MatchTimer - GetWorld()->GetTimeSeconds());
+
+    if (CountdownInt != TimeLeft)
+        SendMatchCountdownHUDUpdate(TimeLeft);
+
+    CountdownInt = TimeLeft;
 }
