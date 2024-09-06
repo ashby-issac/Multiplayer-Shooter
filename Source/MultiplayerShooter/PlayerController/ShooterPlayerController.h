@@ -22,6 +22,7 @@ public:
 	void SendWeaponAmmoHUDUpdate(int32 Ammo);
 	void SendCarriedAmmoHUDUpdate(int32 Ammo);
 	void SendMatchCountdownHUDUpdate(float TotalSeconds);
+	void SendWarmupCountdownHUDUpdate(float TotalSeconds);
 	void OnMatchStateSet(FName NewState);
 
 	float GetServerTime();
@@ -39,6 +40,12 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void ServerResponseServerTime(float ClientRequestTime, float ServersTimeOfReceipt);
 
+	UFUNCTION(Server, Reliable)
+	void ServerCheckMatchState();
+
+	UFUNCTION(Client, Reliable)
+	void ClientJoinMidGame(FName StateOfMatch, float RemWarmupTime, float RemMatchTime, float RemStartTime);
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Time")
 	float SyncTimerDelay = 5.f;
@@ -54,7 +61,10 @@ private:
 
 	bool bInitializeCharacterOverlay;
 
-	uint32 MatchTimer = 120;
+	float MatchTime = 0.f;
+	float WarmupTime = 0.f;
+	float LevelStartingTime = 0.f;
+
 	uint32 CountdownInt = 0;
 
 	float CachedHealth, CachedMaxHealth;
@@ -66,4 +76,5 @@ private:
 	void PollInit();
 	void SetHUDCountdown();
 	void CheckTimeSync(float DeltaSeconds);
+	void HandleMatchStart();
 };

@@ -28,7 +28,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Time")
 	float WarmupTime = 10.f;
 	
-	float LevelStartingTime;
+	UPROPERTY(EditAnywhere, Category = "Time")
+	float MatchTime = 120.f;
+
+	float LevelStartingTime = 0.f;
 
 private:
 	float CountdownTimer = 0.f;

@@ -23,4 +23,6 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock *InfoText;
+
+	void UpdateWarmupCountdownValue(float TotalSeconds);
 };
