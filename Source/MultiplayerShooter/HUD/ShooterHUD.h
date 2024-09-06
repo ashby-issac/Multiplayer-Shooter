@@ -29,13 +29,21 @@ class MULTIPLAYERSHOOTER_API AShooterHUD : public AHUD
 	GENERATED_BODY()
 
 public:
+	UPROPERTY()
 	UCharacterOverlay *CharacterOverlay;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UCharacterOverlay> CharacterOverlayClass;
 
+	UPROPERTY()
+	class UAnnouncement *AnnouncementOverlay;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAnnouncement> AnnouncementOverlayClass;
+
+	void AddCharacterOverlay();
+	void AddAnnouncementOverlay();
 	virtual void DrawHUD() override;
-	FORCEINLINE void SetHUDPackageProps(FHUDPackage Package) { HUDPackage = Package; };
 
 protected:
 	virtual void BeginPlay() override;
@@ -46,6 +54,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CrosshairMultiplier = 10.f;
 
-	void AddCharacterOverlay();
 	void DrawCrosshairToScreen(UTexture2D *CrosshairTexture, FVector2D ViewportCenter, FVector2D SpreadFactor, FLinearColor CrosshairColor);
+
+public:
+	FORCEINLINE void SetHUDPackageProps(FHUDPackage Package) { HUDPackage = Package; };
 };

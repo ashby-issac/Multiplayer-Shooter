@@ -14,6 +14,7 @@ class MULTIPLAYERSHOOTER_API AShooterPlayerController : public APlayerController
 public:
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void ReceivedPlayer() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void SendHealthHUDUpdate(float Health, float MaxHealth);
 	void SendScoreHUDUpdate(float Score);
@@ -21,12 +22,16 @@ public:
 	void SendWeaponAmmoHUDUpdate(int32 Ammo);
 	void SendCarriedAmmoHUDUpdate(int32 Ammo);
 	void SendMatchCountdownHUDUpdate(float TotalSeconds);
+	void OnMatchStateSet(FName NewState);
 
 	float GetServerTime();
 	
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnPossess(APawn* aPawn) override;
+
+	UFUNCTION()
+	void OnRep_MatchState();
 
 	UFUNCTION(Server, Reliable)
 	void ClientRequestServerTime(float ClientRequestTime);
@@ -41,12 +46,24 @@ private:
 	UPROPERTY()
 	class AShooterHUD* ShooterHUD;
 
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
+	FName MatchState;
+
+	UPROPERTY()
+	class UCharacterOverlay* CharacterOverlay;
+
+	bool bInitializeCharacterOverlay;
+
 	uint32 MatchTimer = 120;
 	uint32 CountdownInt = 0;
+
+	float CachedHealth, CachedMaxHealth;
+	int32 CachedDefeats, CachedScore;
 
 	float ClientServerDelta;
 	float SyncTimer = 0;
 
+	void PollInit();
 	void SetHUDCountdown();
 	void CheckTimeSync(float DeltaSeconds);
 };

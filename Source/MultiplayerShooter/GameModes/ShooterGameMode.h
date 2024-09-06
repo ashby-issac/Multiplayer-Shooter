@@ -13,6 +13,7 @@ class MULTIPLAYERSHOOTER_API AShooterGameMode : public AGameMode
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnMatchStateSet() override;
 
 public:
 	AShooterGameMode();

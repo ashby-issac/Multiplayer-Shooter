@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ShooterGameMode.h"
-#include "MultiplayerShooter/Character/ShooterCharacter.h"
-#include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
+#include "MultiplayerShooter/Character/ShooterCharacter.h"
 #include "MultiplayerShooter/PlayerStates/ShooterPlayerState.h"
+#include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 
 AShooterGameMode::AShooterGameMode()
 {
@@ -19,6 +19,20 @@ void AShooterGameMode::BeginPlay()
     Super::BeginPlay();
 
     LevelStartingTime = GetWorld()->GetTimeSeconds();
+}
+
+void AShooterGameMode::OnMatchStateSet()
+{
+    Super::OnMatchStateSet();
+
+    for (FConstPlayerControllerIterator it = GetWorld()->GetPlayerControllerIterator(); it; ++it)
+    {
+        AShooterPlayerController* ShooterController = Cast<AShooterPlayerController>(*it);
+        if (ShooterController != nullptr)
+        {
+            ShooterController->OnMatchStateSet(MatchState);
+        }
+    }
 }
 
 void AShooterGameMode::Tick(float DeltaSeconds)
