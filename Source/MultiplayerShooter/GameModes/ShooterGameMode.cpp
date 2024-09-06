@@ -55,7 +55,44 @@ void AShooterGameMode::OnPlayerEliminated(AShooterCharacter *ElimCharacter, ASho
     }
 }
 
+void AShooterGameMode::OnPlayerEliminated1(AShooterCharacter *ElimCharacter, AShooterPlayerController *ElimController, AShooterPlayerController *AttackerController)
+{
+    if (AttackerController != nullptr && AttackerController != ElimController)
+    {
+        AShooterPlayerState *ShooterPlayerState = Cast<AShooterPlayerState>(AttackerController->PlayerState);
+        ShooterPlayerState->AddToScore(1.f);
+    }
+
+    if (ElimController != nullptr)
+    {
+        AShooterPlayerState *ShooterPlayerState = Cast<AShooterPlayerState>(ElimController->PlayerState);
+        ShooterPlayerState->AddToDefeats(1.f);
+    }
+
+    if (ElimCharacter != nullptr)
+    {
+        ElimCharacter->OnEliminated();
+    }
+}
+
 void AShooterGameMode::RespawnPlayer(AController *Controller, AActor *Player)
+{
+    if (Player != nullptr)
+    {
+        Player->Reset();
+        Player->Destroy();
+    }
+
+    if (Controller != nullptr)
+    {
+        TArray<AActor *> PlayerStarts;
+        UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+        int32 PlayerStartIndex = FMath::RandRange(0, PlayerStarts.Num() - 1);
+        RestartPlayerAtPlayerStart(Controller, PlayerStarts[PlayerStartIndex]);
+    }
+}
+
+void AShooterGameMode::RespawnPlayer1(AController *Controller, AActor *Player)
 {
     if (Player != nullptr)
     {
