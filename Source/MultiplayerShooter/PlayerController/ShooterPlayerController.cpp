@@ -83,11 +83,13 @@ void AShooterPlayerController::OnRep_MatchState()
     }
 }
 
+// Server RPC
 void AShooterPlayerController::ClientRequestServerTime_Implementation(float ClientRequestTime)
 {
     ServerResponseServerTime(ClientRequestTime, GetWorld()->GetTimeSeconds());
 }
 
+// Client RPC
 void AShooterPlayerController::ServerResponseServerTime_Implementation(float ClientRequestTime, float ServersTimeOfReceipt)
 {
     float RoundTripTime = GetWorld()->GetTimeSeconds() - ClientRequestTime;
@@ -119,9 +121,6 @@ void AShooterPlayerController::ServerCheckMatchState_Implementation()
         MatchState = ShooterGameMode->GetMatchState();
 
         ClientJoinMidGame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
-
-        if (ShooterHUD != nullptr && MatchState == MatchState::WaitingToStart)
-            ShooterHUD->AddAnnouncementOverlay();
     }
 }
 
