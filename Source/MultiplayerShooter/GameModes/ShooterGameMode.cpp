@@ -57,7 +57,7 @@ void AShooterGameMode::Tick(float DeltaSeconds)
         CountdownTimer = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
         if (CountdownTimer <= 0)
         {
-            MatchState = MatchState::Cooldown;
+            SetMatchState(MatchState::Cooldown);
         }
     }
 }

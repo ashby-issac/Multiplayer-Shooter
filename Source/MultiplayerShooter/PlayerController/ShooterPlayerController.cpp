@@ -215,6 +215,7 @@ void AShooterPlayerController::SendWarmupCountdownHUDUpdate(float TotalSeconds)
 void AShooterPlayerController::OnMatchStateSet(FName NewState)
 {
     MatchState = NewState;
+    UE_LOG(LogTemp, Warning, TEXT(":: OnMatchStateSet: "), *MatchState.ToString());
 
     if (MatchState == MatchState::InProgress)
     {
