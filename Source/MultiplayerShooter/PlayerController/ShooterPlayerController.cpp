@@ -81,6 +81,10 @@ void AShooterPlayerController::OnRep_MatchState()
     {
         HandleMatchStart();
     }
+    else if (MatchState == MatchState::Cooldown)
+    {
+        HandleCooldown();
+    }
 }
 
 // Server RPC
@@ -216,6 +220,10 @@ void AShooterPlayerController::OnMatchStateSet(FName NewState)
     {
         HandleMatchStart();
     }
+    else if (MatchState == MatchState::Cooldown)
+    {
+        HandleCooldown();
+    }
 }
 
 void AShooterPlayerController::HandleMatchStart()
@@ -227,6 +235,19 @@ void AShooterPlayerController::HandleMatchStart()
         if (ShooterHUD->AnnouncementOverlay != nullptr)
         {
             ShooterHUD->AnnouncementOverlay->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+}
+
+void AShooterPlayerController::HandleCooldown()
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+    {
+        ShooterHUD->CharacterOverlay->RemoveFromParent();
+        if (ShooterHUD->AnnouncementOverlay != nullptr)
+        {
+            ShooterHUD->AnnouncementOverlay->SetVisibility(ESlateVisibility::Visible);
         }
     }
 }

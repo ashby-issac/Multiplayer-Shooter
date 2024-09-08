@@ -6,6 +6,11 @@
 #include "GameFramework/GameMode.h"
 #include "ShooterGameMode.generated.h"
 
+namespace MatchState
+{
+	extern MULTIPLAYERSHOOTER_API const FName Cooldown;
+}
+
 UCLASS()
 class MULTIPLAYERSHOOTER_API AShooterGameMode : public AGameMode
 {
@@ -21,9 +26,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	void RespawnPlayer(AController* Controller, AActor* Player);
-	void RespawnPlayer1(AController* Controller, AActor* Player);
 	void OnPlayerEliminated(class AShooterCharacter* ElimCharacter, class AShooterPlayerController* ElimController, AShooterPlayerController* AttackerController);
-	void OnPlayerEliminated1(class AShooterCharacter* ElimCharacter, class AShooterPlayerController* ElimController, AShooterPlayerController* AttackerController);
 
 	UPROPERTY(EditAnywhere, Category = "Time")
 	float WarmupTime = 10.f;

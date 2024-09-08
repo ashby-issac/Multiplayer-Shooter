@@ -77,4 +77,5 @@ private:
 	void SetHUDCountdown();
 	void CheckTimeSync(float DeltaSeconds);
 	void HandleMatchStart();
+	void HandleCooldown();
 };

@@ -7,6 +7,11 @@
 #include "MultiplayerShooter/PlayerStates/ShooterPlayerState.h"
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 
+namespace MatchState
+{
+    const FName Cooldown = FName(TEXT("Cooldown"));
+}
+
 AShooterGameMode::AShooterGameMode()
 {
     PrimaryActorTick.bCanEverTick = true;
@@ -47,6 +52,14 @@ void AShooterGameMode::Tick(float DeltaSeconds)
             StartMatch();
         }
     }
+    else if (MatchState == MatchState::InProgress)
+    {
+        CountdownTimer = WarmupTime + MatchTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+        if (CountdownTimer <= 0)
+        {
+            MatchState = MatchState::Cooldown;
+        }
+    }
 }
 
 void AShooterGameMode::OnPlayerEliminated(AShooterCharacter *ElimCharacter, AShooterPlayerController *ElimController, AShooterPlayerController *AttackerController)
@@ -69,44 +82,7 @@ void AShooterGameMode::OnPlayerEliminated(AShooterCharacter *ElimCharacter, ASho
     }
 }
 
-void AShooterGameMode::OnPlayerEliminated1(AShooterCharacter *ElimCharacter, AShooterPlayerController *ElimController, AShooterPlayerController *AttackerController)
-{
-    if (AttackerController != nullptr && AttackerController != ElimController)
-    {
-        AShooterPlayerState *ShooterPlayerState = Cast<AShooterPlayerState>(AttackerController->PlayerState);
-        ShooterPlayerState->AddToScore(1.f);
-    }
-
-    if (ElimController != nullptr)
-    {
-        AShooterPlayerState *ShooterPlayerState = Cast<AShooterPlayerState>(ElimController->PlayerState);
-        ShooterPlayerState->AddToDefeats(1.f);
-    }
-
-    if (ElimCharacter != nullptr)
-    {
-        ElimCharacter->OnEliminated();
-    }
-}
-
 void AShooterGameMode::RespawnPlayer(AController *Controller, AActor *Player)
-{
-    if (Player != nullptr)
-    {
-        Player->Reset();
-        Player->Destroy();
-    }
-
-    if (Controller != nullptr)
-    {
-        TArray<AActor *> PlayerStarts;
-        UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
-        int32 PlayerStartIndex = FMath::RandRange(0, PlayerStarts.Num() - 1);
-        RestartPlayerAtPlayerStart(Controller, PlayerStarts[PlayerStartIndex]);
-    }
-}
-
-void AShooterGameMode::RespawnPlayer1(AController *Controller, AActor *Player)
 {
     if (Player != nullptr)
     {
