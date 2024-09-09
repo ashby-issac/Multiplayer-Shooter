@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerStart.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
+#include "MultiplayerShooter/GameState/ShooterGameState.h"
 #include "MultiplayerShooter/PlayerStates/ShooterPlayerState.h"
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 
@@ -24,6 +25,15 @@ void AShooterGameMode::BeginPlay()
     Super::BeginPlay();
 
     LevelStartingTime = GetWorld()->GetTimeSeconds();
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(
+            -1,
+            15.f,
+            FColor::Green,
+            FString::Printf(TEXT("LevelStartingTime: %f"), LevelStartingTime)
+        );
+    }
 }
 
 void AShooterGameMode::OnMatchStateSet()
@@ -60,6 +70,14 @@ void AShooterGameMode::Tick(float DeltaSeconds)
             SetMatchState(MatchState::Cooldown);
         }
     }
+    else if (MatchState == MatchState::Cooldown)
+    {
+        CountdownTimer = WarmupTime + MatchTime + CooldownTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+        if (CountdownTimer <= 0)
+        {
+            RestartGame();
+        }
+    }
 }
 
 void AShooterGameMode::OnPlayerEliminated(AShooterCharacter *ElimCharacter, AShooterPlayerController *ElimController, AShooterPlayerController *AttackerController)
@@ -68,6 +86,11 @@ void AShooterGameMode::OnPlayerEliminated(AShooterCharacter *ElimCharacter, ASho
     {
         AShooterPlayerState *ShooterPlayerState = Cast<AShooterPlayerState>(AttackerController->PlayerState);
         ShooterPlayerState->AddToScore(1.f);
+        AShooterGameState* ShooterGameState = GetGameState<AShooterGameState>();
+        if (ShooterGameState != nullptr)
+        {
+            ShooterGameState->UpdateTopScorers(ShooterPlayerState);
+        }
     }
 
     if (ElimController != nullptr)

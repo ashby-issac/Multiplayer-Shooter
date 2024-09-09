@@ -38,6 +38,12 @@ void UCharacterOverlay::UpdateCarriedAmmoValue(int32 Ammo)
 
 void UCharacterOverlay::UpdateMatchCountdownValue(float TotalSeconds)
 {
+    if (TotalSeconds < 0.f)
+    {
+        MatchCountdownValue->SetText(FText());
+        return;
+    }
+
     int32 Minutes = FMath::FloorToInt32(TotalSeconds / 60.f);
     int32 Seconds = FMath::FloorToInt32(TotalSeconds) % 60;
 

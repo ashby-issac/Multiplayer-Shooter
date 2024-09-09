@@ -34,8 +34,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Time")
 	float MatchTime = 120.f;
 
+	UPROPERTY(EditAnywhere, Category = "Time")
+	float CooldownTime = 120.f;
+
 	float LevelStartingTime = 0.f;
 
 private:
 	float CountdownTimer = 0.f;
+
+public:
+	FORCEINLINE float GetCountdownTimer() { return CountdownTimer; }
 };

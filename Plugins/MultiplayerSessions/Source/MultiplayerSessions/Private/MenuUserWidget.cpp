@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "OnlineSessionSettings.h"
 #include "MultiplayerSessionsSubsystem.h"
+#include "OnlineSubsystem.h"
 
 void UMenuUserWidget::MenuSetup(int32 NumOfConnections, FString MatchType1, FString LobbyPath)
 {
@@ -120,6 +121,7 @@ void UMenuUserWidget::OnCreateSessionComplete(bool bWasSuccessful)
 		{
 			bool isTravel = World->ServerTravel(PathToLobby);
 			bool isSeamless = World->IsInSeamlessTravel();
+			MenuTearDown();
 			if (GEngine)
 			{
 				GEngine->AddOnScreenDebugMessage(
@@ -194,21 +196,28 @@ void UMenuUserWidget::OnJoinSessionComplete(EOnJoinSessionCompleteResult::Type R
 {
 	if (Result == EOnJoinSessionCompleteResult::Success)
 	{
-		if (auto World = GetWorld())
+		IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
+		if (Subsystem)
 		{
-			if (auto PlayerController = World->GetFirstPlayerController())
+			IOnlineSessionPtr SessionInterface = Subsystem->GetSessionInterface();
+			if (SessionInterface.IsValid())
 			{
-				PlayerController->ClientTravel(ConnectString, ETravelType::TRAVEL_Absolute);
+				FString Address;
+				SessionInterface->GetResolvedConnectString(NAME_GameSession, Address);
+				if (APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController())
+				{
+					if (GEngine)
+					{
+						GEngine->AddOnScreenDebugMessage(
+							-1,
+							15.f,
+							FColor::Green,
+							FString::Printf(TEXT("Successfully joined session: %s"), *Address)
+						);
+					}
+					PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+				}
 			}
-		}
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Green,
-				FString::Printf(TEXT("Successfully joined session"))
-			);
 		}
 	}
 	else

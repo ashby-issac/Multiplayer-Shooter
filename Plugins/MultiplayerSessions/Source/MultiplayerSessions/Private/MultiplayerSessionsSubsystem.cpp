@@ -203,6 +203,15 @@ void UMultiplayerSessionsSubsystem::OnJoinSessionCompleteDelegate(FName SessionN
 	FString ConnectInfo;
 	if (SessionInterface->GetResolvedConnectString(NAME_GameSession, ConnectInfo))
 	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Green,
+				FString::Printf(TEXT("GetResolvedConnectString: %s"), *ConnectInfo)
+			);
+		}
 		MPJoinSessionCompleteDelegate.Broadcast(EOnJoinSessionCompleteResult::Success, ConnectInfo);
 	}
 }

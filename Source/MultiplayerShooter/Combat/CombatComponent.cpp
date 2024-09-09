@@ -52,9 +52,9 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME(UCombatComponent, bAiming);
 	DOREPLIFETIME(UCombatComponent, CombatState);
+	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
 }
 
@@ -64,18 +64,14 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 		return;
 
 	if (EquippedWeapon != nullptr)
-	{
 		EquippedWeapon->Dropped();
-	}
 
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 
 	const USkeletalMeshSocket *RightHandSocket = ShooterCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
 	if (RightHandSocket != nullptr)
-	{
 		RightHandSocket->AttachActor(EquippedWeapon, ShooterCharacter->GetMesh());
-	}
 
 	EquippedWeapon->SetOwner(ShooterCharacter);
 
@@ -92,9 +88,7 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 	}
 
 	if (EquippedWeapon->GetAvailableAmmo() < 1)
-	{
 		ReloadWeapon();
-	}
 
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -104,9 +98,7 @@ void UCombatComponent::SetFiringState(bool isFiring)
 {
 	bIsFireBtnPressed = isFiring;
 	if (bIsFireBtnPressed)
-	{
 		Fire();
-	}
 }
 
 void UCombatComponent::SetAimingState(bool bIsAiming)

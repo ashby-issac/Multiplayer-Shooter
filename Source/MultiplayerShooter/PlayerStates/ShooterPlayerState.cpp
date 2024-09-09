@@ -4,6 +4,9 @@
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "MultiplayerShooter/GameState/ShooterGameState.h"
+#include "MultiplayerShooter/PlayerStates/ShooterPlayerState.h"
 
 void AShooterPlayerState::AddToScore(float ScoreAmt)
 {
@@ -42,11 +45,11 @@ void AShooterPlayerState::UpdateScoreHUD()
 {
     ShooterCharacter = ShooterCharacter == nullptr ? Cast<AShooterCharacter>(GetPawn()) : ShooterCharacter;
 
-    if (ShooterCharacter)
+    if (ShooterCharacter != nullptr)
     {
         ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller) 
                                                                      : ShooterPlayerController;
-        if (ShooterPlayerController)
+        if (ShooterPlayerController != nullptr)
         {
             ShooterPlayerController->SendScoreHUDUpdate(GetScore());
         }

@@ -24,7 +24,10 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 
+	UPROPERTY()
 	class AShooterPlayerController *ShooterPlayerController;
+	
+	UPROPERTY()
 	class AShooterHUD *ShooterHUD;
 
 	bool IsWeaponEquipped();
@@ -171,9 +174,13 @@ private:
 	void CalculatePitch();
 	void UpdatePlayerHUD();
 	void PollInit();
+	void RotateInPlace(float DeltaTime);
 
 public:
-	// 	FORCEINLINE functions should be kept after the respective private variables
+	UPROPERTY(Replicated)
+	bool bDisableGameplay = false;
+
+	// 	FORCEINLINE functions should be kept after their respective private variables
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE float GetHealth() { return Health; }
@@ -182,4 +189,5 @@ public:
 	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
 	FORCEINLINE bool GetRotateRootBoneState() { return bRotateRootBone; }
 	FORCEINLINE bool GetIsEliminated() { return bIsEliminated; }
+	FORCEINLINE UCombatComponent* GetCombatComponent() { return CombatComponent; }
 };

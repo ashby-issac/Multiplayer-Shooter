@@ -8,14 +8,35 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 
-	int32 NumOfPlayers = GameState->PlayerArray.Num();
-	if (NumOfPlayers == 2)
+	if (GameState != nullptr)
 	{
-		UWorld* World = GetWorld();
-		if (World)
+		int32 NumOfPlayers = GameState->PlayerArray.Num();
+		if (NumOfPlayers >= 2)
 		{
-			bUseSeamlessTravel = true;
-			World->ServerTravel(FString("/Game/Maps/Gameplay?listen"));
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				bUseSeamlessTravel = true;
+				if (GEngine)
+				{
+					GEngine->AddOnScreenDebugMessage(
+						-1,
+						15.f,
+						FColor::Green,
+						FString::Printf(TEXT("PostLoginSuccess"))
+					);
+				}
+				World->ServerTravel(FString("/Game/Maps/Prototype?listen"));
+			}
 		}
+	}
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.f,
+			FColor::Red,
+			FString::Printf(TEXT("PostLogin"))
+		);
 	}
 }

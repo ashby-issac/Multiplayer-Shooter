@@ -78,6 +78,20 @@ void AShooterCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	RotateInPlace(DeltaTime);
+	CheckCamIsOnCloseContact();
+	PollInit();
+}
+
+void AShooterCharacter::RotateInPlace(float DeltaTime)
+{
+	if (bDisableGameplay)
+	{
+		TurnInPlaceState = ETurningInPlace::ETIP_NotTurning;
+		bUseControllerRotationYaw = false; // prevent character rotation
+		return;
+	}
+
 	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		CalculateAimOffsets(DeltaTime);
@@ -87,12 +101,9 @@ void AShooterCharacter::Tick(float DeltaTime)
 		TimeForProxyRotation += DeltaTime;
 		if (TimeForProxyRotation > 0.25f)
 			OnRep_ReplicatedMovement();
-		
+
 		CalculatePitch();
 	}
-
-	CheckCamIsOnCloseContact();
-	PollInit();
 }
 
 void AShooterCharacter::PollInit()
@@ -125,10 +136,7 @@ void AShooterCharacter::CalculateAimOffsets(float DeltaTime)
 		bRotateRootBone = true;
 		FRotator CurrentAimRot = FRotator(0.f, GetBaseAimRotation().Yaw, 0.f);
 		/*	InitialAimRot: Initial Rotation from place before rotating
-			CurrentAimRot: BaseAimRotation (Rotation relative to the world's rotation)
-		*/
-		// UE_LOG(LogTemp, Warning, TEXT(":: InitialAimRot: %s"), *InitialAimRot.ToString());
-		// UE_LOG(LogTemp, Warning, TEXT(":: CurrentAimRot: %s"), *CurrentAimRot.ToString());
+			CurrentAimRot: BaseAimRotation (Rotation relative to the world's rotation) */
 
 		DeltaAimRot = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRot, InitialAimRot);
 		AO_Yaw = DeltaAimRot.Yaw; // 0 - 89... 90
@@ -308,6 +316,8 @@ void AShooterCharacter::PlayElimMontage()
 
 void AShooterCharacter::MoveForward(float Value)
 {
+	if (bDisableGameplay) return;
+
 	if (Controller && Value != 0)
 	{
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
@@ -320,6 +330,8 @@ void AShooterCharacter::MoveForward(float Value)
 
 void AShooterCharacter::MoveRight(float Value)
 {
+	if (bDisableGameplay) return;
+
 	if (Controller && Value != 0)
 	{
 		FRotator Rotation(0, Controller->GetControlRotation().Yaw, 0);
@@ -342,6 +354,8 @@ void AShooterCharacter::LookRight(float Value)
 
 void AShooterCharacter::EquipWeapon()
 {
+	if (bDisableGameplay) return;
+
 	if (CombatComponent && HasAuthority()) // if on server
 	{
 		CombatComponent->EquipWeapon(OverlappingWeapon);
@@ -357,6 +371,8 @@ void AShooterCharacter::EquipWeapon()
 
 void AShooterCharacter::OnAimPressed()
 {
+	if (bDisableGameplay) return;
+
 	if (CombatComponent)
 	{
 		CombatComponent->SetAimingState(true);
@@ -365,7 +381,7 @@ void AShooterCharacter::OnAimPressed()
 
 void AShooterCharacter::OnAimReleased()
 {
-	if (CombatComponent)
+	if (bDisableGameplay || CombatComponent)
 	{
 		CombatComponent->SetAimingState(false);
 	}
@@ -373,7 +389,7 @@ void AShooterCharacter::OnAimReleased()
 
 void AShooterCharacter::OnFirePressed()
 {
-	if (!CombatComponent || !CombatComponent->EquippedWeapon)
+	if (bDisableGameplay || !CombatComponent || !CombatComponent->EquippedWeapon)
 		return;
 
 	CombatComponent->SetFiringState(true);
@@ -381,7 +397,7 @@ void AShooterCharacter::OnFirePressed()
 
 void AShooterCharacter::OnFireReleased()
 {
-	if (!CombatComponent || !CombatComponent->EquippedWeapon)
+	if (bDisableGameplay || !CombatComponent || !CombatComponent->EquippedWeapon)
 		return;
 
 	CombatComponent->SetFiringState(false);
@@ -389,6 +405,8 @@ void AShooterCharacter::OnFireReleased()
 
 void AShooterCharacter::OnCrouchPressed()
 {
+	if (bDisableGameplay) return;
+
 	if (bIsCrouched)
 		UnCrouch();
 
@@ -397,6 +415,8 @@ void AShooterCharacter::OnCrouchPressed()
 
 void AShooterCharacter::OnReloadPressed()
 {
+	if (bDisableGameplay) return;
+
 	if (CombatComponent != nullptr)
 		CombatComponent->ReloadWeapon();
 }
@@ -430,6 +450,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 
 void AShooterCharacter::Jump()
 {
+	if (bDisableGameplay) return;
+
 	FName Auth = HasAuthority() ? FName("HasAuth") : FName("HasNoAuth");
 
 	if (bIsCrouched)
@@ -564,9 +586,10 @@ void AShooterCharacter::MulticastEliminate_Implementation()
 	GetCharacterMovement()->DisableMovement();
 	GetCharacterMovement()->StopMovementImmediately();
 
-	if (ShooterPlayerController != nullptr)
+	bDisableGameplay = true;
+	if (CombatComponent != nullptr)
 	{
-		DisableInput(ShooterPlayerController);
+		CombatComponent->SetFiringState(false);
 	}
 
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -591,10 +614,24 @@ void AShooterCharacter::Destroyed()
 {
 	Super::Destroyed();
 
-	if (ElimBotComponent != nullptr)
+	if (GEngine)
 	{
-		ElimBotComponent->DestroyComponent();
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.f,
+			FColor::Green,
+			FString::Printf(TEXT("CHARACTER Destroyed"))
+		);
 	}
+
+	if (ElimBotComponent != nullptr)
+		ElimBotComponent->DestroyComponent();
+
+	AShooterGameMode* ShooterGameMode = Cast<AShooterGameMode>(UGameplayStatics::GetGameMode(this));
+    bool bInCooldownState =	CombatComponent != nullptr && CombatComponent->EquippedWeapon != nullptr
+		&& ShooterGameMode != nullptr && ShooterGameMode->GetMatchState() != MatchState::InProgress;
+	if (bInCooldownState)
+		CombatComponent->EquippedWeapon->Destroy();
 }
 
 void AShooterCharacter::OnRep_HealthDamaged()

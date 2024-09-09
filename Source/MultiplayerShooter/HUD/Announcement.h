@@ -25,4 +25,9 @@ public:
 	UTextBlock *InfoText;
 
 	void UpdateWarmupCountdownValue(float TotalSeconds);
+	void UpdateCooldownAnnouncementHUD(float TotalSeconds);
+	void UpdateWinnersText(FString WinnerText);
+
+private:
+	void SetAnnouncementTimer(float TotalSeconds);
 };

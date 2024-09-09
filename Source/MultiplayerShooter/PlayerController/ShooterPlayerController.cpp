@@ -7,6 +7,9 @@
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
 #include "MultiplayerShooter/GameModes/ShooterGameMode.h"
 #include "MultiplayerShooter/HUD/Announcement.h"
+#include "MultiplayerShooter/GameState/ShooterGameState.h"
+#include "MultiplayerShooter/PlayerStates/ShooterPlayerState.h"
+#include "MultiplayerShooter/Combat/CombatComponent.h"
 
 void AShooterPlayerController::BeginPlay()
 {
@@ -20,9 +23,9 @@ void AShooterPlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
-    PollInit();
     SetHUDCountdown();
     CheckTimeSync(DeltaSeconds);
+    PollInit();
 }
 
 void AShooterPlayerController::PollInit()
@@ -61,7 +64,10 @@ void AShooterPlayerController::ReceivedPlayer()
 {
     Super::ReceivedPlayer();
 
-    ClientRequestServerTime(GetWorld()->GetTimeSeconds());
+    if (IsLocalController())
+    {
+        ClientRequestServerTime(GetWorld()->GetTimeSeconds());
+    }
 }
 
 void AShooterPlayerController::OnPossess(APawn *aPawn)
@@ -101,17 +107,38 @@ void AShooterPlayerController::ServerResponseServerTime_Implementation(float Cli
     ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
 }
 
-void AShooterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float RemWarmupTime, float RemMatchTime, float RemStartTime)
+void AShooterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMatch, float RemWarmupTime, float RemMatchTime, float RemCooldownTime, float RemStartTime)
 {
     MatchTime = RemMatchTime;
     WarmupTime = RemWarmupTime;
+    CooldownTime = RemCooldownTime;
     LevelStartingTime = RemStartTime;
     MatchState = StateOfMatch;
 
-    if (ShooterHUD != nullptr && MatchState == MatchState::WaitingToStart)
-        ShooterHUD->AddAnnouncementOverlay();
-
     OnMatchStateSet(MatchState);
+
+    if (ShooterHUD != nullptr && MatchState == MatchState::WaitingToStart)
+    {
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(
+                -1,
+                15.f,
+                FColor::Green,
+                FString::Printf(TEXT("AddAnnouncementOverlay"))
+            );
+        }
+        ShooterHUD->AddAnnouncementOverlay();
+    }
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(
+            -1,
+            15.f,
+            FColor::Red,
+            FString::Printf(TEXT("AddAnnouncementOverlay"))
+        );
+    }
 }
 
 void AShooterPlayerController::ServerCheckMatchState_Implementation()
@@ -121,16 +148,21 @@ void AShooterPlayerController::ServerCheckMatchState_Implementation()
     {
         MatchTime = ShooterGameMode->MatchTime;
         WarmupTime = ShooterGameMode->WarmupTime;
+        CooldownTime = ShooterGameMode->CooldownTime;
         LevelStartingTime = ShooterGameMode->LevelStartingTime;
         MatchState = ShooterGameMode->GetMatchState();
 
-        ClientJoinMidGame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+        ClientJoinMidGame(MatchState, WarmupTime, MatchTime, CooldownTime, LevelStartingTime);
     }
 }
 
 float AShooterPlayerController::GetServerTime()
 {
-    return HasAuthority() ? GetWorld()->GetTimeSeconds() : GetWorld()->GetTimeSeconds() + ClientServerDelta;
+    if (HasAuthority())
+    {
+        return GetWorld()->GetTimeSeconds();
+    }
+    return GetWorld()->GetTimeSeconds() + ClientServerDelta;
 }
 
 void AShooterPlayerController::SendHealthHUDUpdate(float Health, float MaxHealth)
@@ -212,10 +244,18 @@ void AShooterPlayerController::SendWarmupCountdownHUDUpdate(float TotalSeconds)
     }
 }
 
+void AShooterPlayerController::SendCooldownCountdownHUDUpdate(float TotalSeconds)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->AnnouncementOverlay != nullptr)
+    {
+        ShooterHUD->AnnouncementOverlay->UpdateCooldownAnnouncementHUD(TotalSeconds);
+    }
+}
+
 void AShooterPlayerController::OnMatchStateSet(FName NewState)
 {
     MatchState = NewState;
-    UE_LOG(LogTemp, Warning, TEXT(":: OnMatchStateSet: "), *MatchState.ToString());
 
     if (MatchState == MatchState::InProgress)
     {
@@ -249,6 +289,58 @@ void AShooterPlayerController::HandleCooldown()
         if (ShooterHUD->AnnouncementOverlay != nullptr)
         {
             ShooterHUD->AnnouncementOverlay->SetVisibility(ESlateVisibility::Visible);
+
+            AShooterGameState* ShooterGameState = Cast<AShooterGameState>(UGameplayStatics::GetGameState(this));
+            AShooterPlayerState* ShooterPlayerState = GetPlayerState<AShooterPlayerState>();
+            if (ShooterGameState != nullptr && ShooterPlayerState != nullptr)
+            {
+                FString InfoText("");
+                if (ShooterGameState->TopScoringPlayers.Num() == 0)
+                {
+                    InfoText = FString("There is no winner");
+                }
+                else if (ShooterGameState->TopScoringPlayers.Num() > 1)
+                {
+                    InfoText = FString("Winners:\n");
+                    for (AShooterPlayerState* TopScorer : ShooterGameState->TopScoringPlayers)
+                    {
+                        InfoText.Append(FString::Printf(TEXT("%s\n"), *TopScorer->GetPlayerName()));
+                    }
+                }
+                else
+                {
+                    if (ShooterGameState->TopScoringPlayers[0] == ShooterPlayerState)
+                    {
+                        InfoText = FString("You're the winner");
+                    }
+                    else
+                    {
+                        InfoText = FString::Printf(TEXT("MVP\n%s"), *ShooterGameState->TopScoringPlayers[0]->GetPlayerName());
+                    }
+                }
+                if (GEngine)
+                {
+                    GEngine->AddOnScreenDebugMessage(
+                        -1,
+                        15.f,
+                        FColor::Black,
+                        FString::Printf(TEXT("%s"), *InfoText)
+                    );
+                }
+                ShooterHUD->AnnouncementOverlay->UpdateWinnersText(InfoText);
+            }
+        }
+    }
+
+    AShooterCharacter* CharacterInstance = Cast<AShooterCharacter>(GetPawn());
+    if (CharacterInstance != nullptr)
+    {
+        CharacterInstance->bDisableGameplay = true;
+        UCombatComponent* CombatComponent = CharacterInstance->GetCombatComponent();
+        if (CombatComponent != nullptr)
+        {
+            CombatComponent->SetFiringState(false);
+            CombatComponent->SetAimingState(false);
         }
     }
 }
@@ -257,18 +349,34 @@ void AShooterPlayerController::SetHUDCountdown()
 {
     float TimeLeft = 0.f;
 
-    if (MatchState == MatchState::WaitingToStart)
-        TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
-    else if (MatchState == MatchState::InProgress)
-        TimeLeft = (WarmupTime + MatchTime) - GetServerTime() + LevelStartingTime;
+    if (HasAuthority())
+    {
+        MainShooterGameMode = MainShooterGameMode == nullptr ? Cast<AShooterGameMode>(UGameplayStatics::GetGameMode(this)) : MainShooterGameMode;
+        if (MainShooterGameMode != nullptr)
+        {
+            TimeLeft = MainShooterGameMode->GetCountdownTimer();
+        }
+    }
+    else
+    {
+        if (MatchState == MatchState::WaitingToStart)
+            TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+        else if (MatchState == MatchState::InProgress)
+            TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
+        else if (MatchState == MatchState::Cooldown)
+            TimeLeft = WarmupTime + MatchTime + CooldownTime - GetServerTime() + LevelStartingTime;
+    }
 
     int32 CeiledTime = FMath::CeilToInt32(TimeLeft);
+
     if (CountdownInt != CeiledTime)
     {
         if (MatchState == MatchState::WaitingToStart)
             SendWarmupCountdownHUDUpdate(TimeLeft);
         else if (MatchState == MatchState::InProgress)
             SendMatchCountdownHUDUpdate(TimeLeft);
+        else if (MatchState == MatchState::Cooldown)
+            SendCooldownCountdownHUDUpdate(TimeLeft);
     }
 
     CountdownInt = CeiledTime;
