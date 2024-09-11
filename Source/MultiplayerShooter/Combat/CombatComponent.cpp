@@ -370,7 +370,7 @@ void UCombatComponent::SetZoomedFOV(float DeltaTime)
 	}
 }
 
-void UCombatComponent::EnableAutomaticFiring()
+void UCombatComponent::EnableFiringEvent()
 {
 	bCanFire = false;
 	ShooterCharacter->GetWorldTimerManager().SetTimer(FireRateTimerHandle,
@@ -388,7 +388,7 @@ void UCombatComponent::OnFireDelayed()
 	}
 
 	bCanFire = true;
-	if (bIsFireBtnPressed) // if button is still on hold
+	if (bIsFireBtnPressed && EquippedWeapon->bIsAutomaticWeapon) // if button is still on hold
 	{
 		Fire();
 	}
@@ -402,14 +402,7 @@ void UCombatComponent::Fire()
 	}
 
 	ServerFire(CrosshairHitTarget);
-	if (EquippedWeapon->bIsAutomaticWeapon) // for auto mode
-	{
-		EnableAutomaticFiring();
-	}
-	else
-	{
-		// WaitAndFire for weapons like ShotGun
-	}
+	EnableFiringEvent();
 }
 
 bool UCombatComponent::CanFire()
@@ -419,7 +412,8 @@ bool UCombatComponent::CanFire()
 
 void UCombatComponent::InitializeCarriedAmmo()
 {
-	CarriedAmmoMap.Add(EWeaponType::EWT_AssaultRifle, ARInitialAmmo);
+	CarriedAmmoMap.Add(EWeaponType::EWT_AssaultRifle, InitialRifleAmmo);
+	CarriedAmmoMap.Add(EWeaponType::EWT_RocketLaucher, InitialRocketAmmo);
 }
 
 void UCombatComponent::UpdateCarriedAmmoHUD()

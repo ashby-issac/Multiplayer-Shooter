@@ -119,8 +119,8 @@ void UMenuUserWidget::OnCreateSessionComplete(bool bWasSuccessful)
 	{
 		if (auto World = GetWorld())
 		{
-			bool isTravel = World->ServerTravel(PathToLobby);
-			bool isSeamless = World->IsInSeamlessTravel();
+			World->ServerTravel(PathToLobby);
+			World->IsInSeamlessTravel();
 			MenuTearDown();
 			if (GEngine)
 			{

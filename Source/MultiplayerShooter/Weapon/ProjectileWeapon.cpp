@@ -41,15 +41,15 @@ void AProjectileWeapon::Fire(const FVector &HitLocation)
 
         if (ProjectileAmmo && InstigatorPawn)
         {
-            FActorSpawnParameters SpawnParameters;
-            SpawnParameters.Owner = GetOwner();
-            SpawnParameters.Instigator = InstigatorPawn;
+            FActorSpawnParameters SpawnParams;
+            SpawnParams.Owner = GetOwner();
+            SpawnParams.Instigator = InstigatorPawn;
 
             GetWorld()->SpawnActor<AProjectileAmmo>(
                 ProjectileAmmo,
                 MuzzleTransform.GetLocation(),
                 SpawnRotation,
-                SpawnParameters);
+                SpawnParams);
         }
     }
 }

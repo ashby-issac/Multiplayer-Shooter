@@ -91,7 +91,10 @@ private:
 	float DefaultZoomInterpSpeed;
 
 	UPROPERTY(EditAnywhere)
-	int32 ARInitialAmmo;
+	int32 InitialRifleAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 InitialRocketAmmo;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
@@ -110,7 +113,7 @@ private:
 	void ReloadWeapon();
 	void SetCrosshairsForWeapon(float DeltaTime);
 	void SetZoomedFOV(float DeltaTime);
-	void EnableAutomaticFiring();
+	void EnableFiringEvent();
 	void Fire();
 	void OnFireDelayed();
 	bool CanFire();

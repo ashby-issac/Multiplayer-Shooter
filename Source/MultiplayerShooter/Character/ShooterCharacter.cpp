@@ -587,6 +587,7 @@ void AShooterCharacter::MulticastEliminate_Implementation()
 	GetCharacterMovement()->StopMovementImmediately();
 
 	bDisableGameplay = true;
+	GetCharacterMovement()->DisableMovement();
 	if (CombatComponent != nullptr)
 	{
 		CombatComponent->SetFiringState(false);
