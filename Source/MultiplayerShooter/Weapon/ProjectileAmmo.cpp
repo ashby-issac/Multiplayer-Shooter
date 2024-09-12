@@ -49,7 +49,6 @@ void AProjectileAmmo::BeginPlay()
 
 void AProjectileAmmo::OnProjectileHit(UPrimitiveComponent *HitComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, FVector NormalImpulse, const FHitResult &Hit)
 {
-    UE_LOG(LogTemp, Warning, TEXT(":: Destroy"));
     Destroy();
 }
 
