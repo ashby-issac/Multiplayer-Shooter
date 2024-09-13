@@ -96,9 +96,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 InitialRocketAmmo;
 
+	UPROPERTY(EditAnywhere)
+	int32 InitialPistolAmmo;
+
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
-
 
 	bool bIsFireBtnPressed;
 	bool bCanFire = true;

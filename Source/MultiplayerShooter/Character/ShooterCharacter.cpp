@@ -290,6 +290,12 @@ void AShooterCharacter::PlayReloadMontage()
 		case EWeaponType::EWT_AssaultRifle:
 			ReloadSection = "Reload_Rifle";
 			break;
+		case EWeaponType::EWT_RocketLaucher:
+			ReloadSection = "Reload_Rifle";
+			break;
+		case EWeaponType::EWT_Pistol:
+			ReloadSection = "Reload_Rifle";
+			break;
 		}
 
 		AnimInstance->Montage_JumpToSection(ReloadSection, ReloadMontage);

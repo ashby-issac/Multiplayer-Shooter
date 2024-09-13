@@ -16,6 +16,9 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere)
+	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(EditAnywhere)
 	float Damage;
 
 	UPROPERTY(EditAnywhere)
@@ -37,8 +40,6 @@ public:
 	virtual void Destroyed() override;
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	class UProjectileMovementComponent* ProjectileMovementComponent;
 
 	UPROPERTY(EditAnywhere)
 	class UParticleSystem* ProjectileTrace;

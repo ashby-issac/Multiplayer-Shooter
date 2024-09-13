@@ -103,19 +103,6 @@ void UShooterAnimInstance::CalculateLeftHandTransform(float DeltaSeconds)
 		if (ShooterCharacter->IsLocallyControlled())
 		{
 			bIsLocallyControlled = true;
-			// FTransform BarrelTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"),
-			// 																				 ERelativeTransformSpace::RTS_World);
-			// FVector BarrelForward = FRotationMatrix(BarrelTransform.GetRotation().Rotator()).GetUnitAxis(EAxis::X);
-
-			// DrawDebugLine(GetWorld(),
-			// 			  BarrelTransform.GetLocation(),
-			// 			  BarrelTransform.GetLocation() + BarrelForward * 2000.f,
-			// 			  FColor::Red);
-
-			// DrawDebugLine(GetWorld(),
-			// 			  BarrelTransform.GetLocation(),
-			// 			  ShooterCharacter->GetCrosshairHitTarget(),
-			// 			  FColor::Orange);
 
 			FTransform RightHandTransform = ShooterCharacter->GetMesh()->GetSocketTransform(FName("Hand_R"),
 																							ERelativeTransformSpace::RTS_World);

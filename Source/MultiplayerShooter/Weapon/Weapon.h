@@ -30,6 +30,9 @@ public:
 	virtual void Fire(const FVector &HitLocation);
 
 protected:
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	class USkeletalMeshComponent* WeaponMesh;
+
 	virtual void BeginPlay() override;
 
 	virtual void OnRep_Owner() override;
@@ -56,9 +59,6 @@ protected:
 		int32 OtherBodyIndex);
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
-	class USkeletalMeshComponent *WeaponMesh;
-
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent *EquipAreaSphere;
 

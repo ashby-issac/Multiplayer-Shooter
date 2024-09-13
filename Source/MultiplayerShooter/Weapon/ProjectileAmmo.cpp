@@ -1,10 +1,9 @@
 
 #include "ProjectileAmmo.h"
-#include "Components/BoxComponent.h"
-#include "GameFramework/ProjectileMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "MultiplayerShooter/Character/ShooterCharacter.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
+#include "MultiplayerShooter/Character/ShooterCharacter.h"
 
 AProjectileAmmo::AProjectileAmmo()
 {
@@ -21,9 +20,6 @@ AProjectileAmmo::AProjectileAmmo()
     CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
     CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
     CollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
-
-    ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-    ProjectileMovementComponent->bRotationFollowsVelocity = true;
 }
 
 void AProjectileAmmo::BeginPlay()

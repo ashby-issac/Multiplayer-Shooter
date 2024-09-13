@@ -6,6 +6,7 @@
 #include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
+#include "RocketMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/AudioComponent.h"
 
@@ -14,6 +15,10 @@ AProjectileRocket::AProjectileRocket()
 	RocketMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rocket Mesh"));
 	RocketMesh->SetupAttachment(RootComponent);
 	RocketMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	ProjectileMovementComponent = CreateDefaultSubobject<URocketMovementComponent>(TEXT("RocketMovementComponent"));
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	ProjectileMovementComponent->SetIsReplicated(true); // Set in BP
 }
 
 void AProjectileRocket::BeginPlay()
@@ -63,11 +68,26 @@ void AProjectileRocket::OnDestroyRocket()
 
 void AProjectileRocket::Destroyed()
 {
-
+	// Delaying the destruction of the rocket projectile
+	// to play the smoke effects
 }
 
 void AProjectileRocket::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor == GetOwner())
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Green,
+				FString::Printf(TEXT("Hit Owner"))
+			);
+		}
+		return;
+	}
+
 	APawn* FiringPawn = GetInstigator();
 	if (FiringPawn != nullptr && HasAuthority())
 	{

@@ -177,26 +177,32 @@ void AWeapon::ShowPickupWidget(bool isEnabled)
 
 void AWeapon::Fire(const FVector &HitLocation)
 {
-	if (FireAnimation && WeaponMesh)
+	if (FireAnimation != nullptr && WeaponMesh != nullptr)
 	{
 		// Play MuzzleFlash at tip of the Gun along with the sound
 		WeaponMesh->PlayAnimation(FireAnimation, false);
 
 		const USkeletalMeshSocket *AmmoEjectSocket = WeaponMesh->GetSocketByName(FName("AmmoEject"));
 
-		if (AmmoEjectSocket)
+		if (AmmoEjectSocket != nullptr)
 		{
 			FTransform AmmoEjectTransform = AmmoEjectSocket->GetSocketTransform(WeaponMesh);
 			FRotator DefaultRotation = AmmoEjectTransform.GetRotation().Rotator();
-
-			AAmmoShell *ShellInstance = GetWorld()->SpawnActor<AAmmoShell>(
-				AmmoShellClass,
-				AmmoEjectTransform.GetLocation(),
-				DefaultRotation);
-			FRotator Rotation = FRotator(FMath::RandRange(0.f, 180.f),
-										 FMath::RandRange(0.f, 180.f),
-										 FMath::RandRange(0.f, 180.f));
-			ShellInstance->SetActorRotation(Rotation);
+			
+			if (AmmoShellClass != nullptr)
+			{
+				AAmmoShell* ShellInstance = GetWorld()->SpawnActor<AAmmoShell>(
+					AmmoShellClass,
+					AmmoEjectTransform.GetLocation(),
+					DefaultRotation);
+				if (ShellInstance != nullptr)
+				{
+					FRotator RandRotation = FRotator(FMath::RandRange(0.f, 180.f),
+						FMath::RandRange(0.f, 180.f),
+						FMath::RandRange(0.f, 180.f));
+					ShellInstance->SetActorRotation(RandRotation);
+				}
+			}
 		}
 	}
 	UpdateWeaponAmmoRound(1);

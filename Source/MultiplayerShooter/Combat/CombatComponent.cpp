@@ -43,7 +43,6 @@ void UCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		FindCrosshairHitTarget(CrosshairHitResult);
 		SetCrosshairsForWeapon(DeltaTime);
-		CrosshairHitTarget = CrosshairHitResult.ImpactPoint;
 		SetZoomedFOV(DeltaTime);
 	}
 }
@@ -244,6 +243,8 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 				End,
 				ECollisionChannel::ECC_Visibility);
 
+			CrosshairHitTarget = HitResult.GetActor() != nullptr ? HitResult.ImpactPoint : End;
+
 			if (HitResult.GetActor() != nullptr && HitResult.GetActor()->Implements<UCrosshairsInteractor>())
 			{
 				// DrawDebugSphere(GetWorld(), Start, 30.f, 12, FColor::Red);
@@ -307,9 +308,9 @@ void UCombatComponent::SetCrosshairsForWeapon(float DeltaTime)
 	if (ShooterController != nullptr)
 	{
 		ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(ShooterController->GetHUD()) : ShooterHUD;
-		if (ShooterHUD)
+		if (ShooterHUD != nullptr)
 		{
-			if (EquippedWeapon)
+			if (EquippedWeapon != nullptr)
 			{
 				HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairCenter;
 				HUDPackage.CrosshairTop = EquippedWeapon->CrosshairTop;
@@ -414,6 +415,7 @@ void UCombatComponent::InitializeCarriedAmmo()
 {
 	CarriedAmmoMap.Add(EWeaponType::EWT_AssaultRifle, InitialRifleAmmo);
 	CarriedAmmoMap.Add(EWeaponType::EWT_RocketLaucher, InitialRocketAmmo);
+	CarriedAmmoMap.Add(EWeaponType::EWT_Pistol, InitialPistolAmmo);
 }
 
 void UCombatComponent::UpdateCarriedAmmoHUD()
