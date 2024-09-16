@@ -7,6 +7,7 @@
 #include "HitScanWeapon.generated.h"
 
 class UParticleSystem;
+class USoundCue;
 
 UCLASS()
 class MULTIPLAYERSHOOTER_API AHitScanWeapon : public AWeapon
@@ -25,4 +26,13 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* BeamVFX; // Bullet Trial
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* MuzzleVFX;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* MuzzleSFX;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* HitSFX;
 };

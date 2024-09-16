@@ -416,6 +416,7 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Add(EWeaponType::EWT_AssaultRifle, InitialRifleAmmo);
 	CarriedAmmoMap.Add(EWeaponType::EWT_RocketLaucher, InitialRocketAmmo);
 	CarriedAmmoMap.Add(EWeaponType::EWT_Pistol, InitialPistolAmmo);
+	CarriedAmmoMap.Add(EWeaponType::EWT_SMG, InitialSMGAmmo);
 }
 
 void UCombatComponent::UpdateCarriedAmmoHUD()

@@ -2,6 +2,7 @@
 
 
 #include "HitScanWeapon.h"
+#include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -64,7 +65,37 @@ void AHitScanWeapon::Fire(const FVector& HitLocation)
 																MuzzleFlashTransform);
 					BeamParticle->SetVectorParameter(FName("Target"), BeamEnd);
 				}
-			}		
+
+				if (HitSFX != nullptr)
+				{
+					UGameplayStatics::PlaySoundAtLocation(
+						World,
+						HitSFX,
+						HitResult.ImpactPoint
+					);
+				}
+			}
+
+			if (WeaponMesh != nullptr)
+			{
+				if (MuzzleSFX != nullptr)
+				{
+					UGameplayStatics::PlaySoundAtLocation(
+						World, 
+						MuzzleSFX, 
+						MuzzleFlashTransform.GetLocation()
+					);
+				}
+
+				if (MuzzleVFX != nullptr)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(
+						World,
+						MuzzleVFX,
+						MuzzleFlashTransform
+					);
+				}
+			}
 		}
 	}
 
