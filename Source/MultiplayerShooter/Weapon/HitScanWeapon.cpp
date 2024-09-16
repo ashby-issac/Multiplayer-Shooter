@@ -2,8 +2,10 @@
 
 
 #include "HitScanWeapon.h"
-#include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Particles/ParticleSystemComponent.h"
 
 void AHitScanWeapon::Fire(const FVector& HitLocation)
 {
@@ -11,6 +13,7 @@ void AHitScanWeapon::Fire(const FVector& HitLocation)
 
 	UWorld* World = GetWorld();
 	APawn* ShooterPawn = Cast<APawn>(GetOwner());
+	AController* InstigatorController = ShooterPawn->GetController();
 
 	const USkeletalMeshSocket* MuzzleFlashSocket = WeaponMesh->GetSocketByName(FName("MuzzleFlash"));
 	if (MuzzleFlashSocket != nullptr && ShooterPawn != nullptr)
@@ -20,6 +23,7 @@ void AHitScanWeapon::Fire(const FVector& HitLocation)
 		FHitResult HitResult;
 		FVector Start(MuzzleFlashTransform.GetLocation());
 		FVector End(Start + (HitLocation - Start) * 1.25f);
+		FVector BeamEnd(End);
 
 		if (World != nullptr)
 		{
@@ -28,14 +32,15 @@ void AHitScanWeapon::Fire(const FVector& HitLocation)
 				Start,
 				End,
 				ECollisionChannel::ECC_Visibility);
+
 			if (HitResult.bBlockingHit)
 			{
-				if (HasAuthority())
+				if (HasAuthority() && InstigatorController)
 				{
 					UGameplayStatics::ApplyDamage(
 						HitResult.GetActor(),
 						Damage,
-						ShooterPawn->GetController(),
+						InstigatorController,
 						this,
 						UDamageType::StaticClass()
 					);
@@ -49,7 +54,17 @@ void AHitScanWeapon::Fire(const FVector& HitLocation)
 						HitResult.ImpactPoint,
 						HitResult.ImpactNormal.Rotation());
 				}
-			}
+
+				if (BeamVFX != nullptr)
+				{
+					BeamEnd = HitResult.ImpactPoint;
+					UParticleSystemComponent* BeamParticle = UGameplayStatics::SpawnEmitterAtLocation(
+																World, 
+																BeamVFX, 
+																MuzzleFlashTransform);
+					BeamParticle->SetVectorParameter(FName("Target"), BeamEnd);
+				}
+			}		
 		}
 	}
 
