@@ -7,8 +7,6 @@
 #include "MultiplayerShooter/BlasterTypes/CombatTypes.h"
 #include "CombatComponent.generated.h"
 
-#define TRACE_LENGTH 80000.f
-
 class AWeapon;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -90,17 +88,20 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DefaultZoomInterpSpeed;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
 	int32 InitialRifleAmmo;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
 	int32 InitialRocketAmmo;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
 	int32 InitialPistolAmmo;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
 	int32 InitialSMGAmmo;
+
+	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
+	int32 InitialShotgunAmmo;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;

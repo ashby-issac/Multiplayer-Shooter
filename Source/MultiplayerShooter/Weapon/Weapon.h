@@ -123,10 +123,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Weapon")
 	float FireDelay = 0.2f;
 
-	void UpdateWeaponAmmoHUD();
-	void SetWeaponState(EWeaponState CurrentState);
 	void Dropped();
+	void UpdateWeaponAmmoHUD();
 	void UpdateAmmoData(int32 Ammos);
+	void SetWeaponState(EWeaponState CurrentState);
 
 	FORCEINLINE USkeletalMeshComponent *GetWeaponMesh() { return WeaponMesh; }
 	FORCEINLINE float GetZoomedFOV() { return ZoomedFOV; }

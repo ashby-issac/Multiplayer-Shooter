@@ -3,10 +3,13 @@
 
 #include "HitScanWeapon.h"
 #include "Sound/SoundCue.h"
+#include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "MultiplayerShooter/Weapon/WeaponTypes.h"
 
 void AHitScanWeapon::Fire(const FVector& HitLocation)
 {
@@ -65,15 +68,6 @@ void AHitScanWeapon::Fire(const FVector& HitLocation)
 																MuzzleFlashTransform);
 					BeamParticle->SetVectorParameter(FName("Target"), BeamEnd);
 				}
-
-				if (HitSFX != nullptr)
-				{
-					UGameplayStatics::PlaySoundAtLocation(
-						World,
-						HitSFX,
-						HitResult.ImpactPoint
-					);
-				}
 			}
 
 			if (WeaponMesh != nullptr)
@@ -98,8 +92,39 @@ void AHitScanWeapon::Fire(const FVector& HitLocation)
 			}
 		}
 	}
+}
 
-	
+FVector AHitScanWeapon::TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget)
+{
+	FVector TargetDirNorm = (HitTarget - TraceStart).GetSafeNormal();
+	FVector SphereCenter = TraceStart + TargetDirNorm * DistanceToSphere;
 
-	
+	DrawDebugSphere(
+		GetWorld(), 
+		SphereCenter, 
+		SphereRadius, 
+		12, 
+		FColor::Red, 
+		true);
+
+	FVector ScatterPoint = UKismetMathLibrary::RandomUnitVector() * FMath::FRandRange(0.f, SphereRadius);
+	FVector ScatterEndPoint = SphereCenter + ScatterPoint;
+	FVector ScatterVector = (ScatterEndPoint - TraceStart);
+
+	DrawDebugSphere(
+		GetWorld(), 
+		ScatterEndPoint, 
+		10.f, 
+		12, 
+		FColor::Cyan, 
+		true);
+
+	DrawDebugLine(
+		GetWorld(),
+		TraceStart,
+		TraceStart + ScatterVector.GetSafeNormal() * TRACE_LENGTH,
+		FColor::Green,
+		true);
+
+	return  TraceStart + ScatterVector.GetSafeNormal() * TRACE_LENGTH;
 }

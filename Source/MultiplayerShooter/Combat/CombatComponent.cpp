@@ -1,16 +1,17 @@
 #include "CombatComponent.h"
-#include "MultiplayerShooter/Weapon/Weapon.h"
-#include "MultiplayerShooter/Character/ShooterCharacter.h"
-#include "Engine/SkeletalMeshSocket.h"
-#include "Net/UnrealNetwork.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "DrawDebugHelpers.h"
-#include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
-#include "MultiplayerShooter/HUD/ShooterHUD.h"
-#include "Camera/CameraComponent.h"
-#include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
 #include "Sound/SoundCue.h"
+#include "DrawDebugHelpers.h"
+#include "Net/UnrealNetwork.h"
+#include "Kismet/GameplayStatics.h"
+#include "Camera/CameraComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "MultiplayerShooter/Weapon/Weapon.h"
+#include "MultiplayerShooter/HUD/ShooterHUD.h"
+#include "MultiplayerShooter/Weapon/WeaponTypes.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "MultiplayerShooter/Character/ShooterCharacter.h"
+#include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
+#include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 
 UCombatComponent::UCombatComponent()
 {
@@ -417,6 +418,7 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Add(EWeaponType::EWT_RocketLaucher, InitialRocketAmmo);
 	CarriedAmmoMap.Add(EWeaponType::EWT_Pistol, InitialPistolAmmo);
 	CarriedAmmoMap.Add(EWeaponType::EWT_SMG, InitialSMGAmmo);
+	CarriedAmmoMap.Add(EWeaponType::EWT_Shotgun, InitialShotgunAmmo);
 }
 
 void UCombatComponent::UpdateCarriedAmmoHUD()

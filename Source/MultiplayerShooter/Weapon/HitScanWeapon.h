@@ -17,6 +17,9 @@ class MULTIPLAYERSHOOTER_API AHitScanWeapon : public AWeapon
 public:
 	virtual void Fire(const FVector& HitLocation) override;
 
+protected:
+	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
+
 private:
 	UPROPERTY(EditAnywhere)
 	float Damage = 7.f;
@@ -27,12 +30,18 @@ private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* BeamVFX; // Bullet Trial
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "FireAnimation Alternate")
 	UParticleSystem* MuzzleVFX;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "FireAnimation Alternate")
 	USoundCue* MuzzleSFX;
 
-	UPROPERTY(EditAnywhere)
-	USoundCue* HitSFX;
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter Props")
+	float DistanceToSphere;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter Props")
+	float SphereRadius;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Scatter Props")
+	bool bUseScatter = false;
 };

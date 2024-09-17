@@ -76,10 +76,19 @@ void AWeapon::OnRep_WeaponState()
 	{
 	case EWeaponState::EWS_Equipped:
 		ShowPickupWidget(false); // disabled pickup widget on all other clients
+		if (WeaponType == EWeaponType::EWT_SMG)
+		{
+			SetCollisionProps(ECollisionEnabled::QueryAndPhysics, false, true);
+			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			return;
+		}
 		SetCollisionProps(ECollisionEnabled::NoCollision, false, false);
 		break;
 	case EWeaponState::EWS_Dropped:
 		SetCollisionProps(ECollisionEnabled::QueryAndPhysics, true, true);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		break;
 	}
 }
@@ -135,6 +144,13 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 		{
 			EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
+		if (WeaponType == EWeaponType::EWT_SMG)
+		{
+			WeaponMesh->SetSimulatePhysics(false);
+			SetCollisionProps(ECollisionEnabled::QueryAndPhysics, false, true);
+			WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); // Strap doesn't collide with anything
+			return;
+		}
 		SetCollisionProps(ECollisionEnabled::NoCollision, false, false);
 		break;
 	case EWeaponState::EWS_Dropped:
@@ -143,15 +159,18 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 			EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
 		SetCollisionProps(ECollisionEnabled::QueryAndPhysics, true, true);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 		break;
 	}
 }
 
 void AWeapon::SetCollisionProps(ECollisionEnabled::Type CollisionState, bool bSimulatePhysics, bool bEnableGravity)
 {
+	WeaponMesh->SetCollisionEnabled(CollisionState);
 	WeaponMesh->SetSimulatePhysics(bSimulatePhysics);
 	WeaponMesh->SetEnableGravity(bEnableGravity);
-	WeaponMesh->SetCollisionEnabled(CollisionState);
 }
 
 void AWeapon::Tick(float DeltaTime)
