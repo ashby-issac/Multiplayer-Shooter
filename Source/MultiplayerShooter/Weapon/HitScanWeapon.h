@@ -18,9 +18,6 @@ public:
 	virtual void Fire(const FVector& HitLocation) override;
 
 protected:
-	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
-
-private:
 	UPROPERTY(EditAnywhere)
 	float Damage = 7.f;
 
@@ -28,7 +25,14 @@ private:
 	UParticleSystem* ImpactVFX;
 
 	UPROPERTY(EditAnywhere)
-	UParticleSystem* BeamVFX; // Bullet Trial
+	USoundCue* HitSFX;
+
+	FVector TraceEndWithScatter(const FVector& TraceStart, const FVector& HitTarget);
+	void WeaponTraceHit(const FVector& TraceStart, const FVector HitLocation, FHitResult& OutHit);
+
+private:
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* BeamVFX;
 
 	UPROPERTY(EditAnywhere, Category = "FireAnimation Alternate")
 	UParticleSystem* MuzzleVFX;

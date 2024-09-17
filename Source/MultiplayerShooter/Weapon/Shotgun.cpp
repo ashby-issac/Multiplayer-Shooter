@@ -7,6 +7,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "MultiplayerShooter/Character/ShooterCharacter.h"
 
 void AShotgun::Fire(const FVector& HitLocation)
 {
@@ -23,11 +24,67 @@ void AShotgun::Fire(const FVector& HitLocation)
 
 		FHitResult HitResult;
 		FVector Start(MuzzleFlashTransform.GetLocation());
-		FVector End;
-
-		for (uint32 i = 0; i < PelletsCount; i++)
+		TMap<AShooterCharacter*, uint32> HitsMap;
+		for (uint32 i = 0; i < PelletsCount; i++) // 10
 		{
-			End = TraceEndWithScatter(Start, HitLocation);
+			WeaponTraceHit(Start, HitLocation, HitResult);
+			if (HitResult.bBlockingHit)
+			{
+				if (HasAuthority())
+				{
+					AShooterCharacter* ShooterChar = Cast<AShooterCharacter>(HitResult.GetActor());
+					// Apply Damage
+					if (ShooterChar != nullptr)
+					{
+						if (HitsMap.Contains(ShooterChar))
+						{
+							HitsMap[ShooterChar]++;
+						}
+						else 
+						{
+							HitsMap.Emplace(ShooterChar, 1);
+						}
+					}
+				}
+
+				// Spawn Impact VFX
+				if (ImpactVFX != nullptr)
+				{
+					UGameplayStatics::SpawnEmitterAtLocation(
+						World,
+						ImpactVFX,
+						HitResult.ImpactPoint,
+						HitResult.ImpactNormal.Rotation());
+				}
+
+				if (HitSFX != nullptr)
+				{
+					UGameplayStatics::PlaySoundAtLocation(
+						this,
+						HitSFX,
+						HitResult.ImpactPoint,
+						.5f,
+						FMath::FRandRange(-.5f, .5f)
+					);
+				}
+			}
+		}
+
+		if (HasAuthority())
+		{
+			for (auto HitPair : HitsMap)
+			{
+				if (HitPair.Key != nullptr && InstigatorController != nullptr)
+				{
+					UGameplayStatics::ApplyDamage(
+						HitPair.Key,
+						Damage * HitPair.Value,
+						InstigatorController,
+						this,
+						UDamageType::StaticClass()
+					);
+				}
+			}
 		}
 	}
 }
