@@ -103,6 +103,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
 	int32 InitialShotgunAmmo;
 
+	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
+	int32 InitialSniperAmmo;
+
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
 
