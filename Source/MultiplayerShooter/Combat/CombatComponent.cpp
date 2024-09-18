@@ -104,9 +104,14 @@ void UCombatComponent::SetFiringState(bool isFiring)
 void UCombatComponent::SetAimingState(bool bIsAiming)
 {
 	bAiming = bIsAiming;
-	if (ShooterCharacter)
+	if (ShooterCharacter != nullptr)
 	{
 		ShooterCharacter->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+	
+		if (EquippedWeapon != nullptr && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_SniperRifle)
+		{
+			ShooterCharacter->ShowSniperScope(bIsAiming);
+		}
 	}
 
 	ServerAimSync(bIsAiming);
@@ -420,6 +425,7 @@ void UCombatComponent::InitializeCarriedAmmo()
 	CarriedAmmoMap.Add(EWeaponType::EWT_SMG, InitialSMGAmmo);
 	CarriedAmmoMap.Add(EWeaponType::EWT_Shotgun, InitialShotgunAmmo);
 	CarriedAmmoMap.Add(EWeaponType::EWT_SniperRifle, InitialSniperAmmo);
+	CarriedAmmoMap.Add(EWeaponType::EWT_GrenadeLauncher, InitialGrenadeLauncherAmmo);
 }
 
 void UCombatComponent::UpdateCarriedAmmoHUD()

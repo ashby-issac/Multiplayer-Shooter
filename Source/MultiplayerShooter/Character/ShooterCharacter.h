@@ -46,6 +46,9 @@ public:
 	virtual void OnRep_ReplicatedMovement() override;
 	ECombatState GetCombatState() const; 
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowSniperScope(bool bVisibility);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Jump() override;
