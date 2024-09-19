@@ -291,22 +291,22 @@ void AShooterCharacter::PlayReloadMontage()
 			ReloadSection = "Reload_Rifle";
 			break;
 		case EWeaponType::EWT_RocketLaucher:
-			ReloadSection = "Reload_Rifle";
+			ReloadSection = "RocketLauncher";
 			break;
 		case EWeaponType::EWT_Pistol:
-			ReloadSection = "Reload_Rifle";
+			ReloadSection = "Pistol";
 			break;
 		case EWeaponType::EWT_SMG:
-			ReloadSection = "Reload_Rifle";
+			ReloadSection = "Pistol";
 			break;
 		case EWeaponType::EWT_Shotgun:
-			ReloadSection = "Reload_Rifle";
+			ReloadSection = "Shotgun";
 			break;
 		case EWeaponType::EWT_SniperRifle:
-			ReloadSection = "Reload_Rifle";
+			ReloadSection = "SniperRifle";
 			break;
 		case EWeaponType::EWT_GrenadeLauncher:
-			ReloadSection = "Reload_Rifle";
+			ReloadSection = "GrenadeLauncher";
 			break;
 		}
 
