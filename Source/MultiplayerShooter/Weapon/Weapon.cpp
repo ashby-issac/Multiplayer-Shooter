@@ -29,6 +29,10 @@ AWeapon::AWeapon()
 	WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	WeaponMesh->CustomDepthStencilValue = CUSTOM_DEPTH_PURPLE;
+	WeaponMesh->MarkRenderStateDirty(); // Refreshes the post process material
+	EnableCustomDepth(true);
+
 	EquipAreaSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -88,12 +92,17 @@ void AWeapon::OnRep_WeaponState()
 			return;
 		}
 		SetCollisionProps(ECollisionEnabled::NoCollision, false, false);
+		EnableCustomDepth(false);
 		break;
 	case EWeaponState::EWS_Dropped:
 		SetCollisionProps(ECollisionEnabled::QueryAndPhysics, true, true);
 		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+		WeaponMesh->CustomDepthStencilValue = CUSTOM_DEPTH_PURPLE;
+		WeaponMesh->MarkRenderStateDirty(); // Refreshes the post process material
+		EnableCustomDepth(true);
 		break;
 	}
 }
@@ -153,6 +162,7 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 		{
 			EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
+		EnableCustomDepth(false);
 		if (WeaponType == EWeaponType::EWT_SMG)
 		{
 			WeaponMesh->SetSimulatePhysics(false);
@@ -171,6 +181,10 @@ void AWeapon::SetWeaponState(EWeaponState CurrentState)
 		WeaponMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+
+		WeaponMesh->CustomDepthStencilValue = CUSTOM_DEPTH_PURPLE;
+		WeaponMesh->MarkRenderStateDirty(); // Refreshes the post process material
+		EnableCustomDepth(true);
 		break;
 	}
 }
@@ -249,4 +263,12 @@ void AWeapon::Dropped()
 void AWeapon::UpdateAmmoData(int32 Ammos)
 {
 	Ammo += Ammos;
+}
+
+void AWeapon::EnableCustomDepth(bool bEnable)
+{
+	if (WeaponMesh != nullptr)
+	{
+		WeaponMesh->SetRenderCustomDepth(bEnable);
+	}
 }

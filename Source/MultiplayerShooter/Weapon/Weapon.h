@@ -28,6 +28,7 @@ public:
 
 	void ShowPickupWidget(bool isEnabled);
 	virtual void Fire(const FVector &HitLocation);
+	void EnableCustomDepth(bool bEnable);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
