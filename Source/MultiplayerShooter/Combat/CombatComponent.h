@@ -28,6 +28,11 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void OnReloadFinished();
+	
+	UFUNCTION(BlueprintCallable)
+	void OnShellInserted();
+
+	void JumpToShotgunEnd();
 
 protected:
 	virtual void BeginPlay() override;
@@ -56,6 +61,7 @@ protected:
 	void FindCrosshairHitTarget(FHitResult &HitResult);
 	void HandleReload();
 	void CalculateReloading();
+	void CalculateReloadPerInsert();
 
 private:
 	UPROPERTY()

@@ -10,6 +10,7 @@
 #include "MultiplayerShooter/Weapon/WeaponTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
+#include "MultiplayerShooter/Character/ShooterAnimInstance.h"
 #include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 
@@ -130,9 +131,14 @@ void UCombatComponent::OnReloadFinished()
 
 	if (bIsFireBtnPressed)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UCombatComponent::OnReloadFinished"));
 		Fire();
 	}
+}
+
+void UCombatComponent::OnShellInserted()
+{
+	if (ShooterCharacter != nullptr && ShooterCharacter->HasAuthority())
+		CalculateReloadPerInsert();
 }
 
 /************************************ PROTECTED FUNCTIONS ************************************/
@@ -183,6 +189,11 @@ void UCombatComponent::OnRep_CombatState()
 void UCombatComponent::OnRep_CarriedAmmo()
 {
 	UpdateCarriedAmmoHUD();
+	bool bJumpToShotgunEnd = EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun && CombatState == ECombatState::ECS_Reloading && CarriedAmmo == 0;
+	if (bJumpToShotgunEnd)
+	{
+		JumpToShotgunEnd();
+	}
 }
 
 void UCombatComponent::ServerFire_Implementation(FVector_NetQuantize FireHitTarget)
@@ -206,8 +217,19 @@ void UCombatComponent::ServerReload_Implementation()
 
 void UCombatComponent::MulticastFire_Implementation(FVector_NetQuantize FireHitTarget)
 {
-	if (!ShooterCharacter || !EquippedWeapon)
+	if (ShooterCharacter == nullptr || EquippedWeapon == nullptr)
 		return;
+
+	bool bIsShotgunReloading = EquippedWeapon != nullptr && EquippedWeapon->GetAvailableAmmo() > 0 &&
+		CombatState == ECombatState::ECS_Reloading &&
+		EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun;
+	if (bIsShotgunReloading)
+	{
+		EquippedWeapon->Fire(FireHitTarget);
+		ShooterCharacter->PlayFireMontage(bAiming);
+		CombatState = ECombatState::ECS_Unoccupied;
+		return;
+	}
 
 	if (CombatState == ECombatState::ECS_Unoccupied)
 	{
@@ -275,13 +297,15 @@ void UCombatComponent::HandleReload()
 
 void UCombatComponent::CalculateReloading()
 {
+	if (ShooterCharacter == nullptr || EquippedWeapon == nullptr || EquippedWeapon->IsFull())
+		return;
+
 	int32 MagCapacity = EquippedWeapon->GetWeaponMagCapacity();
 	int32 WeaponAmmo = EquippedWeapon->GetAvailableAmmo();
 	int32 ReloadAmt = MagCapacity - WeaponAmmo;
 
 	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CarriedAmmo: %d"), CarriedAmmo);
 		EquippedWeapon->UpdateAmmoData(FMath::Min(ReloadAmt, CarriedAmmo));
 		CarriedAmmoMap[EquippedWeapon->GetWeaponType()] = ReloadAmt <= CarriedAmmo ? CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmt : 0;
 		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
@@ -289,6 +313,47 @@ void UCombatComponent::CalculateReloading()
 
 	EquippedWeapon->UpdateWeaponAmmoHUD();
 	UpdateCarriedAmmoHUD();
+}
+
+void UCombatComponent::CalculateReloadPerInsert()
+{
+	if (ShooterCharacter == nullptr || EquippedWeapon == nullptr)
+		return;
+
+	int32 ReloadAmt = 1;
+	if (CarriedAmmoMap.Contains(EquippedWeapon->GetWeaponType()) && !EquippedWeapon->IsFull())
+	{
+		if (ReloadAmt <= CarriedAmmo)
+		{
+			EquippedWeapon->UpdateAmmoData(ReloadAmt);
+			CarriedAmmoMap[EquippedWeapon->GetWeaponType()] -= ReloadAmt;
+		}
+		else
+		{
+			CarriedAmmoMap[EquippedWeapon->GetWeaponType()] = 0;
+		}
+
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	}
+
+	bCanFire = true;
+	UpdateCarriedAmmoHUD();
+	EquippedWeapon->UpdateWeaponAmmoHUD();
+	if (EquippedWeapon->IsFull() || CarriedAmmo == 0)
+	{
+		JumpToShotgunEnd();
+	}
+}
+
+void UCombatComponent::JumpToShotgunEnd()
+{
+	if (ShooterCharacter == nullptr) return;
+
+	UAnimInstance* AnimInstance = ShooterCharacter->GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr && ShooterCharacter->GetReloadMontage() != nullptr)
+	{
+		AnimInstance->Montage_JumpToSection(FName("ShotgunEnd"));
+	}
 }
 
 /************************************ PRIVATE FUNCTIONS ************************************/
@@ -380,6 +445,10 @@ void UCombatComponent::SetZoomedFOV(float DeltaTime)
 void UCombatComponent::EnableFiringEvent()
 {
 	bCanFire = false;
+	if (EquippedWeapon->GetAvailableAmmo() < 1)
+	{
+		ReloadWeapon();
+	}
 	ShooterCharacter->GetWorldTimerManager().SetTimer(FireRateTimerHandle,
 													  this,
 													  &ThisClass::OnFireDelayed,
@@ -389,11 +458,6 @@ void UCombatComponent::EnableFiringEvent()
 
 void UCombatComponent::OnFireDelayed()
 {
-	if (EquippedWeapon->GetAvailableAmmo() < 1)
-	{
-		ReloadWeapon();
-	}
-
 	bCanFire = true;
 	if (bIsFireBtnPressed && EquippedWeapon->bIsAutomaticWeapon) // if button is still on hold
 	{
@@ -405,6 +469,15 @@ void UCombatComponent::Fire()
 {
 	if (!CanFire())
 	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Green,
+				FString::Printf(TEXT("!CanFire()"))
+			);
+		}
 		return;
 	}
 
@@ -414,6 +487,36 @@ void UCombatComponent::Fire()
 
 bool UCombatComponent::CanFire()
 {
+	bool bIsShotgunReloading = CombatState == ECombatState::ECS_Reloading &&
+								EquippedWeapon != nullptr && 
+								EquippedWeapon->GetAvailableAmmo() > 0 &&
+								EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun;
+	if (bIsShotgunReloading)
+		return true;
+
+	if (EquippedWeapon == nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.f,
+			FColor::Green,
+			FString::Printf(TEXT("EquippedWeapon == nullptr"))
+		);
+	}
+
+	/*if (GEngine != nullptr && EquippedWeapon != nullptr)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.f,
+			FColor::Green,
+			FString::Printf(TEXT(":: Ammo > 0: %d :: bCanFire: %d :: CombatState: %s"),
+				EquippedWeapon->GetAvailableAmmo() > 0,
+				bCanFire,
+				CombatState == ECombatState::ECS_Unoccupied)
+		);
+	}*/
+
 	return EquippedWeapon != nullptr && EquippedWeapon->GetAvailableAmmo() > 0 && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
 

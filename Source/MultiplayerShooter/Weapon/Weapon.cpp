@@ -4,10 +4,12 @@
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
+#include "MultiplayerShooter/Combat/CombatComponent.h"
 #include "MultiplayerShooter/PlayerController/ShooterPlayerController.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "AmmoShell.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AWeapon::AWeapon()
 {
@@ -49,6 +51,9 @@ void AWeapon::BeginPlay()
 		EquipAreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		EquipAreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnEquipAreaOverlap);
 		EquipAreaSphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEquipAreaEndOverlap);
+
+		if (Ammo > MagCapacity)
+			Ammo = FMath::Clamp(Ammo, 0, MagCapacity);
 	}
 }
 
@@ -132,6 +137,10 @@ void AWeapon::UpdateWeaponAmmoHUD()
 void AWeapon::OnRep_Ammo()
 {
 	UpdateWeaponAmmoHUD();
+	if (PlayerCharacter != nullptr && PlayerCharacter->GetCombatComponent() != nullptr && IsFull())
+	{
+		PlayerCharacter->GetCombatComponent()->JumpToShotgunEnd();
+	}
 }
 
 void AWeapon::SetWeaponState(EWeaponState CurrentState)

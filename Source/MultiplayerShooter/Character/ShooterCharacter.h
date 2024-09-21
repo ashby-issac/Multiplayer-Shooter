@@ -193,4 +193,5 @@ public:
 	FORCEINLINE bool GetRotateRootBoneState() { return bRotateRootBone; }
 	FORCEINLINE bool GetIsEliminated() { return bIsEliminated; }
 	FORCEINLINE UCombatComponent* GetCombatComponent() { return CombatComponent; }
+	FORCEINLINE UAnimMontage* GetReloadMontage() { return ReloadMontage; }
 };

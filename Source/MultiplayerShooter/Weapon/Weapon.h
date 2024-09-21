@@ -134,4 +134,6 @@ public:
 	FORCEINLINE int32 GetAvailableAmmo() { return Ammo; }
 	FORCEINLINE int32 GetWeaponMagCapacity() { return MagCapacity; }
 	FORCEINLINE EWeaponType GetWeaponType() { return WeaponType; }
+	FORCEINLINE bool IsFull() { return Ammo == MagCapacity; }
+
 };
