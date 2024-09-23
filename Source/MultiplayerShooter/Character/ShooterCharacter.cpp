@@ -332,6 +332,15 @@ void AShooterCharacter::PlayElimMontage()
 		AnimInstance->Montage_Play(ElimMontage);
 }
 
+void AShooterCharacter::PlayGrenadeThrowMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && GrenadeThrowMontage)
+	{
+		AnimInstance->Montage_Play(GrenadeThrowMontage);
+	}
+}
+
 void AShooterCharacter::MoveForward(float Value)
 {
 	if (bDisableGameplay) return;
@@ -421,6 +430,13 @@ void AShooterCharacter::OnFireReleased()
 	CombatComponent->SetFiringState(false);
 }
 
+void AShooterCharacter::OnGrenadeThrowPressed()
+{
+	if (!CombatComponent) return;
+
+	CombatComponent->PlayGrenadeThrowAction();
+}
+
 void AShooterCharacter::OnCrouchPressed()
 {
 	if (bDisableGameplay) return;
@@ -459,6 +475,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCo
 
 	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Pressed, this, &ThisClass::OnFirePressed);
 	PlayerInputComponent->BindAction(FName("Fire"), EInputEvent::IE_Released, this, &ThisClass::OnFireReleased);
+	PlayerInputComponent->BindAction(FName("GrenadeThrow"), EInputEvent::IE_Pressed, this, &ThisClass::OnGrenadeThrowPressed);
 
 	PlayerInputComponent->BindAxis(FName("MoveForward"), this, &ThisClass::MoveForward);
 	PlayerInputComponent->BindAxis(FName("MoveRight"), this, &ThisClass::MoveRight);
@@ -542,6 +559,8 @@ void AShooterCharacter::PostInitializeComponents()
 	if (CombatComponent)
 		CombatComponent->ShooterCharacter = this;
 }
+
+
 
 void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser)
 {

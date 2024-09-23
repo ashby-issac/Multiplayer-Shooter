@@ -32,7 +32,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnShellInserted();
 
+	UFUNCTION(BlueprintCallable)
+	void OnGrenadeThrowFinished();
+
 	void JumpToShotgunEnd();
+	void PlayGrenadeThrowAction();
 
 protected:
 	virtual void BeginPlay() override;
@@ -57,6 +61,9 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastFire(FVector_NetQuantize FireHitTarget);
+
+	UFUNCTION(Server, Reliable)
+	void ServerGrenadeThrow();
 
 	void FindCrosshairHitTarget(FHitResult &HitResult);
 	void HandleReload();

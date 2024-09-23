@@ -61,7 +61,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 
 void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 {
-	if (!ShooterCharacter || !WeaponToEquip)
+	if (!ShooterCharacter || !WeaponToEquip || CombatState != ECombatState::ECS_Unoccupied)
 		return;
 
 	if (EquippedWeapon != nullptr)
@@ -141,6 +141,11 @@ void UCombatComponent::OnShellInserted()
 		CalculateReloadPerInsert();
 }
 
+void UCombatComponent::OnGrenadeThrowFinished()
+{
+	CombatState = ECombatState::ECS_Unoccupied;
+}
+
 /************************************ PROTECTED FUNCTIONS ************************************/
 
 void UCombatComponent::OnRep_OnEquippedWeapon()
@@ -183,6 +188,12 @@ void UCombatComponent::OnRep_CombatState()
 			Fire();
 		}
 		break;
+	case ECombatState::ECS_GrenadeThrow:
+		if (ShooterCharacter && !ShooterCharacter->IsLocallyControlled())
+		{
+			ShooterCharacter->PlayGrenadeThrowMontage();
+		}
+		break;
 	}
 }
 
@@ -213,6 +224,15 @@ void UCombatComponent::ServerReload_Implementation()
 
 	CombatState = ECombatState::ECS_Reloading;
 	HandleReload();
+}
+
+void UCombatComponent::ServerGrenadeThrow_Implementation()
+{
+	CombatState = ECombatState::ECS_GrenadeThrow;
+	if (ShooterCharacter)
+	{
+		ShooterCharacter->PlayGrenadeThrowMontage();
+	}
 }
 
 void UCombatComponent::MulticastFire_Implementation(FVector_NetQuantize FireHitTarget)
@@ -356,11 +376,27 @@ void UCombatComponent::JumpToShotgunEnd()
 	}
 }
 
+void UCombatComponent::PlayGrenadeThrowAction()
+{
+	if (CombatState == ECombatState::ECS_GrenadeThrow)
+		return;
+
+	CombatState = ECombatState::ECS_GrenadeThrow;
+	if (ShooterCharacter)
+	{
+		ShooterCharacter->PlayGrenadeThrowMontage();
+		if (!ShooterCharacter->HasAuthority())
+		{
+			ServerGrenadeThrow();
+		}
+	}
+}
+
 /************************************ PRIVATE FUNCTIONS ************************************/
 
 void UCombatComponent::ReloadWeapon()
 {
-	if (CarriedAmmo > 0 && CombatState != ECombatState::ECS_Reloading)
+	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		ServerReload();
 	}

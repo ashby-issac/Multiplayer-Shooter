@@ -112,8 +112,8 @@ void UShooterAnimInstance::CalculateLeftHandTransform(float DeltaSeconds)
 			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookRotation, DeltaSeconds, 10.f);
 		}
 
-		bUseFabrik = ShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading;
-		bUseAimOffsets = ShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading && !ShooterCharacter->bDisableGameplay;
-		bTransformRightHand = ShooterCharacter->GetCombatState() != ECombatState::ECS_Reloading && !ShooterCharacter->bDisableGameplay;
+		bUseFabrik = ShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+		bUseAimOffsets = ShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !ShooterCharacter->bDisableGameplay;
+		bTransformRightHand = ShooterCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !ShooterCharacter->bDisableGameplay;
 	}
 }

@@ -35,6 +35,7 @@ public:
 	void SetOverlappingWeapon(AWeapon *Weapon);
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
+	void PlayGrenadeThrowMontage();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminate();
@@ -66,6 +67,8 @@ protected:
 
 	void OnFirePressed();
 	void OnFireReleased();
+
+	void OnGrenadeThrowPressed();
 
 	void RespawnCharacter();
 
@@ -137,6 +140,9 @@ private:
 	UAnimMontage *ElimMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* GrenadeThrowMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage *ReloadMontage;
 
 	UPROPERTY()
@@ -188,10 +194,12 @@ public:
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE float GetHealth() { return Health; }
 	FORCEINLINE float GetMaxHealth() { return MaxHealth; }
-	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
-	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
+	
 	FORCEINLINE bool GetRotateRootBoneState() { return bRotateRootBone; }
 	FORCEINLINE bool GetIsEliminated() { return bIsEliminated; }
-	FORCEINLINE UCombatComponent* GetCombatComponent() { return CombatComponent; }
+
 	FORCEINLINE UAnimMontage* GetReloadMontage() { return ReloadMontage; }
+	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
+	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
+	FORCEINLINE UCombatComponent* GetCombatComponent() { return CombatComponent; }
 };
