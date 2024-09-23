@@ -143,7 +143,12 @@ private:
 	void OnFireDelayed();
 	bool CanFire();
 	void InitializeCarriedAmmo();
-	void UpdateCarriedAmmoHUD();
+	void UpdateCarriedAmmoData();
+	void PlayWeaponEquipSFX();
+	void DropEquippedWeapon();
+	void AttachToLeftHand(AActor* ActorToAttach);
+	void AttachToRightHand(AActor* ActorToAttach);
+	void ReloadEmptyWeapon();
 
 public:
 	FVector CrosshairHitTarget;
