@@ -49,6 +49,9 @@ AShooterCharacter::AShooterCharacter()
 	CombatComponent->SetIsReplicated(true);
 
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
+	GrenadeMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GrenadeMesh"));
+	GrenadeMesh->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
+	GrenadeMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 
@@ -72,6 +75,11 @@ void AShooterCharacter::BeginPlay()
 
 	if (HasAuthority())
 		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
+
+	if (GrenadeMesh)
+	{
+		GrenadeMesh->SetVisibility(false);
+	}
 }
 
 void AShooterCharacter::Tick(float DeltaTime)

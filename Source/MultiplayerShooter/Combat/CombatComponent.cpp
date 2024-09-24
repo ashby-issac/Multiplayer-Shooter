@@ -134,6 +134,14 @@ void UCombatComponent::ReloadEmptyWeapon()
 	}
 }
 
+void UCombatComponent::SetGrenadeActiveState(bool bEnable)
+{
+	if (ShooterCharacter && ShooterCharacter->GetGrenadeMesh())
+	{
+		ShooterCharacter->GetGrenadeMesh()->SetVisibility(bEnable);
+	}
+}
+
 void UCombatComponent::SetFiringState(bool isFiring)
 {
 	bIsFireBtnPressed = isFiring;
@@ -186,6 +194,11 @@ void UCombatComponent::OnGrenadeThrowFinished()
 	AttachToRightHand(EquippedWeapon);
 }
 
+void UCombatComponent::LaunchGrenade()
+{
+	SetGrenadeActiveState(false);
+}
+
 /************************************ PROTECTED FUNCTIONS ************************************/
 
 void UCombatComponent::OnRep_OnEquippedWeapon()
@@ -218,6 +231,7 @@ void UCombatComponent::OnRep_CombatState()
 		if (ShooterCharacter && !ShooterCharacter->IsLocallyControlled())
 		{
 			AttachToLeftHand(EquippedWeapon);
+			SetGrenadeActiveState(true);
 			ShooterCharacter->PlayGrenadeThrowMontage();
 		}
 		break;
@@ -259,6 +273,7 @@ void UCombatComponent::ServerGrenadeThrow_Implementation()
 	if (ShooterCharacter)
 	{
 		AttachToLeftHand(EquippedWeapon);
+		SetGrenadeActiveState(true);
 		ShooterCharacter->PlayGrenadeThrowMontage();
 	}
 }
@@ -413,6 +428,7 @@ void UCombatComponent::PlayGrenadeThrowAction()
 	if (ShooterCharacter)
 	{
 		AttachToLeftHand(EquippedWeapon);
+		SetGrenadeActiveState(true);
 		ShooterCharacter->PlayGrenadeThrowMontage();
 		if (!ShooterCharacter->HasAuthority())
 		{

@@ -97,6 +97,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class USpringArmComponent *SpringArmComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	class UStaticMeshComponent* GrenadeMesh;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent *OverheadWidget;
 
@@ -202,4 +205,5 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
 	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
 	FORCEINLINE UCombatComponent* GetCombatComponent() { return CombatComponent; }
+	FORCEINLINE UStaticMeshComponent* GetGrenadeMesh() { return GrenadeMesh; }
 };

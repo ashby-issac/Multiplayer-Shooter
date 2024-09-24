@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnGrenadeThrowFinished();
 
+	UFUNCTION(BlueprintCallable)
+	void LaunchGrenade();
+
 	void JumpToShotgunEnd();
 	void PlayGrenadeThrowAction();
 
@@ -149,6 +152,7 @@ private:
 	void AttachToLeftHand(AActor* ActorToAttach);
 	void AttachToRightHand(AActor* ActorToAttach);
 	void ReloadEmptyWeapon();
+	void SetGrenadeActiveState(bool bEnable);
 
 public:
 	FVector CrosshairHitTarget;
