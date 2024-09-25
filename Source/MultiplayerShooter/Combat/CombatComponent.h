@@ -42,6 +42,9 @@ public:
 	void PlayGrenadeThrowAction();
 
 protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectileAmmo> GrenadeClass;
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
@@ -52,6 +55,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_CarriedAmmo();
+
+	UFUNCTION()
+	void OnRep_Grenades();
 
 	UFUNCTION(Server, Reliable)
 	void ServerFire(FVector_NetQuantize FireHitTarget);
@@ -67,6 +73,9 @@ protected:
 
 	UFUNCTION(Server, Reliable)
 	void ServerGrenadeThrow();
+
+	UFUNCTION(Server, Reliable)
+	void ServerLaunchGrenade(FVector_NetQuantize HitTarget);
 
 	void FindCrosshairHitTarget(FHitResult &HitResult);
 	void HandleReload();
@@ -125,6 +134,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Starting Ammos")
 	int32 InitialGrenadeLauncherAmmo;
 
+	UPROPERTY(ReplicatedUsing = OnRep_Grenades)
+	int32 Grenades = 4;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxGrenades = 4;
+
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_CombatState)
 	ECombatState CombatState = ECombatState::ECS_Unoccupied;
 
@@ -147,6 +162,7 @@ private:
 	bool CanFire();
 	void InitializeCarriedAmmo();
 	void UpdateCarriedAmmoData();
+	void UpdateGrenadesData();
 	void PlayWeaponEquipSFX();
 	void DropEquippedWeapon();
 	void AttachToLeftHand(AActor* ActorToAttach);
@@ -159,4 +175,5 @@ public:
 
 	FORCEINLINE AWeapon *GetEquippedWeapon() const { return EquippedWeapon; }
 	FORCEINLINE int32 GetCarriedAmmo() const { return CarriedAmmo; }
+	FORCEINLINE int32 GetGrenadesCount() const { return Grenades; }
 };

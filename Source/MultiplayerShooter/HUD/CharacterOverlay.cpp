@@ -50,3 +50,9 @@ void UCharacterOverlay::UpdateMatchCountdownValue(float TotalSeconds)
     FString ValueString = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
     MatchCountdownValue->SetText(FText::FromString(ValueString));
 }
+
+void UCharacterOverlay::UpdateGrenadesValue(int32 Grenades)
+{
+    FString ValueString = FString::Printf(TEXT("%d"), Grenades);
+    GrenadesValue->SetText(FText::FromString(ValueString));
+}

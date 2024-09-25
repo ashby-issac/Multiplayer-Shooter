@@ -9,6 +9,7 @@ AProjectileGrenade::AProjectileGrenade()
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Grenade Mesh"));
 	ProjectileMesh->SetupAttachment(RootComponent);
 	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ProjectileMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
@@ -29,6 +30,16 @@ void AProjectileGrenade::BeginPlay()
 
 void AProjectileGrenade::OnBounce(const FHitResult& ImpactResult, const FVector& ImpactVelocity)
 {
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.f,
+			FColor::Green,
+			FString::Printf(TEXT("Hit OnBounce: %s"), *ImpactResult.GetActor()->GetName())
+		);
+	}
+
 	if (BounceSFX != nullptr)
 	{
 		UGameplayStatics::SpawnSoundAtLocation(this, BounceSFX, GetActorLocation());

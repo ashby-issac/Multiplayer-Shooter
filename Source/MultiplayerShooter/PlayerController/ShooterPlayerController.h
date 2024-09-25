@@ -21,6 +21,7 @@ public:
 	void SendDefeatsHUDUpdate(int32 Defeat);
 	void SendWeaponAmmoHUDUpdate(int32 Ammo);
 	void SendCarriedAmmoHUDUpdate(int32 Ammo);
+	void SendGrenadesHUDUpdate(int32 Grenades);
 	void SendMatchCountdownHUDUpdate(float TotalSeconds);
 	void SendWarmupCountdownHUDUpdate(float TotalSeconds);
 	void SendCooldownCountdownHUDUpdate(float TotalSeconds);
@@ -73,7 +74,7 @@ private:
 	uint32 CountdownInt = 0;
 
 	float CachedHealth, CachedMaxHealth;
-	int32 CachedDefeats, CachedScore;
+	int32 CachedDefeats, CachedScore, CachedGrenades;
 
 	float ClientServerDelta;
 	float SyncTimer = 0;

@@ -9,6 +9,7 @@
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
 #include "MultiplayerShooter/Weapon/WeaponTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MultiplayerShooter/Weapon/ProjectileGrenade.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
 #include "MultiplayerShooter/Character/ShooterAnimInstance.h"
 #include "MultiplayerShooter/Interfaces/CrosshairsInteractor.h"
@@ -57,6 +58,7 @@ void UCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Out
 	DOREPLIFETIME(UCombatComponent, CombatState);
 	DOREPLIFETIME(UCombatComponent, EquippedWeapon);
 	DOREPLIFETIME_CONDITION(UCombatComponent, CarriedAmmo, COND_OwnerOnly);
+	DOREPLIFETIME(UCombatComponent, Grenades);
 }
 
 void UCombatComponent::DropEquippedWeapon()
@@ -197,9 +199,35 @@ void UCombatComponent::OnGrenadeThrowFinished()
 void UCombatComponent::LaunchGrenade()
 {
 	SetGrenadeActiveState(false);
+	if (ShooterCharacter && ShooterCharacter->IsLocallyControlled())
+	{
+		ServerLaunchGrenade(CrosshairHitTarget);
+	}
 }
 
 /************************************ PROTECTED FUNCTIONS ************************************/
+
+void UCombatComponent::ServerLaunchGrenade_Implementation(FVector_NetQuantize HitTarget)
+{
+	if (ShooterCharacter && GrenadeClass && ShooterCharacter->GetGrenadeMesh())
+	{
+		FVector GrenadeLocation = ShooterCharacter->GetGrenadeMesh()->GetComponentLocation();
+		FVector TargetLocation = HitTarget - GrenadeLocation;
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = ShooterCharacter;
+		SpawnParams.Instigator = ShooterCharacter;
+
+		if (auto World = GetWorld())
+		{
+			World->SpawnActor<AProjectileAmmo>(
+				GrenadeClass,
+				GrenadeLocation,
+				TargetLocation.Rotation(),
+				SpawnParams);
+		}
+	}
+}
 
 void UCombatComponent::OnRep_OnEquippedWeapon()
 {
@@ -248,6 +276,11 @@ void UCombatComponent::OnRep_CarriedAmmo()
 	}
 }
 
+void UCombatComponent::OnRep_Grenades()
+{
+	UpdateGrenadesData();
+}
+
 void UCombatComponent::ServerFire_Implementation(FVector_NetQuantize FireHitTarget)
 {
 	MulticastFire(FireHitTarget);
@@ -276,6 +309,10 @@ void UCombatComponent::ServerGrenadeThrow_Implementation()
 		SetGrenadeActiveState(true);
 		ShooterCharacter->PlayGrenadeThrowMontage();
 	}
+
+	Grenades = FMath::Clamp(Grenades - 1, 0, MaxGrenades);
+	UpdateGrenadesData();
+
 }
 
 void UCombatComponent::MulticastFire_Implementation(FVector_NetQuantize FireHitTarget)
@@ -346,6 +383,15 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 				// DrawDebugSphere(GetWorld(), Start, 30.f, 12, FColor::Black);
 				HUDPackage.CrosshairColor = FLinearColor::Black;
 			}
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Red,
+				FString::Printf(TEXT("Not Deprojected"))
+			);
 		}
 	}
 }
@@ -421,7 +467,7 @@ void UCombatComponent::JumpToShotgunEnd()
 
 void UCombatComponent::PlayGrenadeThrowAction()
 {
-	if (CombatState == ECombatState::ECS_GrenadeThrow)
+	if (CombatState == ECombatState::ECS_GrenadeThrow || EquippedWeapon == nullptr || Grenades < 1)
 		return;
 
 	CombatState = ECombatState::ECS_GrenadeThrow;
@@ -433,6 +479,11 @@ void UCombatComponent::PlayGrenadeThrowAction()
 		if (!ShooterCharacter->HasAuthority())
 		{
 			ServerGrenadeThrow();
+		}
+		else
+		{
+			Grenades = FMath::Clamp(Grenades - 1, 0, MaxGrenades);
+			UpdateGrenadesData();
 		}
 	}
 }
@@ -623,5 +674,18 @@ void UCombatComponent::UpdateCarriedAmmoData()
 		{
 			ShooterController->SendCarriedAmmoHUDUpdate(CarriedAmmo);
 		}
+	}
+}
+
+void UCombatComponent::UpdateGrenadesData()
+{
+	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller) : ShooterController;
+	if (ShooterController != nullptr)
+	{
+		ShooterController->SendGrenadesHUDUpdate(Grenades);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UpdateGrenadesData :: ShooterController is null"));
 	}
 }

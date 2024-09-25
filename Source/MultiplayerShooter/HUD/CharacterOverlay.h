@@ -21,6 +21,7 @@ public:
 	void UpdateWeaponAmmoValue(int32 Ammo);
 	void UpdateCarriedAmmoValue(int32 Ammo);
 	void UpdateMatchCountdownValue(float TotalSeconds);
+	void UpdateGrenadesValue(int32 Grenades);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -43,4 +44,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MatchCountdownValue;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* GrenadesValue;
 };

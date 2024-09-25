@@ -39,6 +39,12 @@ void AShooterPlayerController::PollInit()
             SendScoreHUDUpdate(CachedScore);
             SendDefeatsHUDUpdate(CachedDefeats);
             SendHealthHUDUpdate(CachedHealth, CachedMaxHealth);
+
+            AShooterCharacter* ShooterChar = Cast<AShooterCharacter>(GetPawn());
+            if (ShooterChar && ShooterChar->GetCombatComponent())
+            {
+                SendGrenadesHUDUpdate(ShooterChar->GetCombatComponent()->GetGrenadesCount());
+            }
         }
     }
 }
@@ -253,10 +259,27 @@ void AShooterPlayerController::SendCooldownCountdownHUDUpdate(float TotalSeconds
     }
 }
 
+void AShooterPlayerController::SendGrenadesHUDUpdate(int32 Grenades)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+    {
+        ShooterHUD->CharacterOverlay->UpdateGrenadesValue(Grenades);
+        UE_LOG(LogTemp, Warning, TEXT("UpdateGrenadesValue: %f :: %f"), CachedGrenades, Grenades);
+    }
+    else
+    {
+        bInitializeCharacterOverlay = true;
+        CachedGrenades = Grenades;
+        UE_LOG(LogTemp, Warning, TEXT("CachedGrenades: %f"), CachedGrenades);
+    }
+}
+
 void AShooterPlayerController::OnMatchStateSet(FName NewState)
 {
     MatchState = NewState;
 
+    UE_LOG(LogTemp, Warning, TEXT("MatchState: %s"), *MatchState.ToString());
     if (MatchState == MatchState::InProgress)
     {
         HandleMatchStart();
@@ -272,12 +295,11 @@ void AShooterPlayerController::HandleMatchStart()
     ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
     if (ShooterHUD != nullptr)
     {
+        if (ShooterHUD->AnnouncementOverlay != nullptr)
+            ShooterHUD->AnnouncementOverlay->SetVisibility(ESlateVisibility::Hidden);
+
         if (ShooterHUD->CharacterOverlay == nullptr)
             ShooterHUD->AddCharacterOverlay();
-        if (ShooterHUD->AnnouncementOverlay != nullptr)
-        {
-            ShooterHUD->AnnouncementOverlay->SetVisibility(ESlateVisibility::Hidden);
-        }
     }
 }
 
