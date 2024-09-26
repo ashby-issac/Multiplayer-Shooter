@@ -660,16 +660,6 @@ void AShooterCharacter::Destroyed()
 {
 	Super::Destroyed();
 
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Green,
-			FString::Printf(TEXT("CHARACTER Destroyed"))
-		);
-	}
-
 	if (ElimBotComponent != nullptr)
 		ElimBotComponent->DestroyComponent();
 

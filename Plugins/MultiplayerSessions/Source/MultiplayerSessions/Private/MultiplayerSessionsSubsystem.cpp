@@ -15,15 +15,6 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem() :
 	if (auto OnlineSubsystem = IOnlineSubsystem::Get())
 	{
 		SessionInterface = OnlineSubsystem->GetSessionInterface();
-		if (SessionInterface && GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Red,
-				FString::Printf(TEXT("Connected to steam: %s"), *OnlineSubsystem->GetSubsystemName().ToString())
-			);
-		}
 	}
 }
 
@@ -88,16 +79,6 @@ void UMultiplayerSessionsSubsystem::FindGameSession(int32 NumOfSearches)
 	{
 		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
 		MPFindSessionsCompleteDelegate.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
-
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Red,
-				FString::Printf(TEXT("Couldn't find sessions"))
-			);
-		}
 	}
 }
 
@@ -203,15 +184,6 @@ void UMultiplayerSessionsSubsystem::OnJoinSessionCompleteDelegate(FName SessionN
 	FString ConnectInfo;
 	if (SessionInterface->GetResolvedConnectString(NAME_GameSession, ConnectInfo))
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Green,
-				FString::Printf(TEXT("GetResolvedConnectString: %s"), *ConnectInfo)
-			);
-		}
 		MPJoinSessionCompleteDelegate.Broadcast(EOnJoinSessionCompleteResult::Success, ConnectInfo);
 	}
 }

@@ -21,15 +21,12 @@ void AProjectileBullet::OnProjectileHit(UPrimitiveComponent *HitComponent, AActo
         // Apply damage to server controlled character
         // Replicate the damage down to the specific or
         // same character present in the clients.
-        UE_LOG(LogTemp, Warning, TEXT(":: OwnerCharacter is not null"));
 
         if (OwnerCharacter->Controller != nullptr)
         {
-            UE_LOG(LogTemp, Warning, TEXT(":: ApplyingDamage"));
             UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerCharacter->Controller, this, UDamageType::StaticClass());
         }
     }
-    UE_LOG(LogTemp, Warning, TEXT(":: OwnerCharacter is null"));
 
     Super::OnProjectileHit(HitComponent, OtherActor, OtherComp, NormalImpulse, Hit);
 }

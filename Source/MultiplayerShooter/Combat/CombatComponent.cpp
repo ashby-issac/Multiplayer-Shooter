@@ -384,15 +384,6 @@ void UCombatComponent::FindCrosshairHitTarget(FHitResult &HitResult)
 				HUDPackage.CrosshairColor = FLinearColor::Black;
 			}
 		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Red,
-				FString::Printf(TEXT("Not Deprojected"))
-			);
-		}
 	}
 }
 
@@ -601,15 +592,6 @@ void UCombatComponent::Fire()
 {
 	if (!CanFire())
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.f,
-				FColor::Green,
-				FString::Printf(TEXT("!CanFire()"))
-			);
-		}
 		return;
 	}
 
@@ -625,29 +607,6 @@ bool UCombatComponent::CanFire()
 								EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun;
 	if (bIsShotgunReloading)
 		return true;
-
-	if (EquippedWeapon == nullptr)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Green,
-			FString::Printf(TEXT("EquippedWeapon == nullptr"))
-		);
-	}
-
-	/*if (GEngine != nullptr && EquippedWeapon != nullptr)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Green,
-			FString::Printf(TEXT(":: Ammo > 0: %d :: bCanFire: %d :: CombatState: %s"),
-				EquippedWeapon->GetAvailableAmmo() > 0,
-				bCanFire,
-				CombatState == ECombatState::ECS_Unoccupied)
-		);
-	}*/
 
 	return EquippedWeapon != nullptr && EquippedWeapon->GetAvailableAmmo() > 0 && bCanFire && CombatState == ECombatState::ECS_Unoccupied;
 }
@@ -683,9 +642,5 @@ void UCombatComponent::UpdateGrenadesData()
 	if (ShooterController != nullptr)
 	{
 		ShooterController->SendGrenadesHUDUpdate(Grenades);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateGrenadesData :: ShooterController is null"));
 	}
 }

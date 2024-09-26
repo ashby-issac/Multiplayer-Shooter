@@ -125,25 +125,7 @@ void AShooterPlayerController::ClientJoinMidGame_Implementation(FName StateOfMat
 
     if (ShooterHUD != nullptr && MatchState == MatchState::WaitingToStart)
     {
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(
-                -1,
-                15.f,
-                FColor::Green,
-                FString::Printf(TEXT("AddAnnouncementOverlay"))
-            );
-        }
         ShooterHUD->AddAnnouncementOverlay();
-    }
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(
-            -1,
-            15.f,
-            FColor::Red,
-            FString::Printf(TEXT("AddAnnouncementOverlay"))
-        );
     }
 }
 
@@ -265,13 +247,11 @@ void AShooterPlayerController::SendGrenadesHUDUpdate(int32 Grenades)
     if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
     {
         ShooterHUD->CharacterOverlay->UpdateGrenadesValue(Grenades);
-        UE_LOG(LogTemp, Warning, TEXT("UpdateGrenadesValue: %f :: %f"), CachedGrenades, Grenades);
     }
     else
     {
         bInitializeCharacterOverlay = true;
         CachedGrenades = Grenades;
-        UE_LOG(LogTemp, Warning, TEXT("CachedGrenades: %f"), CachedGrenades);
     }
 }
 
@@ -279,7 +259,6 @@ void AShooterPlayerController::OnMatchStateSet(FName NewState)
 {
     MatchState = NewState;
 
-    UE_LOG(LogTemp, Warning, TEXT("MatchState: %s"), *MatchState.ToString());
     if (MatchState == MatchState::InProgress)
     {
         HandleMatchStart();
@@ -340,15 +319,6 @@ void AShooterPlayerController::HandleCooldown()
                     {
                         InfoText = FString::Printf(TEXT("MVP\n%s"), *ShooterGameState->TopScoringPlayers[0]->GetPlayerName());
                     }
-                }
-                if (GEngine)
-                {
-                    GEngine->AddOnScreenDebugMessage(
-                        -1,
-                        15.f,
-                        FColor::Black,
-                        FString::Printf(TEXT("%s"), *InfoText)
-                    );
                 }
                 ShooterHUD->AnnouncementOverlay->UpdateWinnersText(InfoText);
             }

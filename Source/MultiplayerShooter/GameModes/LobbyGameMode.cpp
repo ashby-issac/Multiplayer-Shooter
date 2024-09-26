@@ -17,26 +17,8 @@ void ALobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			if (World)
 			{
 				bUseSeamlessTravel = true;
-				if (GEngine)
-				{
-					GEngine->AddOnScreenDebugMessage(
-						-1,
-						15.f,
-						FColor::Green,
-						FString::Printf(TEXT("PostLoginSuccess"))
-					);
-				}
 				World->ServerTravel(FString("/Game/Maps/Prototype?listen"));
 			}
 		}
-	}
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.f,
-			FColor::Red,
-			FString::Printf(TEXT("PostLogin"))
-		);
 	}
 }

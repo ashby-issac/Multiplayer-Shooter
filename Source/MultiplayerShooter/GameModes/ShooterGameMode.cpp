@@ -25,15 +25,6 @@ void AShooterGameMode::BeginPlay()
     Super::BeginPlay();
 
     LevelStartingTime = GetWorld()->GetTimeSeconds();
-    if (GEngine)
-    {
-        GEngine->AddOnScreenDebugMessage(
-            -1,
-            15.f,
-            FColor::Green,
-            FString::Printf(TEXT("LevelStartingTime: %f"), LevelStartingTime)
-        );
-    }
 }
 
 void AShooterGameMode::OnMatchStateSet()
