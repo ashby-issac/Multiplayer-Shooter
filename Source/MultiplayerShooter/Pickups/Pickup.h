@@ -14,6 +14,12 @@ public:
 	APickup();
 
 protected:
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* PickupMesh;
+
+	UPROPERTY(EditAnywhere)
+	float TurnRotationSpeed = 45.f;
+
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
@@ -28,11 +34,13 @@ protected:
 		const FHitResult& SweepResult);
 
 private:	
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* PickupMesh;
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* PickupSFX;
 
+	UPROPERTY(EditAnywhere)
 	class USphereComponent* OverlapSphere;
+
+	UPROPERTY(EditAnywhere)
+	FVector PickupScale = FVector(3.f, 3.f, 3.f);
 };

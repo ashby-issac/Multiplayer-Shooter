@@ -40,6 +40,7 @@ public:
 
 	void JumpToShotgunEnd();
 	void PlayGrenadeThrowAction();
+	void AddPickedupAmmo(EWeaponType WeaponType, int32 AmmoAmt);
 
 protected:
 	UPROPERTY(EditAnywhere)
@@ -100,6 +101,9 @@ private:
 
 	UPROPERTY(EditAnywhere, ReplicatedUsing = OnRep_CarriedAmmo)
 	int32 CarriedAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxCarriedAmmo = 500;
 
 	UPROPERTY(EditAnywhere)
 	float BaseWalkSpeed;

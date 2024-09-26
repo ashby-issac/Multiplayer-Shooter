@@ -4,6 +4,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "MultiplayerShooter/Weapon/Weapon.h"
 #include "MultiplayerShooter/HUD/ShooterHUD.h"
@@ -269,7 +270,7 @@ void UCombatComponent::OnRep_CombatState()
 void UCombatComponent::OnRep_CarriedAmmo()
 {
 	UpdateCarriedAmmoData();
-	bool bJumpToShotgunEnd = EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun && CombatState == ECombatState::ECS_Reloading && CarriedAmmo == 0;
+	bool bJumpToShotgunEnd = EquippedWeapon && EquippedWeapon->GetWeaponType() == EWeaponType::EWT_Shotgun && CombatState == ECombatState::ECS_Reloading && CarriedAmmo == 0;
 	if (bJumpToShotgunEnd)
 	{
 		JumpToShotgunEnd();
@@ -479,6 +480,36 @@ void UCombatComponent::PlayGrenadeThrowAction()
 	}
 }
 
+void UCombatComponent::AddPickedupAmmo(EWeaponType WeaponType, int32 AmmoAmt)
+{
+	EWeaponType EquippedWeaponType = EquippedWeapon ? EquippedWeapon->GetWeaponType() : EWeaponType::EWT_MAX;
+	if (CarriedAmmoMap.Contains(WeaponType))
+	{
+		CarriedAmmoMap[WeaponType] = FMath::Clamp(CarriedAmmoMap[WeaponType] + AmmoAmt, 0, MaxCarriedAmmo);
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.f,
+			FColor::Black,
+			FString::Printf(TEXT("Update CarriedAmmoMap"))
+		);
+		if (EquippedWeapon && WeaponType == EquippedWeaponType)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Black,
+				FString::Printf(TEXT("UpdateCarriedAmmoData"))
+			);
+			UpdateCarriedAmmoData();
+		}
+	}
+
+	if (EquippedWeapon && EquippedWeaponType == WeaponType && EquippedWeapon->GetAvailableAmmo() < 1)
+	{
+		ReloadWeapon();
+	}
+}
+
 /************************************ PRIVATE FUNCTIONS ************************************/
 
 void UCombatComponent::ReloadWeapon()
@@ -624,7 +655,8 @@ void UCombatComponent::InitializeCarriedAmmo()
 
 void UCombatComponent::UpdateCarriedAmmoData()
 {
-	CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
+	if (ShooterCharacter->HasAuthority())
+		CarriedAmmo = CarriedAmmoMap[EquippedWeapon->GetWeaponType()];
 
 	ShooterController = ShooterController == nullptr ? Cast<AShooterPlayerController>(ShooterCharacter->Controller) : ShooterController;
 	if (ShooterController != nullptr)

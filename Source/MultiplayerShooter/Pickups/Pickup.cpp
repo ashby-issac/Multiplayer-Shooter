@@ -1,8 +1,9 @@
 
 #include "Pickup.h"
-#include "Components/SphereComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
+#include "MultiplayerShooter/Weapon/WeaponTypes.h"
 
 APickup::APickup()
 {
@@ -25,6 +26,13 @@ APickup::APickup()
 
 	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	PickupMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+	PickupMesh->SetRenderCustomDepth(true);
+	PickupMesh->CustomDepthStencilValue = CUSTOM_DEPTH_BLUE;
+
+	RootComponent->AddLocalOffset(FVector(0.f, 0.f, 100.f));
+	PickupMesh->SetWorldRotation(FRotator(-90.f, 0.f, 0.F));
+	PickupMesh->SetWorldScale3D(PickupScale);
 }
 
 void APickup::BeginPlay()
