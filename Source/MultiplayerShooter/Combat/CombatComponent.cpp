@@ -19,6 +19,7 @@
 UCombatComponent::UCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	
 }
 
 /************************************ PUBLIC FUNCTIONS ************************************/
@@ -124,6 +125,7 @@ void UCombatComponent::EquipWeapon(AWeapon *WeaponToEquip)
 	UpdateCarriedAmmoData();
 	EquippedWeapon->UpdateWeaponAmmoHUD();
 	PlayWeaponEquipSFX();
+	ReloadEmptyWeapon();
 
 	ShooterCharacter->bUseControllerRotationYaw = true;
 	ShooterCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -285,6 +287,7 @@ void UCombatComponent::OnRep_Grenades()
 void UCombatComponent::ServerFire_Implementation(FVector_NetQuantize FireHitTarget)
 {
 	MulticastFire(FireHitTarget);
+	//ReloadEmptyWeapon();
 }
 
 void UCombatComponent::ServerAimSync_Implementation(bool bIsAiming)
@@ -398,6 +401,13 @@ void UCombatComponent::HandleReload()
 
 void UCombatComponent::CalculateReloading()
 {
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		15.f,
+		FColor::Black,
+		FString::Printf(TEXT("CalculateReloading"))
+	);
+
 	if (ShooterCharacter == nullptr || EquippedWeapon == nullptr || EquippedWeapon->IsFull())
 		return;
 
@@ -418,6 +428,13 @@ void UCombatComponent::CalculateReloading()
 
 void UCombatComponent::CalculateReloadPerInsert()
 {
+	GEngine->AddOnScreenDebugMessage(
+		-1,
+		15.f,
+		FColor::Black,
+		FString::Printf(TEXT("CalculateReloadPerInsert"))
+	);
+
 	if (ShooterCharacter == nullptr || EquippedWeapon == nullptr)
 		return;
 
@@ -514,7 +531,7 @@ void UCombatComponent::AddPickedupAmmo(EWeaponType WeaponType, int32 AmmoAmt)
 
 void UCombatComponent::ReloadWeapon()
 {
-	if (CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
+	if (EquippedWeapon && EquippedWeapon->GetAvailableAmmo() < 1 && CarriedAmmo > 0 && CombatState == ECombatState::ECS_Unoccupied)
 	{
 		ServerReload();
 	}
@@ -599,10 +616,6 @@ void UCombatComponent::SetZoomedFOV(float DeltaTime)
 void UCombatComponent::EnableFiringEvent()
 {
 	bCanFire = false;
-	if (EquippedWeapon->GetAvailableAmmo() < 1)
-	{
-		ReloadWeapon();
-	}
 	ShooterCharacter->GetWorldTimerManager().SetTimer(FireRateTimerHandle,
 													  this,
 													  &ThisClass::OnFireDelayed,

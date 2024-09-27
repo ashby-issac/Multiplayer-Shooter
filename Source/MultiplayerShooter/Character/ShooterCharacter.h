@@ -36,6 +36,7 @@ public:
 	void PlayFireMontage(bool bAiming);
 	void PlayReloadMontage();
 	void PlayGrenadeThrowMontage();
+	void UpdatePlayerHealthHUD();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminate();
@@ -76,7 +77,7 @@ protected:
 	void OnRep_OverlappingWeapon(AWeapon *LastWeapon);
 
 	UFUNCTION()
-	void OnRep_HealthDamaged();
+	void OnRep_HealthDamaged(float PrevHealth);
 
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // Server RPC
@@ -108,6 +109,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent *CombatComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	class UBuffComponent* BuffComponent;
 
 	UPROPERTY(EditDefaultsOnly)
 	float ElimDelay = 3.f;
@@ -184,7 +188,6 @@ private:
 	void PlayElimMontage();
 	void SimulatedProxiesTurn();
 	void CalculatePitch();
-	void UpdatePlayerHUD();
 	void PollInit();
 	void RotateInPlace(float DeltaTime);
 
@@ -196,6 +199,7 @@ public:
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
 	FORCEINLINE float GetHealth() { return Health; }
+	FORCEINLINE void SetHealth(float NewHealth) { Health = NewHealth; }
 	FORCEINLINE float GetMaxHealth() { return MaxHealth; }
 	
 	FORCEINLINE bool GetRotateRootBoneState() { return bRotateRootBone; }
@@ -205,5 +209,6 @@ public:
 	FORCEINLINE ETurningInPlace GetTurningInPlaceState() { return TurnInPlaceState; }
 	FORCEINLINE UCameraComponent *GetFollowCam() { return CameraComponent; }
 	FORCEINLINE UCombatComponent* GetCombatComponent() { return CombatComponent; }
+	FORCEINLINE UBuffComponent* GetBuffComponent() const { return BuffComponent; }
 	FORCEINLINE UStaticMeshComponent* GetGrenadeMesh() { return GrenadeMesh; }
 };

@@ -124,8 +124,7 @@ void AWeapon::OnRep_Owner()
 
 void AWeapon::UpdateWeaponAmmoRound(int32 AmmoCount)
 {
-	Ammo -= AmmoCount;
-
+	Ammo = FMath::Clamp(Ammo - AmmoCount, 0, MagCapacity);
 	UpdateWeaponAmmoHUD();
 }
 
@@ -138,6 +137,12 @@ void AWeapon::UpdateWeaponAmmoHUD()
 																	 : ShooterPlayerController;
 		if (ShooterPlayerController)
 		{
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.f,
+				FColor::Black,
+				FString::Printf(TEXT("Ammo: %d"), Ammo)
+			);
 			ShooterPlayerController->SendWeaponAmmoHUDUpdate(Ammo);
 		}
 	}

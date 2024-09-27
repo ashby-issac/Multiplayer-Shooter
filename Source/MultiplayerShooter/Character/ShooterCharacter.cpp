@@ -16,6 +16,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "MultiplayerShooter/Weapon/WeaponTypes.h"
+#include "MultiplayerShooter/Combat/BuffComponent.h"
 #include "MultiplayerShooter/HUD/CharacterOverlay.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MultiplayerShooter/Combat/CombatComponent.h"
@@ -48,6 +49,9 @@ AShooterCharacter::AShooterCharacter()
 	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
 	CombatComponent->SetIsReplicated(true);
 
+	BuffComponent = CreateDefaultSubobject<UBuffComponent>(TEXT("BuffComponent"));
+	BuffComponent->SetIsReplicated(true);
+
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 	GrenadeMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GrenadeMesh"));
 	GrenadeMesh->SetupAttachment(GetMesh(), FName("GrenadeSocket"));
@@ -70,7 +74,7 @@ void AShooterCharacter::BeginPlay()
 	if (IsLocallyControlled())
 	{
 		Health = MaxHealth;
-		UpdatePlayerHUD();
+		UpdatePlayerHealthHUD();
 	}
 
 	if (HasAuthority())
@@ -566,15 +570,16 @@ void AShooterCharacter::PostInitializeComponents()
 
 	if (CombatComponent)
 		CombatComponent->ShooterCharacter = this;
+
+	if (BuffComponent)
+		BuffComponent->ShooterCharacter = this;
 }
-
-
 
 void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser)
 {
-	Health = FMath::Clamp(Health -= Damage, 0.f, MaxHealth);
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 
-	UpdatePlayerHUD();
+	UpdatePlayerHealthHUD();
 	PlayHitReactMontage();
 
 	if (Health <= 0.f)
@@ -670,13 +675,14 @@ void AShooterCharacter::Destroyed()
 		CombatComponent->EquippedWeapon->Destroy();
 }
 
-void AShooterCharacter::OnRep_HealthDamaged()
+void AShooterCharacter::OnRep_HealthDamaged(float PrevHealth)
 {
-	UpdatePlayerHUD();
-	PlayHitReactMontage();
+	UpdatePlayerHealthHUD();
+	if (PrevHealth > Health)
+		PlayHitReactMontage();
 }
 
-void AShooterCharacter::UpdatePlayerHUD()
+void AShooterCharacter::UpdatePlayerHealthHUD()
 {
 	ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterPlayerController;
 	if (ShooterPlayerController != nullptr)
