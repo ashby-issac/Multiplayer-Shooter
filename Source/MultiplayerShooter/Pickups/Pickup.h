@@ -43,4 +43,10 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	FVector PickupScale = FVector(3.f, 3.f, 3.f);
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* HealthPickupSystem;
+
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* HealthPickupComponent;
 };

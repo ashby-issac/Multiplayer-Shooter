@@ -1,6 +1,8 @@
 
 #include "Pickup.h"
 #include "Sound/SoundCue.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SphereComponent.h"
 #include "MultiplayerShooter/Weapon/WeaponTypes.h"
@@ -23,6 +25,9 @@ APickup::APickup()
 
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pickup Mesh"));
 	PickupMesh->SetupAttachment(OverlapSphere);
+
+	HealthPickupComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HealthPickupComponent"));
+	HealthPickupComponent->SetupAttachment(RootComponent);
 
 	PickupMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	PickupMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -61,6 +66,16 @@ void APickup::Destroyed()
 			this,
 			PickupSFX,
 			GetActorLocation());
+	}
+
+	if (HealthPickupSystem != nullptr)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			HealthPickupSystem,
+			GetActorLocation(),
+			GetActorRotation()
+		);
 	}
 }
 

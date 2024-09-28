@@ -572,7 +572,13 @@ void AShooterCharacter::PostInitializeComponents()
 		CombatComponent->ShooterCharacter = this;
 
 	if (BuffComponent)
+	{
 		BuffComponent->ShooterCharacter = this;
+		if (GetCharacterMovement())
+		{
+			BuffComponent->SetInitialSpeeds(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
+		}
+	}
 }
 
 void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser)

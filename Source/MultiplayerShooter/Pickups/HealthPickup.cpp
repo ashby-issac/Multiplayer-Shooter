@@ -2,16 +2,13 @@
 
 
 #include "HealthPickup.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "MultiplayerShooter/Combat/BuffComponent.h"
 #include "MultiplayerShooter/Character/ShooterCharacter.h"
 
 AHealthPickup::AHealthPickup()
 {
-	HealthPickupComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("HealthPickupComponent"));
-	HealthPickupComponent->SetupAttachment(RootComponent);
+
 }
 
 void AHealthPickup::OnPickupAreaOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -25,16 +22,4 @@ void AHealthPickup::OnPickupAreaOverlap(UPrimitiveComponent* OverlappedComponent
 	}
 
 	Destroy();
-}
-
-void AHealthPickup::Destroyed()
-{
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-		this, 
-		HealthPickupSystem, 
-		GetActorLocation(), 
-		GetActorRotation()
-	);
-
-	Super::Destroyed();
 }
