@@ -20,6 +20,7 @@ void UBuffComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	HealRampUp(DeltaTime);
+	ShieldRampUp(DeltaTime);
 }
 
 void UBuffComponent::HealRampUp(float DeltaTime)
@@ -38,12 +39,36 @@ void UBuffComponent::HealRampUp(float DeltaTime)
 	}
 }
 
+void UBuffComponent::ShieldRampUp(float DeltaTime)
+{
+	if (!bShieldReplenishing || !ShooterCharacter || ShooterCharacter->GetIsEliminated()) return;
+
+	ShieldReplenishPerFrame = ShieldReplenishRate * DeltaTime;
+	ShooterCharacter->SetShield(FMath::Clamp(ShooterCharacter->GetShield() + ShieldReplenishPerFrame, 0.f, ShooterCharacter->GetMaxShield()));
+	ShieldAmt -= ShieldReplenishPerFrame;
+	ShooterCharacter->UpdatePlayerShieldHUD();
+
+	if (ShieldAmt <= 0.f || ShooterCharacter->GetShield() >= ShooterCharacter->GetMaxShield())
+	{
+		 bShieldReplenishing = false;
+		 ShieldAmt = 0.f;
+	}
+}
+
 void UBuffComponent::Heal(float HealthAmt, float HealthTiming)
 {
 	bIsHealing = true;
 	HealthRate = HealthAmt / HealthTiming;
 	if (ShooterCharacter)
 		HealAmt = FMath::Abs(HealthAmt - ShooterCharacter->GetHealth());
+}
+
+void UBuffComponent::ShieldReplenish(float ShieldReplenishAmt, float SheildReplenishTime)
+{
+	bShieldReplenishing = true;
+	ShieldReplenishRate = ShieldReplenishAmt / SheildReplenishTime;
+	if (ShooterCharacter)
+		ShieldAmt = FMath::Abs(ShieldReplenishAmt - ShooterCharacter->GetShield());
 }
 
 void UBuffComponent::MulticastBuffSpeed_Implementation(float BaseSpeed, float CrouchSpeed)

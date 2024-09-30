@@ -208,9 +208,14 @@ public:
 	// 	FORCEINLINE functions should be kept after their respective private variables
 	FORCEINLINE float GetAO_Yaw() { return AO_Yaw; }
 	FORCEINLINE float GetAO_Pitch() { return AO_Pitch; }
+
 	FORCEINLINE float GetHealth() { return Health; }
 	FORCEINLINE void SetHealth(float NewHealth) { Health = NewHealth; }
 	FORCEINLINE float GetMaxHealth() { return MaxHealth; }
+
+	FORCEINLINE float GetShield() { return Shield; }
+	FORCEINLINE void SetShield(float NewShield) { Shield = NewShield; }
+	FORCEINLINE float GetMaxShield() { return MaxShield; }
 	
 	FORCEINLINE bool GetRotateRootBoneState() { return bRotateRootBone; }
 	FORCEINLINE bool GetIsEliminated() { return bIsEliminated; }

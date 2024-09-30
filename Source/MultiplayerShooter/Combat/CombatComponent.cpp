@@ -287,7 +287,7 @@ void UCombatComponent::OnRep_Grenades()
 void UCombatComponent::ServerFire_Implementation(FVector_NetQuantize FireHitTarget)
 {
 	MulticastFire(FireHitTarget);
-	//ReloadEmptyWeapon();
+	ReloadEmptyWeapon();
 }
 
 void UCombatComponent::ServerAimSync_Implementation(bool bIsAiming)

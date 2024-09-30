@@ -17,6 +17,7 @@ public:
 	friend class AShooterCharacter;
 
 	void Heal(float HealthAmt, float HealTiming);
+	void ShieldReplenish(float ShieldReplenishAmt, float SheildReplenishTime);
 	void BuffSpeed(float BaseSpeed, float CrouchSpeed, float SpeedDuration);
 	void BuffJump(float JumpZVelocity, float JumpVelocityDuration);
 
@@ -29,6 +30,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	void HealRampUp(float DeltaTime);
+	void ShieldRampUp(float DeltaTime);
+
 	void ResetSpeeds();
 	void ResetJumpVelocity();
 
@@ -47,6 +50,12 @@ private:
 	float HealthRate = 0.f;
 	float HealAmt = 0.f;
 	float HealthPerFrame = 0.f;
+
+	/* Healing Attributes */
+	bool bShieldReplenishing = false;
+	float ShieldReplenishRate = 0.f;
+	float ShieldAmt = 0.f;
+	float ShieldReplenishPerFrame = 0.f;
 
 	/* Speed Attributes */
 	float InitialBaseSpeed = 0.f;
