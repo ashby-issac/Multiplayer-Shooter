@@ -36,14 +36,15 @@ void AShooterPlayerController::PollInit()
         {
             CharacterOverlay = ShooterHUD->CharacterOverlay;
 
-            SendScoreHUDUpdate(CachedScore);
-            SendDefeatsHUDUpdate(CachedDefeats);
-            SendHealthHUDUpdate(CachedHealth, CachedMaxHealth);
+            if (bInitializeHealth) SendHealthHUDUpdate(CachedHealth, CachedMaxHealth);
+            if (bInitializeShield) SendShieldHUDUpdate(CachedShield, CachedMaxShield);
+            if (bInitializeScore) SendScoreHUDUpdate(CachedScore);
+            if (bInitializeDefeats) SendDefeatsHUDUpdate(CachedDefeats);
 
             AShooterCharacter* ShooterChar = Cast<AShooterCharacter>(GetPawn());
             if (ShooterChar && ShooterChar->GetCombatComponent())
             {
-                SendGrenadesHUDUpdate(ShooterChar->GetCombatComponent()->GetGrenadesCount());
+                if (bInitializeGrenades) SendGrenadesHUDUpdate(ShooterChar->GetCombatComponent()->GetGrenadesCount());
             }
         }
     }
@@ -162,9 +163,24 @@ void AShooterPlayerController::SendHealthHUDUpdate(float Health, float MaxHealth
     }
     else
     {
-        bInitializeCharacterOverlay = true;
+        bInitializeHealth = true;
         CachedHealth = Health;
         CachedMaxHealth = MaxHealth;
+    }
+}
+
+void AShooterPlayerController::SendShieldHUDUpdate(float Shield, float MaxShield)
+{
+    ShooterHUD = ShooterHUD == nullptr ? Cast<AShooterHUD>(GetHUD()) : ShooterHUD;
+    if (ShooterHUD != nullptr && ShooterHUD->CharacterOverlay != nullptr)
+    {
+        ShooterHUD->CharacterOverlay->UpdateShieldInfo(Shield, MaxShield);
+    }
+    else
+    {
+        bInitializeShield = true;
+        CachedShield = Shield;
+        CachedMaxShield = MaxShield;
     }
 }
 
@@ -177,7 +193,7 @@ void AShooterPlayerController::SendScoreHUDUpdate(float Score)
     }
     else
     {
-        bInitializeCharacterOverlay = true;
+        bInitializeScore = true;
         CachedScore = Score;
     }
 }
@@ -191,7 +207,7 @@ void AShooterPlayerController::SendDefeatsHUDUpdate(int32 Defeat)
     }
     else
     {
-        bInitializeCharacterOverlay = true;
+        bInitializeDefeats = true;
         CachedDefeats = Defeat;
     }
 }
@@ -250,7 +266,7 @@ void AShooterPlayerController::SendGrenadesHUDUpdate(int32 Grenades)
     }
     else
     {
-        bInitializeCharacterOverlay = true;
+        bInitializeGrenades = true;
         CachedGrenades = Grenades;
     }
 }

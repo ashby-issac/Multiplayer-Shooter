@@ -6,38 +6,59 @@
 
 void UCharacterOverlay::UpdateHealthInfo(float Health, float MaxHealth)
 {
+    if (!HealthPercent || !HealthBar) return;
+    
     FString ValueString = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health),
                                           FMath::CeilToInt(MaxHealth));
     HealthPercent->SetText(FText::FromString(ValueString));
     HealthBar->SetPercent(Health / MaxHealth);
 }
 
+void UCharacterOverlay::UpdateShieldInfo(float Shield, float MaxShield)
+{
+    if (!ShieldPercent || !ShieldBar) return;
+
+    FString ValueString = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield),
+        FMath::CeilToInt(MaxShield));
+    ShieldPercent->SetText(FText::FromString(ValueString));
+    ShieldBar->SetPercent(Shield / MaxShield);
+}
+
 void UCharacterOverlay::UpdateScoreValue(float Score)
 {
+    if (!ScoreValue) return;
+
     FString ValueString = FString::Printf(TEXT("%d"), FMath::CeilToInt(Score));
     ScoreValue->SetText(FText::FromString(ValueString));
 }
 
 void UCharacterOverlay::UpdateDefeatValue(int32 Defeat)
 {
+    if (!DefeatsValue) return;
+
     FString ValueString = FString::Printf(TEXT("%d"), Defeat);
     DefeatsValue->SetText(FText::FromString(ValueString));
 }
 
 void UCharacterOverlay::UpdateWeaponAmmoValue(int32 Ammo)
 {
+    if (!WeaponAmmoValue) return;
+
     FString ValueString = FString::Printf(TEXT("%d"), Ammo);
     WeaponAmmoValue->SetText(FText::FromString(ValueString));
 }
 
 void UCharacterOverlay::UpdateCarriedAmmoValue(int32 Ammo)
 {
+    if (!CarriedAmmoValue) return;
+
     FString ValueString = FString::Printf(TEXT("%d"), Ammo);
     CarriedAmmoValue->SetText(FText::FromString(ValueString));
 }
 
 void UCharacterOverlay::UpdateMatchCountdownValue(float TotalSeconds)
 {
+    if (!MatchCountdownValue) return;
     if (TotalSeconds < 0.f)
     {
         MatchCountdownValue->SetText(FText());
@@ -53,6 +74,8 @@ void UCharacterOverlay::UpdateMatchCountdownValue(float TotalSeconds)
 
 void UCharacterOverlay::UpdateGrenadesValue(int32 Grenades)
 {
+    if (!GrenadesValue) return;
+
     FString ValueString = FString::Printf(TEXT("%d"), Grenades);
     GrenadesValue->SetText(FText::FromString(ValueString));
 }

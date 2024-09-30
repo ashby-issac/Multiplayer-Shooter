@@ -75,6 +75,9 @@ void AShooterCharacter::BeginPlay()
 	{
 		Health = MaxHealth;
 		UpdatePlayerHealthHUD();
+
+		Shield = MaxShield;
+		UpdatePlayerShieldHUD();
 	}
 
 	if (HasAuthority())
@@ -561,7 +564,8 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty> &Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, OverlappingWeapon, COND_OwnerOnly);
-	DOREPLIFETIME(AShooterCharacter, Health); // TODO :: TEST
+	DOREPLIFETIME(AShooterCharacter, Health); 
+	DOREPLIFETIME(AShooterCharacter, Shield); 
 }
 
 void AShooterCharacter::PostInitializeComponents()
@@ -577,13 +581,30 @@ void AShooterCharacter::PostInitializeComponents()
 		if (GetCharacterMovement())
 		{
 			BuffComponent->SetInitialSpeeds(GetCharacterMovement()->MaxWalkSpeed, GetCharacterMovement()->MaxWalkSpeedCrouched);
+			BuffComponent->SetInitialJumpZVel(GetCharacterMovement()->JumpZVelocity);
 		}
 	}
 }
 
 void AShooterCharacter::ReceiveDamage(AActor *DamagedActor, float Damage, const UDamageType *DamageType, AController *InstigatedBy, AActor *DamageCauser)
 {
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	float DamageToHealth = Damage;
+
+	if (Shield > 0.f)
+	{
+		if (Shield >= DamageToHealth)
+		{
+			Shield = FMath::Clamp(Shield - DamageToHealth, 0, MaxShield);
+			DamageToHealth = 0.f;
+		}
+		else
+		{
+			Shield = 0.f;
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, DamageToHealth);
+		}
+	}
+
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
 
 	UpdatePlayerHealthHUD();
 	PlayHitReactMontage();
@@ -688,12 +709,28 @@ void AShooterCharacter::OnRep_HealthDamaged(float PrevHealth)
 		PlayHitReactMontage();
 }
 
+void AShooterCharacter::OnRep_ShieldDamaged(float PrevShield)
+{
+	UpdatePlayerShieldHUD();
+	if (PrevShield > Shield)
+		PlayHitReactMontage();
+}
+
 void AShooterCharacter::UpdatePlayerHealthHUD()
 {
 	ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterPlayerController;
 	if (ShooterPlayerController != nullptr)
 	{
 		ShooterPlayerController->SendHealthHUDUpdate(Health, MaxHealth);
+	}
+}
+
+void AShooterCharacter::UpdatePlayerShieldHUD()
+{
+	ShooterPlayerController = ShooterPlayerController == nullptr ? Cast<AShooterPlayerController>(Controller) : ShooterPlayerController;
+	if (ShooterPlayerController != nullptr)
+	{
+		ShooterPlayerController->SendShieldHUDUpdate(Shield, MaxShield);
 	}
 }
 

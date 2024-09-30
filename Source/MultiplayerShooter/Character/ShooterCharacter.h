@@ -37,6 +37,7 @@ public:
 	void PlayReloadMontage();
 	void PlayGrenadeThrowMontage();
 	void UpdatePlayerHealthHUD();
+	void UpdatePlayerShieldHUD();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastEliminate();
@@ -79,6 +80,9 @@ protected:
 	UFUNCTION()
 	void OnRep_HealthDamaged(float PrevHealth);
 
+	UFUNCTION()
+	void OnRep_ShieldDamaged(float PrevShield);
+
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed(); // Server RPC
 
@@ -89,8 +93,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Character Health")
 	float MaxHealth = 100.f;
 
-	UPROPERTY(ReplicatedUsing = OnRep_HealthDamaged)
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_HealthDamaged, Category = "Character Health")
 	float Health = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Character Health")
+	float MaxShield = 100.f;
+
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_ShieldDamaged, Category = "Character Health")
+	float Shield = 100.f;
 
 	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent *CameraComponent;

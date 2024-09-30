@@ -17,16 +17,20 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void SendHealthHUDUpdate(float Health, float MaxHealth);
+	void SendShieldHUDUpdate(float Shield, float MaxShield);
+
 	void SendScoreHUDUpdate(float Score);
 	void SendDefeatsHUDUpdate(int32 Defeat);
+	
 	void SendWeaponAmmoHUDUpdate(int32 Ammo);
 	void SendCarriedAmmoHUDUpdate(int32 Ammo);
 	void SendGrenadesHUDUpdate(int32 Grenades);
+	
 	void SendMatchCountdownHUDUpdate(float TotalSeconds);
 	void SendWarmupCountdownHUDUpdate(float TotalSeconds);
 	void SendCooldownCountdownHUDUpdate(float TotalSeconds);
+	
 	void OnMatchStateSet(FName NewState);
-
 	float GetServerTime();
 	
 protected:
@@ -74,7 +78,10 @@ private:
 	uint32 CountdownInt = 0;
 
 	float CachedHealth, CachedMaxHealth;
+	float CachedShield, CachedMaxShield;
 	int32 CachedDefeats, CachedScore, CachedGrenades;
+	bool bInitializeHealth = false, bInitializeShield = false;
+	bool bInitializeScore = false, bInitializeDefeats = false, bInitializeGrenades = false;
 
 	float ClientServerDelta;
 	float SyncTimer = 0;

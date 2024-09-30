@@ -18,7 +18,10 @@ public:
 
 	void Heal(float HealthAmt, float HealTiming);
 	void BuffSpeed(float BaseSpeed, float CrouchSpeed, float SpeedDuration);
+	void BuffJump(float JumpZVelocity, float JumpVelocityDuration);
+
 	void SetInitialSpeeds(float BaseSpeed, float CrouchSpeed);
+	void SetInitialJumpZVel(float JumpZVel);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -27,9 +30,13 @@ protected:
 
 	void HealRampUp(float DeltaTime);
 	void ResetSpeeds();
+	void ResetJumpVelocity();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastBuffSpeed(float BaseSpeed, float CrouchSpeed);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastBuffJump(float JumpZVel);
 
 private:	
 	UPROPERTY()
@@ -46,4 +53,9 @@ private:
 	float InitialCrouchSpeed = 0.f;
 
 	FTimerHandle SpeedTimerHandle;
+
+	/* Jump Attributes */
+	float InitialJumpZVel = 0.f;
+
+	FTimerHandle JumpTimerHandle;
 };
